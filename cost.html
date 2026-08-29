@@ -248,6 +248,49 @@
   }
   .reset-btn:hover{color:var(--accent);}
 
+  /* --- 使い方の段選び --- */
+  .presetrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;}
+  .preset-btn{
+    font-family:var(--sans);
+    font-size:13px;
+    padding:10px 14px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--ink);
+    line-height:1.4;
+    text-align:left;
+  }
+  .preset-btn small{display:block;font-family:var(--mono);font-size:10px;color:#8a8d87;margin-top:2px;}
+  .preset-btn.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent);}
+  .preset-btn.on small{color:var(--accent);}
+  .preset-note{font-size:12px;color:#6b6f68;margin:-6px 0 14px;}
+
+  /* --- 今月のお支払い --- */
+  .paycard{border:1px solid var(--accent);background:var(--paper);padding:24px 22px;margin-bottom:14px;}
+  .paycard .payrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px;}
+  .paycard label{font-size:13px;min-width:8em;}
+  .paycard input[type=number]{
+    font-family:var(--serif);font-size:26px;font-weight:600;width:200px;max-width:100%;
+    padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-dim);color:var(--ink);
+  }
+  .paycard input[type=text]{
+    font-size:14px;flex:1;min-width:200px;
+    padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper-dim);color:var(--ink);
+  }
+  .pay-fix{
+    font-family:var(--sans);font-size:14px;font-weight:600;
+    background:var(--accent);color:var(--paper);
+    border:none;border-radius:6px;padding:12px 22px;cursor:pointer;
+  }
+  .pay-fix:hover{opacity:.9;}
+  .pay-status{font-size:13px;color:#33473f;margin-top:10px;}
+  .pay-out{
+    font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;
+    background:var(--paper-dim);border:1px dashed var(--line);padding:16px;margin-top:14px;display:none;
+  }
+
   /* --- 結果カード --- */
   .result{
     display:grid;
@@ -648,6 +691,13 @@
       </div>
     </div>
 
+    <div class="presetrow" id="cti_tier_row">
+      <button class="preset-btn" data-tier="call" onclick="setCtiTier('call')">通話だけ<small>録音・解析なしの素のCTI</small></button>
+      <button class="preset-btn" data-tier="rec" onclick="setCtiTier('rec')">録音・文字起こしまで<small>通話＋録音＋文字起こし</small></button>
+      <button class="preset-btn on" data-tier="full" onclick="setCtiTier('full')">解析フルパッケージ<small>録音・文字起こし・解析AIまで全部</small></button>
+    </div>
+    <p class="preset-note">比較先をどこまで使う想定かで、下の料金の初期値が変わります。押したあとも、つまみは自由に動かせます。</p>
+
     <div class="input-card card-orange">
       <div class="input-card-head">
         <span class="input-card-badge">比較先</span>
@@ -686,7 +736,8 @@
         <span class="input-card-badge">自社</span>
         <span class="input-card-title">内製構成の料金</span>
       </div>
-      <p class="input-card-desc">録音・文字起こし・項目への自動配置まで含めた、月あたりの実費。</p>
+      <p class="input-card-desc">録音・文字起こし・項目への自動配置まで含めた、月あたりの実費。
+        数字の作り方：回線・保存の基本料に、文字起こしとAI処理の従量費（通話分数 × 単価）を足したもの。初期値の¥6,000は月3,000分ほど話す人の概算で、実際の通話量が分かれば実費に置き換えてください。</p>
       <div class="sliderow">
         <label>基盤コスト<span class="unit">円/人/月</span></label>
         <input type="range" id="cti_self" min="0" max="15000" value="6000" step="500">
@@ -811,6 +862,13 @@
 
       <div class="reset-line"><button class="reset-btn" onclick="resetMAP()">既定値に戻す</button></div>
 
+    <div class="presetrow" id="map_mode_row">
+      <button class="preset-btn" data-mode="A" onclick="setMapMode('A')">うちは方式A<small>ID課金型を使っている・検討中</small></button>
+      <button class="preset-btn" data-mode="B" onclick="setMapMode('B')">うちは方式B<small>検索回数課金型を使っている・検討中</small></button>
+      <button class="preset-btn on" data-mode="min" onclick="setMapMode('min')">まだ決めていない<small>安い方と比べる</small></button>
+    </div>
+    <p class="preset-note">AとBは別々のサービスの料金方式で、同じ機能にどちらか一方を選ぶものです。両方を同時に契約して足し合わせる関係ではありません。下の表も、選んだ方式との差額で計算します。</p>
+
     <table class="compare">
       <thead>
         <tr><th>方式</th><th>月額（試算値）</th><th>課金構造</th><th>実質単価</th></tr>
@@ -836,7 +894,7 @@
         </tr>
       </tbody>
       <tfoot>
-        <tr><td>安い方の月額との差額</td><td colspan="3" id="map_diff">—</td></tr>
+        <tr><td>選んだ方式との差額</td><td colspan="3" id="map_diff">—</td></tr>
       </tfoot>
     </table>
 
@@ -956,6 +1014,49 @@
     </p>
   </section>
 
+  <!-- ============ SECTION 4: 今月のお支払い ============ -->
+  <section class="block" id="pay">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2 class="section-title">今月のお支払いを、決める</h2>
+    </div>
+    <p class="section-sub">
+      この試算から、そのまま今月の支払い額をあなたが決められます。
+      計算式は自由です。上の参考値を使っても、独自の式でも、気分でも。
+      確定がなかった月は、先月と同じ額が引き継がれます。
+      入力は全部この端末の中に保存され、どこにも送信されません。
+    </p>
+
+    <div class="paycard">
+      <div class="payrow">
+        <label>参考値（削減額の10%）</label>
+        <span id="pay_ref" style="font-family:var(--serif);font-size:20px;font-weight:600;">—</span>
+        <button class="reset-btn" onclick="payUseRef()">この額を入れる</button>
+        <button class="reset-btn" onclick="payUseLast()">先月と同じにする</button>
+      </div>
+      <div class="payrow">
+        <label for="pay_amount">今月の支払い額</label>
+        <input type="number" id="pay_amount" min="0" step="1000" placeholder="0">
+        <span class="unit">円</span>
+      </div>
+      <div class="payrow">
+        <label for="pay_memo">計算式・ひとこと</label>
+        <input type="text" id="pay_memo" placeholder="例：削減額の10%。／今月は世話になったので気持ち上乗せ。">
+      </div>
+      <div class="payrow">
+        <button class="pay-fix" onclick="payFix()">この額で確定する</button>
+        <button class="reset-btn" onclick="payExport()">明細を書き出す</button>
+      </div>
+      <div class="pay-status" id="pay_status">まだ確定した月はありません。</div>
+      <div class="pay-out" id="pay_out"></div>
+    </div>
+
+    <p class="footnote">
+      <span class="tag ref">仕組み</span>
+      確定した額はこのブラウザにだけ残ります。正式な請求・支払いは、書き出した明細をもとに、いつものやり取りの中で行ってください。
+    </p>
+  </section>
+
   <footer>
     本ページの試算はすべて入力条件に基づく参考値です。契約・請求の根拠となる金額は、正式な見積もり・契約書の記載を優先します。
   </footer>
@@ -1006,6 +1107,8 @@ function calcCTI(){
   const selfTotal = self * agents;
   const diff = vendorTotal - selfTotal;
   const yearDiff = diff * 12;
+  window._ctiMonthlyDiff = diff;
+  if(typeof payRefresh==='function') payRefresh();
 
   document.getElementById('cti_out_a').innerHTML = yen(vendorTotal) + ' <small>/月</small>';
   document.getElementById('cti_out_b').innerHTML = yen(selfTotal) + ' <small>/月</small>';
@@ -1039,8 +1142,30 @@ function resetCTI(){
 }
 resetCTI();
 
+/* 比較先の使い方（三段） */
+const ctiTiers = {
+  call:{ cti_seat:2000, cti_rec_addon:0 },      // 素のCTI：通話のみ
+  rec: { cti_seat:5000, cti_rec_addon:0 },      // 録音・文字起こしまで込みの席料
+  full:{ cti_seat:6500, cti_rec_addon:5000 }    // 解析AIまで全部
+};
+function setCtiTier(t){
+  const p = ctiTiers[t]; if(!p) return;
+  Object.keys(p).forEach(id=>{
+    document.getElementById(id).value = p[id];
+    document.getElementById(id+'_v').textContent = fmtCTI(id, p[id]);
+  });
+  document.querySelectorAll('#cti_tier_row .preset-btn').forEach(b=>b.classList.toggle('on', b.dataset.tier===t));
+  calcCTI(); if(typeof updateDashboard==='function') updateDashboard();
+}
+
 /* ---------------- MAP ---------------- */
-const mapIds = ['map_setup','map_ids','map_id_price1','map_id_price2',
+let mapMode = 'min';
+function setMapMode(m){
+  mapMode = m;
+  document.querySelectorAll('#map_mode_row .preset-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
+  calcMAP(); if(typeof updateDashboard==='function') updateDashboard();
+}
+const mapIds =['map_setup','map_ids','map_id_price1','map_id_price2',
                 'map_calls','map_base','map_cap','map_step','map_addon'];
 const mapDefaults = {
   map_setup:100000, map_ids:10, map_id_price1:15000, map_id_price2:7500,
@@ -1069,8 +1194,10 @@ function calcMAP(){
   let units = step>0 ? Math.ceil(over/step) : 0;
   let bMonthly = base + units*addon;
 
-  const cheaper = Math.min(aMonthly, bMonthly);
-  const cheaperLabel = aMonthly <= bMonthly ? '方式A（ID課金）' : '方式B（回数課金）';
+  let cheaper, cheaperLabel;
+  if(mapMode==='A'){ cheaper=aMonthly; cheaperLabel='方式A（ID課金）'; }
+  else if(mapMode==='B'){ cheaper=bMonthly; cheaperLabel='方式B（回数課金）'; }
+  else { cheaper=Math.min(aMonthly,bMonthly); cheaperLabel=(aMonthly<=bMonthly?'方式A（ID課金）':'方式B（回数課金）')+'＝安い方'; }
 
   document.getElementById('map_a_cost').textContent = yen(aMonthly) + ' /月';
   document.getElementById('map_a_unit').textContent = ids>0 ? '約 '+yen(aMonthly/ids)+' /ID' : '—';
@@ -1224,10 +1351,13 @@ function updateDashboard(){
   const over = Math.max(0, calls-cap);
   const units = step>0 ? Math.ceil(over/step) : 0;
   const bMonthly = base + units*addon;
-  const mapDiff = Math.max(0, Math.min(aMonthly,bMonthly));
+  const mapBase = mapMode==='A' ? aMonthly : (mapMode==='B' ? bMonthly : Math.min(aMonthly,bMonthly));
+  const mapDiff = Math.max(0, mapBase);
 
   const totalMonth = ctiDiff + mapDiff;
   const totalYear = totalMonth * 12;
+  window._totalMonthDiff = totalMonth;
+  if(typeof payRefresh==='function') payRefresh();
 
   renderSlotDigits('dashTotalMonth', totalMonth);
   renderSlotDigits('dashTotalYear', totalYear);
@@ -1279,6 +1409,74 @@ function loadState(evt){
   reader.readAsText(file);
   evt.target.value = '';
 }
+
+/* ---------------- 今月のお支払い ---------------- */
+const PAY_KEY = 'cost_pay_v1';
+function payLoad(){
+  try{ return JSON.parse(localStorage.getItem(PAY_KEY)) || {history:{}}; }
+  catch(e){ return {history:{}}; }
+}
+function paySave(d){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(d)); }catch(e){} }
+function payYm(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function payLastConfirmed(){
+  const h = payLoad().history;
+  const keys = Object.keys(h).sort();
+  return keys.length ? {ym:keys[keys.length-1], ...h[keys[keys.length-1]]} : null;
+}
+function payRef(){ return Math.max(0, Math.round((window._totalMonthDiff||0) * 0.10)); }
+function payRefresh(){
+  const refEl = document.getElementById('pay_ref');
+  if(!refEl) return;
+  refEl.textContent = yen(payRef()) + ' /月';
+  const ym = payYm();
+  const h = payLoad().history;
+  const st = document.getElementById('pay_status');
+  if(h[ym]){
+    st.textContent = ym.replace('-','年')+'月分：'+yen(h[ym].amount)+' で確定済み。'+(h[ym].memo?'（'+h[ym].memo+'）':'');
+  }else{
+    const last = payLastConfirmed();
+    st.textContent = last
+      ? '今月はまだ未確定です。このままなら、先月（'+last.ym.replace('-','年')+'月）と同じ '+yen(last.amount)+' が引き継がれます。'
+      : 'まだ確定した月はありません。';
+  }
+}
+function payUseRef(){ document.getElementById('pay_amount').value = payRef(); }
+function payUseLast(){
+  const last = payLastConfirmed();
+  if(!last){ alert('まだ確定した月がないので、先月の額はありません。'); return; }
+  document.getElementById('pay_amount').value = last.amount;
+  if(last.memo) document.getElementById('pay_memo').value = last.memo;
+}
+function payFix(){
+  const amount = Number(document.getElementById('pay_amount').value);
+  if(!(amount>=0)){ alert('金額を入れてください（0円でも大丈夫です）。'); return; }
+  const memo = document.getElementById('pay_memo').value.trim();
+  const d = payLoad();
+  d.history[payYm()] = {amount, memo, at:new Date().toISOString().slice(0,10)};
+  paySave(d);
+  payRefresh();
+}
+function payExport(){
+  const ym = payYm();
+  const h = payLoad().history;
+  const cur = h[ym] || payLastConfirmed();
+  const out = document.getElementById('pay_out');
+  if(!cur){ out.style.display='block'; out.textContent='まだ確定した額がありません。金額を入れて「この額で確定する」を押してください。'; return; }
+  const lines = [
+    'お支払い明細（'+ym.replace('-','年')+'月分）',
+    '─────────────────',
+    '金額　　：'+yen(cur.amount),
+    '決め方　：'+(cur.memo || '（記載なし）'),
+    (h[ym] ? '確定日　：'+cur.at : '状態　　：今月分は未確定のため、先月確定額を引き継ぎ'),
+    '参考値　：削減額試算 '+yen(window._totalMonthDiff||0)+'/月 の10% ＝ '+yen(payRef())+'/月',
+    '─────────────────',
+    'この明細は、この端末のブラウザ内だけで作られたものです。'
+  ];
+  out.style.display='block';
+  out.textContent = lines.join('\n');
+  if(navigator.clipboard) navigator.clipboard.writeText(lines.join('\n')).catch(()=>{});
+}
+payRefresh();
 
 /* 全スライダーに、常設パネル更新のフックを追加 */
 [...ctiIds, ...mapIds].forEach(id=>{
