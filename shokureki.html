@@ -1,6 +1,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>職務経歴、書けます｜Good Luck</title>
+<meta name="description" content="書いたことを職務経歴書に整えます。言い方は候補から選ぶだけ。書かなくていい情報の案内つき。すべてこの端末の中で完結します。">
+<link rel="canonical" href="https://gd-luck.co.jp/shokureki.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Good Luck">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="職務経歴、書けます｜Good Luck">
+<meta property="og:description" content="書いたことを職務経歴書に整えます。言い方は候補から選ぶだけ。書かなくていい情報の案内つき。すべてこの端末の中で完結します。">
+<meta property="og:url" content="https://gd-luck.co.jp/shokureki.html">
+<meta property="og:image" content="https://gd-luck.co.jp/ogp/shokureki.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="職務経歴、書けます｜Good Luck">
+<meta name="twitter:description" content="書いたことを職務経歴書に整えます。言い方は候補から選ぶだけ。書かなくていい情報の案内つき。すべてこの端末の中で完結します。">
+<meta name="twitter:image" content="https://gd-luck.co.jp/ogp/shokureki.jpg">
 <style>
 :root{
   --paper:#F7F6F1; --paper2:#FFFEFA; --ink:#211F1A; --ink2:#4A473F; --ink3:#8B887D;
@@ -151,6 +166,32 @@ footer{padding:44px 0 0;margin-top:48px;border-top:1px solid var(--line);
 今はデイでパート、週3"></textarea>
   <div class="rei"><b>思い出すヒント：</b>いつからいつまで／どこで（施設の種類）／何をしていたか／何人くらいの規模／資格をいつ取ったか／人に教えた経験／改善したこと／辞めた理由</div>
   <button class="go" id="btnGo">整えて、候補を出す</button>
+</div>
+
+<div class="step" id="gakureki">
+  <div class="step-n">学歴・職歴</div>
+  <h2>年だけ教えてください。あとは、こちらで数えます。</h2>
+  <p class="sub">
+    履歴書は「いつ卒業したか」を書く欄が多いのに、思い出すのが一番面倒です。
+    <b>今おいくつかを入れれば、卒業した年をこちらで逆算します。</b>学校の名前だけ足してください。
+  </p>
+
+  <div class="card">
+    <div class="card-h">まず、生まれ年か年齢</div>
+    <div class="row" style="margin-top:0">
+      <label style="font-size:13px;color:var(--ink2)">年齢
+        <input class="jiyu" id="toshi" type="number" min="15" max="90" placeholder="52"
+               style="width:90px;display:inline-block;margin-left:6px"></label>
+      <span style="font-size:13px;color:var(--ink3)">または</span>
+      <label style="font-size:13px;color:var(--ink2)">生まれ年
+        <input class="jiyu" id="umare" type="number" min="1935" max="2011" placeholder="1974"
+               style="width:110px;display:inline-block;margin-left:6px"></label>
+      <button class="sub-btn" onclick="gyakusan()">数える</button>
+    </div>
+    <p class="rei" id="gakureki-note">早生まれの方は一年ずれることがあります。出たあとで直せます。</p>
+  </div>
+
+  <div id="gakureki-out"></div>
 </div>
 
 <div id="out" class="hidden">
@@ -649,6 +690,109 @@ function shimeru(){
   setTimeout(()=>{ document.getElementById('btnGo').click(); },700);
 }
 setIn('talk');
+
+
+/* ───── 年齢から、学歴の年を逆算する ─────
+   日本の学校制度：小学校6年・中学3年・高校3年・大学4年（短大2年・専門2年）
+   3月卒業、4月入学。早生まれは一年ずれるので、そう書いておく */
+const IMA_NEN=new Date().getFullYear();
+let GAKU=[];
+
+function gyakusan(){
+  const t=+document.getElementById('toshi').value;
+  const u=+document.getElementById('umare').value;
+  let umare;
+  if(u>=1935&&u<=2011) umare=u;
+  else if(t>=15&&t<=90) umare=IMA_NEN-t;
+  else { alert('年齢か生まれ年のどちらかを入れてください。'); return; }
+
+  /* 4月2日〜翌4月1日生まれが同学年。ここでは早生まれでない方で数える */
+  const chu=umare+15;    // 中学卒業（15歳になる年度の3月）
+  const kou=umare+18;    // 高校卒業
+  const tan=umare+20;    // 短大・専門（2年）卒業
+  const dai=umare+22;    // 大学（4年）卒業
+
+  GAKU=[
+    {key:'chu', nen:chu, rabel:'中学校 卒業', nyu:chu-3, nyuR:'中学校 入学', tsukau:false, na:''},
+    {key:'kou', nen:kou, rabel:'高等学校 卒業', nyu:kou-3, nyuR:'高等学校 入学', tsukau:true, na:''},
+    {key:'sen', nen:tan, rabel:'専門学校・短期大学 卒業', nyu:tan-2, nyuR:'専門学校・短期大学 入学', tsukau:false, na:''},
+    {key:'dai', nen:dai, rabel:'大学 卒業', nyu:dai-4, nyuR:'大学 入学', tsukau:false, na:''},
+  ];
+  gakuRender(umare);
+}
+
+function gakuRender(umare){
+  const box=document.getElementById('gakureki-out');
+  box.innerHTML='';
+
+  const info=document.createElement('div');
+  info.className='card';
+  info.innerHTML=`<div class="card-h">${umare}年生まれとして数えました</div>
+    <p class="card-q" style="margin:6px 0 0">
+    今年で ${IMA_NEN-umare}歳（誕生日を迎えていれば）。下から、実際に通ったものだけを選んでください。
+    年が違っていれば、その場で直せます。</p>`;
+  box.appendChild(info);
+
+  GAKU.forEach((g,i)=>{
+    const d=document.createElement('div'); d.className='card';
+    const b=document.createElement('button');
+    b.className='opt'+(g.tsukau?' on':'');
+    b.textContent=g.rabel.replace(' 卒業','');
+    const s2=document.createElement('small');
+    s2.textContent=`${g.nyu}年4月 入学 〜 ${g.nen}年3月 卒業`;
+    b.appendChild(s2);
+    b.onclick=()=>{ GAKU[i].tsukau=!GAKU[i].tsukau; gakuRender(umare); };
+    d.appendChild(b);
+
+    if(g.tsukau){
+      const na=document.createElement('input');
+      na.className='jiyu'; na.type='text'; na.value=g.na;
+      na.placeholder='学校名（例：◯◯県立◯◯高等学校）　※空でも構いません';
+      na.oninput=e=>{ GAKU[i].na=e.target.value; matome(); };
+      d.appendChild(na);
+
+      const gy=document.createElement('div');
+      gy.className='row'; gy.style.marginTop='8px';
+      gy.innerHTML=`<label style="font-size:12.5px;color:var(--ink3)">卒業年を直す
+        <input class="jiyu" type="number" value="${g.nen}" min="1950" max="${IMA_NEN+6}"
+        style="width:100px;display:inline-block;margin-left:6px"></label>`;
+      gy.querySelector('input').oninput=e=>{
+        const v=+e.target.value;
+        if(v>1950){ GAKU[i].nen=v; GAKU[i].nyu=v-(g.key==='dai'?4:(g.key==='sen'?2:3)); matome(); }
+      };
+      d.appendChild(gy);
+    }
+    box.appendChild(d);
+  });
+
+  const deki=document.createElement('div');
+  deki.className='deki'; deki.id='gakureki-deki';
+  deki.style.marginTop='14px';
+  box.appendChild(deki);
+
+  const row=document.createElement('div');
+  row.className='row';
+  row.innerHTML=`<button class="sub-btn" onclick="gakuCopy()">学歴をコピー</button>`;
+  box.appendChild(row);
+
+  matome();
+}
+
+function matome(){
+  const L=['【学歴】',''];
+  GAKU.filter(g=>g.tsukau).sort((a,b)=>a.nen-b.nen).forEach(g=>{
+    const na=(g.na||'').trim();
+    L.push(`${g.nyu}年4月　${na||'（学校名）'}　${g.nyuR.split(' ')[1]||'入学'}`);
+    L.push(`${g.nen}年3月　${na||'（学校名）'}　卒業`);
+  });
+  const d=document.getElementById('gakureki-deki');
+  if(d) d.textContent=L.join('\n');
+}
+
+function gakuCopy(){
+  const t=document.getElementById('gakureki-deki').textContent;
+  navigator.clipboard.writeText(t).then(()=>msg('学歴をコピーしました。')).catch(()=>msg('コピーできませんでした。'));
+}
 
 let CARDS=[],SEL={};
 document.getElementById('btnGo').addEventListener('click',()=>{
