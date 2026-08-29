@@ -612,7 +612,7 @@
         設定を読み込む
         <input type="file" id="loadFile" accept="application/json" onchange="loadState(event)">
       </label>
-      <span class="save-hint">入力した数値がファイルに書き出されます。次回はそのファイルを読み込むだけで、続きから確認できます。</span>
+      <span class="save-hint">つまみの値は、この端末のブラウザに自動で残ります（開き直すと続きから）。ファイル保存は、別の端末に渡すとき用です。数字の表示部分を押すと、実額をそのまま打ち込めます。</span>
     </div>
   </header>
 
@@ -692,11 +692,11 @@
     </div>
 
     <div class="presetrow" id="cti_tier_row">
-      <button class="preset-btn" data-tier="call" onclick="setCtiTier('call')">通話だけ<small>録音・解析なしの素のCTI</small></button>
-      <button class="preset-btn" data-tier="rec" onclick="setCtiTier('rec')">録音・文字起こしまで<small>通話＋録音＋文字起こし</small></button>
-      <button class="preset-btn on" data-tier="full" onclick="setCtiTier('full')">解析フルパッケージ<small>録音・文字起こし・解析AIまで全部</small></button>
+      <button class="preset-btn" data-tier="call" onclick="setCtiTier('call')">通話だけ<small>請求書が「基本料＋通話料」だけならこれ</small></button>
+      <button class="preset-btn" data-tier="rec" onclick="setCtiTier('rec')">録音・文字起こしまで<small>請求書に「録音」「文字起こし」の項目があればこれ</small></button>
+      <button class="preset-btn on" data-tier="full" onclick="setCtiTier('full')">解析フルパッケージ<small>「解析」「スコア」「AI」の項目まであればこれ</small></button>
     </div>
-    <p class="preset-note">比較先をどこまで使う想定かで、下の料金の初期値が変わります。押したあとも、つまみは自由に動かせます。</p>
+    <p class="preset-note">比較先をどこまで使う想定かで、下の料金の初期値が変わります。押したあとも、つまみは自由に動かせます。手で入れた値がある場合は、書き換える前に確認します。</p>
 
     <div class="input-card card-orange">
       <div class="input-card-head">
@@ -765,6 +765,7 @@
       <span class="txt">年間の削減額（成果報酬10％の算定対象）</span>
       <span class="num" id="cti_out_year">—</span>
     </div>
+    <p class="preset-note" style="margin-top:8px;">成果報酬とは：実際に削れた金額の10%を、御社から当方への支払いの目安にする決め方です。この削減額が、いちばん下の「今月のお支払い」の参考値になります。作業環境の改善（03）は算定に入れません。</p>
 
     <div class="why">
       <div class="why-label">産出根拠</div>
@@ -798,6 +799,13 @@
       多くの提携型サービスは「検索1回ごとの従量課金」で設計されており、
       利用が増えるほど比例して高くなります。
     </p>
+
+    <div class="presetrow" id="map_mode_row">
+      <button class="preset-btn" data-mode="A" onclick="setMapMode('A')">うちは方式A<small>ID課金型を使っている・検討中</small></button>
+      <button class="preset-btn" data-mode="B" onclick="setMapMode('B')">うちは方式B<small>検索回数課金型を使っている・検討中</small></button>
+      <button class="preset-btn on" data-mode="min" onclick="setMapMode('min')">まだ決めていない<small>両方を見比べる</small></button>
+    </div>
+    <p class="preset-note">AとBは別々のサービスの料金方式で、同じ機能にどちらか一方を選ぶものです。両方を同時に契約して足し合わせる関係ではありません。選んだ方式のカードだけ入力すれば大丈夫です。<b>方式を選ぶまでは、この節の金額は上の削減額の合計に入れません</b>（契約していないものを「削れた」ことにしないためです）。</p>
 
     <div class="input-card card-blue">
       <div class="input-card-head">
@@ -861,13 +869,6 @@
     </div>
 
       <div class="reset-line"><button class="reset-btn" onclick="resetMAP()">既定値に戻す</button></div>
-
-    <div class="presetrow" id="map_mode_row">
-      <button class="preset-btn" data-mode="A" onclick="setMapMode('A')">うちは方式A<small>ID課金型を使っている・検討中</small></button>
-      <button class="preset-btn" data-mode="B" onclick="setMapMode('B')">うちは方式B<small>検索回数課金型を使っている・検討中</small></button>
-      <button class="preset-btn on" data-mode="min" onclick="setMapMode('min')">まだ決めていない<small>安い方と比べる</small></button>
-    </div>
-    <p class="preset-note">AとBは別々のサービスの料金方式で、同じ機能にどちらか一方を選ぶものです。両方を同時に契約して足し合わせる関係ではありません。下の表も、選んだ方式との差額で計算します。</p>
 
     <table class="compare">
       <thead>
@@ -1022,8 +1023,8 @@
     </div>
     <p class="section-sub">
       この試算から、そのまま今月の支払い額をあなたが決められます。
-      計算式は自由です。上の参考値を使っても、独自の式でも、気分でも。
-      確定がなかった月は、先月と同じ額が引き継がれます。
+      計算式は自由です。上の参考値を使っても、独自の式でも構いません。金額の理由はメモ欄に残せます。
+      確定がなかった月は、前回確定した額がそのまま引き継がれます。
       入力は全部この端末の中に保存され、どこにも送信されません。
     </p>
 
@@ -1032,7 +1033,7 @@
         <label>参考値（削減額の10%）</label>
         <span id="pay_ref" style="font-family:var(--serif);font-size:20px;font-weight:600;">—</span>
         <button class="reset-btn" onclick="payUseRef()">この額を入れる</button>
-        <button class="reset-btn" onclick="payUseLast()">先月と同じにする</button>
+        <button class="reset-btn" onclick="payUseLast()">前回確定と同じにする</button>
       </div>
       <div class="payrow">
         <label for="pay_amount">今月の支払い額</label>
@@ -1047,6 +1048,7 @@
         <button class="pay-fix" onclick="payFix()">この額で確定する</button>
         <button class="reset-btn" onclick="payExport()">明細を書き出す</button>
       </div>
+      <p class="preset-note" style="margin:0 0 10px;">流れ：①金額を入れる → ②「この額で確定する」→ ③「明細を書き出す」で出た文面を、いつものやり取りで送る。<b>確定ボタンを押しても、相手には何も伝わりません。</b>明細を送って初めて成立します。</p>
       <div class="pay-status" id="pay_status">まだ確定した月はありません。</div>
       <div class="pay-out" id="pay_out"></div>
     </div>
@@ -1105,14 +1107,17 @@ function calcCTI(){
   const vendorPerAgent = seat + totalMins*blendedRate + recAddon;
   const vendorTotal = vendorPerAgent * agents;
   const selfTotal = self * agents;
-  const diff = vendorTotal - selfTotal;
+  const rawDiff = vendorTotal - selfTotal;
+  const diff = Math.max(0, rawDiff);
   const yearDiff = diff * 12;
   window._ctiMonthlyDiff = diff;
   if(typeof payRefresh==='function') payRefresh();
 
   document.getElementById('cti_out_a').innerHTML = yen(vendorTotal) + ' <small>/月</small>';
   document.getElementById('cti_out_b').innerHTML = yen(selfTotal) + ' <small>/月</small>';
-  document.getElementById('cti_out_c').innerHTML = yen(diff) + ' <small>/月</small>';
+  document.getElementById('cti_out_c').innerHTML = rawDiff < 0
+    ? yen(0) + ' <small>/月（自社の方が高い構成のため、削減なし）</small>'
+    : yen(diff) + ' <small>/月</small>';
   document.getElementById('cti_out_year').innerHTML = yen(yearDiff) + ' <small>/年</small>';
 
   document.getElementById('cti_why').innerHTML =
@@ -1123,7 +1128,7 @@ B: ヒアリング通話分/月/人　= ${bCalls}件 <span class="op">×</span> 
 比較先/人/月　　　　　　　= 席料${yen(seat)} <span class="op">+</span> (${yen(blendedRate)}×${Math.round(totalMins).toLocaleString()}分) <span class="op">+</span> 録音AI${yen(recAddon)} <span class="op">=</span> <span class="fig">${yen(vendorPerAgent)}</span>
 比較先/月(全体)　　　　　　= <span class="fig">${yen(vendorPerAgent)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(vendorTotal)}</span>
 自社/月(全体)　　　　　　　= <span class="fig">${yen(self)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(selfTotal)}</span>
-削減額/年　　　　　　　　　= (${yen(vendorTotal)} <span class="op">−</span> ${yen(selfTotal)}) <span class="op">×</span> 12ヶ月 <span class="op">=</span> <span class="fig">${yen(yearDiff)}</span>`;
+削減額/年　　　　　　　　　= (${yen(vendorTotal)} <span class="op">−</span> ${yen(selfTotal)}) <span class="op">×</span> 12ヶ月 <span class="op">=</span> <span class="fig">${yen(rawDiff*12)}</span>${rawDiff<0?'　（マイナスのため削減額は0円扱い）':''}`;
 }
 
 ctiIds.forEach(id=>{
@@ -1138,24 +1143,39 @@ function resetCTI(){
     document.getElementById(id).value = ctiDefaults[id];
     document.getElementById(id+'_v').textContent = fmtCTI(id, ctiDefaults[id]);
   });
+  if(typeof ctiTierSync==='function') ctiTierSync();
   calcCTI();
 }
-resetCTI();
-
 /* 比較先の使い方（三段） */
 const ctiTiers = {
   call:{ cti_seat:2000, cti_rec_addon:0 },      // 素のCTI：通話のみ
   rec: { cti_seat:5000, cti_rec_addon:0 },      // 録音・文字起こしまで込みの席料
   full:{ cti_seat:6500, cti_rec_addon:5000 }    // 解析AIまで全部
 };
+resetCTI();
+
+function ctiTierSync(){
+  const seat = Number(document.getElementById('cti_seat').value);
+  const addon = Number(document.getElementById('cti_rec_addon').value);
+  let match = null;
+  Object.keys(ctiTiers).forEach(k=>{
+    if(ctiTiers[k].cti_seat===seat && ctiTiers[k].cti_rec_addon===addon) match = k;
+  });
+  document.querySelectorAll('#cti_tier_row .preset-btn').forEach(b=>b.classList.toggle('on', b.dataset.tier===match));
+}
 function setCtiTier(t){
   const p = ctiTiers[t]; if(!p) return;
+  const seat = Number(document.getElementById('cti_seat').value);
+  const addon = Number(document.getElementById('cti_rec_addon').value);
+  const isPreset = Object.keys(ctiTiers).some(k=>ctiTiers[k].cti_seat===seat && ctiTiers[k].cti_rec_addon===addon);
+  if(!isPreset && !confirm('手で入れた席料・録音AIの値を、この段の初期値に書き換えます。よろしいですか？')) return;
   Object.keys(p).forEach(id=>{
     document.getElementById(id).value = p[id];
     document.getElementById(id+'_v').textContent = fmtCTI(id, p[id]);
   });
-  document.querySelectorAll('#cti_tier_row .preset-btn').forEach(b=>b.classList.toggle('on', b.dataset.tier===t));
+  ctiTierSync();
   calcCTI(); if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
 }
 
 /* ---------------- MAP ---------------- */
@@ -1164,6 +1184,7 @@ function setMapMode(m){
   mapMode = m;
   document.querySelectorAll('#map_mode_row .preset-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
   calcMAP(); if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
 }
 const mapIds =['map_setup','map_ids','map_id_price1','map_id_price2',
                 'map_calls','map_base','map_cap','map_step','map_addon'];
@@ -1351,7 +1372,8 @@ function updateDashboard(){
   const over = Math.max(0, calls-cap);
   const units = step>0 ? Math.ceil(over/step) : 0;
   const bMonthly = base + units*addon;
-  const mapBase = mapMode==='A' ? aMonthly : (mapMode==='B' ? bMonthly : Math.min(aMonthly,bMonthly));
+  // 方式を選ぶまでは、未契約かもしれない地図の分を削減額に入れない
+  const mapBase = mapMode==='A' ? aMonthly : (mapMode==='B' ? bMonthly : 0);
   const mapDiff = Math.max(0, mapBase);
 
   const totalMonth = ctiDiff + mapDiff;
@@ -1371,6 +1393,7 @@ function saveState(){
   allIds.forEach(id=>{
     state[id] = document.getElementById(id).value;
   });
+  state.mapMode = mapMode;
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1392,15 +1415,19 @@ function loadState(evt){
       const state = JSON.parse(e.target.result);
       allIds.forEach(id=>{
         if(state[id]!==undefined && document.getElementById(id)){
-          document.getElementById(id).value = state[id];
+          const el = document.getElementById(id);
+          el.value = state[id];
+          const applied = el.value;  // 不正値はブラウザが丸めるので、実際に入った値で描く
           const vEl = document.getElementById(id+'_v');
           if(vEl){
-            if(ctiIds.includes(id)) vEl.textContent = fmtCTI(id, state[id]);
-            else if(mapIds.includes(id)) vEl.textContent = fmtMAP(id, state[id]);
-            else if(envIds.includes(id)) vEl.textContent = fmtENV(id, state[id]);
+            if(ctiIds.includes(id)) vEl.textContent = fmtCTI(id, applied);
+            else if(mapIds.includes(id)) vEl.textContent = fmtMAP(id, applied);
+            else if(envIds.includes(id)) vEl.textContent = fmtENV(id, applied);
           }
         }
       });
+      setMapMode(['A','B','min'].includes(state.mapMode) ? state.mapMode : 'min');
+      ctiTierSync();
       calcCTI(); calcMAP(); calcENV(); updateDashboard();
     }catch(err){
       alert('ファイルを読み込めませんでした。保存した設定ファイルを選択してください。');
@@ -1413,7 +1440,10 @@ function loadState(evt){
 /* ---------------- 今月のお支払い ---------------- */
 const PAY_KEY = 'cost_pay_v1';
 function payLoad(){
-  try{ return JSON.parse(localStorage.getItem(PAY_KEY)) || {history:{}}; }
+  try{
+    const d = JSON.parse(localStorage.getItem(PAY_KEY));
+    return (d && typeof d==='object' && d.history && typeof d.history==='object') ? d : {history:{}};
+  }
   catch(e){ return {history:{}}; }
 }
 function paySave(d){ try{ localStorage.setItem(PAY_KEY, JSON.stringify(d)); }catch(e){} }
@@ -1436,19 +1466,21 @@ function payRefresh(){
   }else{
     const last = payLastConfirmed();
     st.textContent = last
-      ? '今月はまだ未確定です。このままなら、先月（'+last.ym.replace('-','年')+'月）と同じ '+yen(last.amount)+' が引き継がれます。'
+      ? '今月はまだ未確定です。このままなら、前回確定（'+last.ym.replace('-','年')+'月）の '+yen(last.amount)+' が引き継がれます。'
       : 'まだ確定した月はありません。';
   }
 }
 function payUseRef(){ document.getElementById('pay_amount').value = payRef(); }
 function payUseLast(){
   const last = payLastConfirmed();
-  if(!last){ alert('まだ確定した月がないので、先月の額はありません。'); return; }
+  if(!last){ alert('まだ確定した月がないので、引き継げる額はありません。'); return; }
   document.getElementById('pay_amount').value = last.amount;
   if(last.memo) document.getElementById('pay_memo').value = last.memo;
 }
 function payFix(){
-  const amount = Number(document.getElementById('pay_amount').value);
+  const raw = document.getElementById('pay_amount').value.trim();
+  if(raw===''){ alert('金額を入れてください（0円にするなら、0と入れてください）。'); return; }
+  const amount = Number(raw);
   if(!(amount>=0)){ alert('金額を入れてください（0円でも大丈夫です）。'); return; }
   const memo = document.getElementById('pay_memo').value.trim();
   const d = payLoad();
@@ -1467,7 +1499,7 @@ function payExport(){
     '─────────────────',
     '金額　　：'+yen(cur.amount),
     '決め方　：'+(cur.memo || '（記載なし）'),
-    (h[ym] ? '確定日　：'+cur.at : '状態　　：今月分は未確定のため、先月確定額を引き継ぎ'),
+    (h[ym] ? '確定日　：'+cur.at : '状態　　：今月分は未確定のため、前回確定額（'+cur.ym.replace('-','年')+'月）を引き継ぎ'),
     '参考値　：削減額試算 '+yen(window._totalMonthDiff||0)+'/月 の10% ＝ '+yen(payRef())+'/月',
     '─────────────────',
     'この明細は、この端末のブラウザ内だけで作られたものです。'
@@ -1482,7 +1514,64 @@ payRefresh();
 [...ctiIds, ...mapIds].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateDashboard);
 });
+
+/* ---------------- つまみの自動保存（この端末の中だけ） ---------------- */
+const SIM_KEY = 'cost_sim_state_v1';
+function simSave(){
+  try{
+    const st = {};
+    allIds.forEach(id=>{ const el=document.getElementById(id); if(el) st[id]=el.value; });
+    st.mapMode = mapMode;
+    localStorage.setItem(SIM_KEY, JSON.stringify(st));
+  }catch(e){}
+}
+function simRestore(){
+  let st = null;
+  try{ st = JSON.parse(localStorage.getItem(SIM_KEY)); }catch(e){}
+  if(!st || typeof st!=='object') return;
+  allIds.forEach(id=>{
+    if(st[id]===undefined) return;
+    const el = document.getElementById(id); if(!el) return;
+    el.value = st[id];
+    const applied = el.value;
+    const vEl = document.getElementById(id+'_v');
+    if(vEl){
+      if(ctiIds.includes(id)) vEl.textContent = fmtCTI(id, applied);
+      else if(mapIds.includes(id)) vEl.textContent = fmtMAP(id, applied);
+      else if(envIds.includes(id)) vEl.textContent = fmtENV(id, applied);
+    }
+  });
+  if(['A','B','min'].includes(st.mapMode)) setMapMode(st.mapMode);
+  ctiTierSync();
+  calcCTI(); calcMAP(); calcENV();
+}
+allIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', simSave); });
+
+/* ---------------- 値を押して、実額を直接入力 ---------------- */
+document.querySelectorAll('.val').forEach(v=>{
+  const id = v.id ? v.id.replace(/_v$/,'') : '';
+  const el = document.getElementById(id);
+  if(!el || el.type!=='range') return;
+  v.style.cursor = 'pointer';
+  v.title = '押すと数字を直接入れられます';
+  v.addEventListener('click', ()=>{
+    const raw = prompt('数字を直接入力（'+el.min+'〜'+el.max+'の範囲）', el.value);
+    if(raw===null) return;
+    const n = Number(String(raw).replace(/[,¥円%\s]/g,''));
+    if(!isFinite(n)){ alert('数字を入れてください。'); return; }
+    el.step = 'any';  // 見積書どおりの端数をそのまま入れられるように
+    el.value = Math.min(Number(el.max), Math.max(Number(el.min), n));
+    const applied = el.value;
+    if(ctiIds.includes(id)){ v.textContent = fmtCTI(id, applied); calcCTI(); }
+    else if(mapIds.includes(id)){ v.textContent = fmtMAP(id, applied); calcMAP(); }
+    else { v.textContent = fmtENV(id, applied); calcENV(); }
+    ctiTierSync(); updateDashboard(); simSave();
+  });
+});
+
+simRestore();
 updateDashboard();
+simSave();
 </script>
 
 </body>
