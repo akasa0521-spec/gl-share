@@ -1,0 +1,718 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>職務経歴、書けます｜Good Luck</title>
+<style>
+:root{
+  --paper:#F7F6F1; --paper2:#FFFEFA; --ink:#211F1A; --ink2:#4A473F; --ink3:#8B887D;
+  --line:#DEDBD0; --mori:#3F6B55; --mori-lt:#E9EFE7; --mori-bd:#B4C4B0; --kin:#B08A34;
+  --sans:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;
+  --serif:'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  line-height:1.95;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px 100px}
+.toybar{padding:20px 0 0}
+.toybar a{font-size:12.5px;color:var(--ink3);text-decoration:none}
+.toybar a:hover{color:var(--mori)}
+header{padding:36px 0 8px}
+.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--mori);font-weight:600}
+h1{font-family:var(--serif);font-size:clamp(26px,5.6vw,36px);font-weight:600;
+  letter-spacing:.03em;line-height:1.6;margin:14px 0 0}
+.lead{font-size:14.5px;color:var(--ink2);margin-top:18px}
+.安心{background:var(--mori-lt);border:1px solid var(--mori-bd);border-radius:10px;
+  padding:14px 16px;font-size:13px;color:#2c4a3b;margin-top:22px;line-height:1.9}
+
+.step{margin-top:34px;border:1px solid var(--line);border-radius:12px;
+  background:var(--paper2);padding:22px 20px}
+.step-n{font-size:11px;letter-spacing:.18em;color:var(--mori);font-weight:700}
+.step h2{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 4px}
+.step .sub{font-size:13px;color:var(--ink3);margin:0 0 16px;line-height:1.85}
+
+textarea{width:100%;min-height:190px;padding:14px;border:1px solid var(--line);
+  border-radius:9px;background:#fff;color:var(--ink);font-family:var(--sans);
+  font-size:14.5px;line-height:1.95;resize:vertical}
+textarea:focus{outline:2px solid var(--mori-bd);outline-offset:1px}
+.rei{font-size:12.5px;color:var(--ink3);margin-top:10px;line-height:1.9}
+.rei b{color:var(--ink2)}
+
+button{font-family:var(--sans);cursor:pointer}
+.go{width:100%;padding:15px;margin-top:16px;border:none;border-radius:999px;
+  background:var(--mori);color:#F2F6F0;font-size:15px;letter-spacing:.1em;font-weight:600}
+.go:hover{background:#35594a}
+.go:disabled{background:#c8ccc6;cursor:default}
+.sub-btn{padding:9px 15px;border:1px solid var(--line);border-radius:8px;
+  background:var(--paper2);color:var(--ink2);font-size:13px}
+.sub-btn:hover{border-color:var(--mori-bd);background:var(--mori-lt)}
+
+.hidden{display:none}
+.card{border:1px solid var(--line);border-radius:11px;background:var(--paper2);
+  padding:18px 18px 16px;margin-bottom:14px}
+.card-h{font-size:12px;letter-spacing:.14em;color:var(--mori);font-weight:700;margin-bottom:4px}
+.card-q{font-size:14px;color:var(--ink2);margin:0 0 14px;line-height:1.85}
+.opt{display:block;width:100%;text-align:left;padding:13px 15px 13px 44px;position:relative;
+  border:2px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);
+  font-size:14.5px;line-height:1.8;margin-bottom:9px;transition:border-color .15s,background .15s}
+.opt::before{content:'';position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;border:2px solid #bbb6a6;border-radius:50%;background:#fff}
+.opt:hover{border-color:var(--mori-bd);background:var(--mori-lt)}
+.opt.on{border-color:var(--mori);background:var(--mori);color:#fff;font-weight:600}
+.opt.on::before{border-color:#fff;background:var(--kin);box-shadow:inset 0 0 0 3px var(--mori)}
+.opt small{display:block;font-size:11.5px;opacity:.72;margin-top:3px;font-weight:400}
+.opt.on small{color:rgba(255,255,255,.85)}
+.jiyu{width:100%;padding:12px 14px;border:1px dashed var(--line);border-radius:9px;
+  background:#fff;font-family:var(--sans);font-size:14px;color:var(--ink)}
+
+.deki{border:2px solid var(--mori);border-radius:12px;background:#fff;padding:26px 24px;
+  font-family:var(--serif);font-size:15px;line-height:2.15;white-space:pre-wrap}
+.deki h3{font-family:var(--serif);font-size:17px;margin:0 0 6px;font-weight:600}
+.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.note{font-size:12px;color:var(--ink3);margin-top:26px;line-height:1.95}
+footer{padding:44px 0 0;margin-top:48px;border-top:1px solid var(--line);
+  text-align:center;font-size:11px;color:var(--ink3);line-height:2}
+
+/* ── おしゃべりで書く ── */
+.mode2{display:flex;gap:8px;margin:22px 0 0}
+.mode2 button{flex:1;padding:13px;border:2px solid var(--line);border-radius:10px;
+  background:var(--paper2);color:var(--ink2);font-size:14px;line-height:1.6}
+.mode2 button.on{border-color:var(--mori);background:var(--mori);color:#fff;font-weight:700}
+.mode2 small{display:block;font-size:11.5px;opacity:.75;margin-top:3px}
+.mode2 button.on small{color:rgba(255,255,255,.85)}
+
+.talk{border:1px solid var(--line);border-radius:12px;background:var(--paper2);
+  padding:0;overflow:hidden;margin-top:18px}
+.talk-scroll{height:340px;overflow-y:auto;padding:20px 18px;scroll-behavior:smooth}
+.bub{max-width:88%;padding:12px 15px;border-radius:14px;font-size:14.5px;line-height:1.9;
+  margin-bottom:12px;white-space:pre-wrap}
+.bub.q{background:var(--mori-lt);border:1px solid var(--mori-bd);color:#2c4a3b;
+  border-bottom-left-radius:4px}
+.bub.a{background:var(--mori);color:#F2F6F0;margin-left:auto;border-bottom-right-radius:4px}
+.talk-in{display:flex;gap:8px;padding:14px;border-top:1px solid var(--line);background:var(--paper)}
+.talk-in input{flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);
+  border-radius:999px;background:#fff;font-family:var(--sans);font-size:14.5px;color:var(--ink)}
+.talk-in button{padding:12px 20px;border:none;border-radius:999px;background:var(--mori);
+  color:#F2F6F0;font-size:14px;font-weight:600}
+.talk-in button:disabled{background:#c8ccc6}
+.susumi{height:4px;background:var(--line)}
+.susumi i{display:block;height:100%;background:var(--kin);width:0;transition:width .4s}
+.talk-note{font-size:12px;color:var(--ink3);padding:10px 16px 14px;line-height:1.85}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+
+<div class="wrap">
+<div class="toybar"><a href="./noren.html">← おもちゃ箱</a></div>
+
+<header>
+  <div class="eyebrow">職務経歴書</div>
+  <h1>思い出した順に書いてください。<br>並べ替えは、こちらでやります。</h1>
+  <p class="lead">
+    箇条書きでも、話し言葉でも、順番がばらばらでも構いません。
+    書けたところから整えて、<b>言い方の候補を出します</b>。選ぶだけで一枚になります。
+  </p>
+  <div class="安心">
+    <b>書いたものは、この端末から出ません。</b>
+    送信も、保存サーバーもありません。ページを閉じると消えます（下の「控えを書き出す」でファイルにできます）。
+  </div>
+</header>
+
+<div class="mode2">
+  <button id="mTalk" class="on" onclick="setIn('talk')">話しかけて書く<small>質問に答えるだけ</small></button>
+  <button id="mWrite" onclick="setIn('write')">自分で書き出す<small>まとめて貼る</small></button>
+</div>
+
+<div class="step" id="paneTalk">
+  <div class="step-n">STEP 1</div>
+  <h2>いくつか聞かせてください。</h2>
+  <p class="sub">きちんと答えなくて大丈夫です。思い出せないところは「わからない」で飛ばせます。</p>
+  <div class="talk">
+    <div class="susumi"><i id="bar"></i></div>
+    <div class="talk-scroll" id="log"></div>
+    <div class="talk-in">
+      <input id="say" placeholder="ここに書いて、送るを押してください" autocomplete="off">
+      <button id="btnSay">送る</button>
+    </div>
+    <p class="talk-note">この会話も、この端末から出ません。</p>
+  </div>
+</div>
+
+<div class="step hidden" id="paneWrite">
+  <div class="step-n">STEP 1</div>
+  <h2>まず、ぜんぶ書き出す</h2>
+  <p class="sub">きれいに書こうとしないでください。日付があやふやでも、途中で切れても大丈夫です。</p>
+  <textarea id="nama" placeholder="例）
+2018年4月から特養で介護。最初は初任者研修だけだった
+夜勤は月4〜5回
+2021年に介護福祉士とった
+そのあとユニットリーダー。部下6人
+新人の教育もやってた。マニュアル作った
+2024年3月まで。腰やって退職
+今はデイでパート、週3"></textarea>
+  <div class="rei"><b>思い出すヒント：</b>いつからいつまで／どこで（施設の種類）／何をしていたか／何人くらいの規模／資格をいつ取ったか／人に教えた経験／改善したこと／辞めた理由</div>
+  <button class="go" id="btnGo">整えて、候補を出す</button>
+</div>
+
+<div id="out" class="hidden">
+  <div class="step">
+    <div class="step-n">STEP 2</div>
+    <h2>言い方を選ぶ</h2>
+    <p class="sub">同じ事実でも、書き方で伝わり方が変わります。しっくりくるものを押してください。自分の言葉に直しても構いません。</p>
+    <div id="cards"></div>
+  </div>
+
+  <div class="step">
+    <div class="step-n">STEP 3</div>
+    <h2>できました</h2>
+    <p class="sub">このまま貼り付けて使えます。</p>
+    <div class="deki" id="deki"></div>
+    <div class="row">
+      <button class="sub-btn" onclick="copyAll()">全文をコピー</button>
+      <button class="sub-btn" onclick="saveTxt()">控えを書き出す</button>
+      <button class="sub-btn" onclick="window.print()">印刷／PDF</button>
+      <button class="sub-btn" onclick="location.reload()">最初からやり直す</button>
+    </div>
+    <p class="note" id="copied"></p>
+  </div>
+</div>
+
+<div class="step" style="border-color:var(--mori-bd)">
+  <div class="step-n">書かなくていいこと</div>
+  <h2>これは、書かなくて大丈夫です。</h2>
+  <p class="sub">
+    採用選考で聞くことが不適切とされている事柄があります。厚生労働省は、
+    <b>本人に責任のない事項</b>と<b>本来自由であるべき事項</b>を、応募書類にも面接にも持ち込まないよう求めています。
+    書かないことで不利になる筋合いのものではありません。
+  </p>
+
+  <div class="card">
+    <div class="card-h">本人に責任のない事項</div>
+    <ul style="margin:6px 0 0;padding-left:1.3em;font-size:14px;color:var(--ink2);line-height:2">
+      <li>本籍・出生地</li>
+      <li>家族の職業・続柄・地位・学歴・収入</li>
+      <li>住宅の状況（間取り、持ち家か賃貸か、近隣の様子）</li>
+      <li>生活環境・家庭環境</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-h">本来自由であるべき事項（思想・信条にかかわること）</div>
+    <ul style="margin:6px 0 0;padding-left:1.3em;font-size:14px;color:var(--ink2);line-height:2">
+      <li>宗教</li>
+      <li>支持政党・政治観・人生観</li>
+      <li>思想・信条</li>
+      <li>労働組合への加入状況、学生運動などの社会運動</li>
+      <li>購読新聞・雑誌・愛読書</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-h">そのほか、慎重に扱われるもの</div>
+    <p class="card-q" style="margin:6px 0 0">
+      病歴・障害の有無・妊娠や出産の予定・結婚の予定などは、
+      <b>業務の遂行に直接必要な範囲でしか尋ねられないもの</b>とされています。
+      職務経歴書に自分から書く義務はありません。<br>
+      配慮が必要で、伝えておいた方が働きやすい場合にだけ、
+      <b>「何ができないか」ではなく「どうすれば働けるか」</b>の形で書くと伝わります。
+      （例：「重量物の運搬は避けています。それ以外の業務は問題ありません」）
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-h">面接で聞かれてしまったら</div>
+    <p class="card-q" style="margin:6px 0 12px">
+      答えたくないことは、答えなくて構いません。角を立てずに返す言い方の例です。
+    </p>
+    <div style="border-left:3px solid var(--mori-bd);padding-left:14px;font-size:14px;
+                color:var(--ink2);line-height:2.1">
+      「すみません、そこは差し控えさせてください。<br>
+      　<b>業務に関わることでしたら、お答えできます。</b>」<br><br>
+      「恐れ入ります、その点はお答えを控えております。<br>
+      　<b>仕事の進め方について伺えれば、そちらでお話しさせてください。</b>」
+    </div>
+    <p class="card-q" style="margin:12px 0 0;font-size:13px;color:var(--ink3)">
+      断ったことで不利に扱う会社は、入ってからも同じ扱いをします。
+      <b>そこが分かるのは、こちらにとっても悪い話ではありません。</b>
+    </p>
+  </div>
+
+  <div class="card" style="border:2px solid var(--mori)">
+    <div class="card-h">これ、聞かれてもいいこと？　仕分けます</div>
+    <p class="card-q" style="margin:6px 0 12px">
+      聞かれて困ったこと、書きにくい事情、言うべきか迷っていること。<b>そのまま書いて構いません。</b>
+      持病でも、家庭のことでも、辞めた本当の理由でも。<br>
+      <b>この文章は、この端末から一歩も出ません。</b>送信も保存もせず、閉じれば消えます。
+      こちらで、<b>答えなくていいこと・言った方が楽になること・書き方を変えれば済むこと</b>に仕分けます。
+    </p>
+    <textarea id="shiwakeIn" style="min-height:130px"
+      placeholder="例）
+面接で「ご実家はどちらですか」と聞かれました
+
+こういう書き方でも大丈夫です：
+持病があって週1回通院しています。でも仕事に支障はありません。言った方がいいでしょうか
+離婚して子どもを一人で育てています。急な休みが出るかもしれないのが不安です
+前の職場を人間関係で辞めました。理由をどう書けばいいか分かりません"></textarea>
+    <button class="sub-btn" style="margin-top:10px" onclick="shiwake()">仕分ける</button>
+    <div id="shiwakeOut" style="margin-top:14px"></div>
+  </div>
+
+  <p class="note" style="margin-top:4px">
+    根拠：厚生労働省「公正な採用選考の基本」。
+    詳しくは厚生労働省のサイトでご確認ください。
+    <b>この記述は一般的な案内であり、個別の事案についての法的助言ではありません。</b>
+    困ったときは、お住まいの都道府県労働局またはハローワークにご相談ください。
+  </p>
+</div>
+
+<p class="note">
+  この道具は、人材紹介の実務で「応募が通る職務経歴書」を数多く見てきた経験から作っています。
+  ただし<b>採否を保証するものではありません</b>。事実に無いことは書かないでください。
+</p>
+
+<footer>
+  Good Luck<br>
+  仕組みに完璧を求めて、人には求めない会社が作っています
+</footer>
+</div>
+
+<script>
+/* ───────────────────────────────────────────
+   書いたものから事実を拾い、言い方の候補を出す。
+   通信はしない。すべてこの中で完結する。
+   ─────────────────────────────────────────── */
+
+const SHISETSU=[
+ ['特養','特別養護老人ホーム'],['特別養護','特別養護老人ホーム'],['老健','介護老人保健施設'],
+ ['デイ','デイサービス'],['グループホーム','グループホーム'],['有料','有料老人ホーム'],
+ ['訪問','訪問介護'],['小規模多機能','小規模多機能型居宅介護'],['サ高住','サービス付き高齢者向け住宅'],
+ ['病院','病院'],['クリニック','クリニック'],['保育園','保育園'],['認可保育','認可保育園'],
+ ['こども園','認定こども園'],['児童','児童福祉施設'],['障害','障害者支援施設']
+];
+const SHIKAKU=['介護福祉士','実務者研修','初任者研修','ケアマネ','介護支援専門員','正看護師','准看護師',
+ '看護師','保育士','栄養士','管理栄養士','調理師','社会福祉士','普通自動車免許','普通免許'];
+
+function toru(t){
+  const f={};
+  // 年
+  const nen=[...t.matchAll(/(19|20)\d{2}\s*年?/g)].map(m=>m[0].replace(/[年\s]/g,''));
+  if(nen.length){ f.hajime=nen[0]; if(nen.length>1) f.owari=nen[nen.length-1]; }
+  // 施設
+  f.shisetsu=[...new Set(SHISETSU.filter(([k])=>t.includes(k)).map(([,v])=>v))];
+  // 資格
+  f.shikaku=[...new Set(SHIKAKU.filter(k=>t.includes(k)))];
+  if(f.shikaku.includes('看護師')&&(f.shikaku.includes('正看護師')||f.shikaku.includes('准看護師')))
+    f.shikaku=f.shikaku.filter(x=>x!=='看護師');
+  // 人数
+  const nin=[...t.matchAll(/(\d+)\s*(人|名)/g)].map(m=>+m[1]);
+  if(nin.length) f.ninzu=Math.max(...nin);
+  // 役職・立場
+  f.yakushoku=['リーダー','主任','係長','課長','管理者','施設長','園長','責任者','チーフ','副主任']
+    .filter(k=>t.includes(k));
+  // 夜勤
+  const yakin=t.match(/夜勤[^\n。、]*?(\d+)\s*[回〜～-]/);
+  if(yakin) f.yakin=yakin[1];
+  else if(t.includes('夜勤')) f.yakin='あり';
+  // 教える
+  f.oshieta=/新人|教育|指導|OJT|後輩|プリセプター|マニュアル/.test(t);
+  // 改善
+  f.kaizen=/改善|見直し|効率|マニュアル|仕組み|削減|作った|立ち上げ/.test(t);
+  // 退職理由
+  if(/腰|体調|健康|怪我|病気/.test(t)) f.riyu='karada';
+  else if(/人間関係|上司|パワハラ/.test(t)) f.riyu='kankei';
+  else if(/給料|給与|年収|待遇/.test(t)) f.riyu='kyuryo';
+  else if(/通勤|引越|転居|遠/.test(t)) f.riyu='tsukin';
+  else if(/家庭|育児|介護|出産|子ども|子供/.test(t)) f.riyu='katei';
+  else if(/キャリア|スキル|挑戦|学び|成長/.test(t)) f.riyu='career';
+  return f;
+}
+
+/* 選択肢を組み立てる。事実は変えず、言い方だけ変える */
+function tsukuru(f,nama){
+  const C=[];
+  const shi=f.shisetsu[0]||'施設';
+  const ki=(f.hajime&&f.owari)?`${f.hajime}年〜${f.owari}年`:(f.hajime?`${f.hajime}年〜`:'');
+
+  C.push({key:'atama',h:'冒頭の一行',q:'職務経歴書は、最初の一行で読まれるかが決まります。',
+    o:[
+      {t:`${shi}にて${ki?ki+'、':''}介護業務に従事してまいりました。`,n:'素直。事実だけ'},
+      {t:`${ki?ki+'にかけて':''}${shi}で勤務し、現場業務から${f.yakushoku.length?f.yakushoku[0]+'としての運営':'後輩指導'}まで携わりました。`,n:'幅を見せる'},
+      {t:`${shi}での勤務を通じて、${f.oshieta?'人を育てること':'日々のケアの質'}に一番の手応えを感じてきました。`,n:'人柄が出る'}
+    ]});
+
+  if(f.yakushoku.length||f.ninzu){
+    const y=f.yakushoku[0]||'リーダー';
+    const n=f.ninzu?`${f.ninzu}名`:'複数名';
+    C.push({key:'yaku',h:'役割の書き方',q:'「やっていた」より「何人を、どうしていたか」が伝わります。',
+      o:[
+        {t:`${y}として、スタッフ${n}のシフト管理および業務指導を担当。`,n:'事実を短く'},
+        {t:`${y}を務め、${n}のチームで日々の申し送りと業務配分を回していました。`,n:'現場が見える'},
+        {t:`${y}として${n}をまとめる中で、経験の浅いメンバーが早く独り立ちできる進め方を工夫しました。`,n:'工夫を見せる'}
+      ]});
+  }
+
+  if(f.oshieta){
+    C.push({key:'oshie',h:'教えた経験',q:'ここは強みになります。採用側が一番知りたいところです。',
+      o:[
+        {t:'新人職員の指導を担当しました。',n:'控えめ'},
+        {t:'新人職員の教育を担当し、手順書の整備にも取り組みました。',n:'形に残したことを添える'},
+        {t:'新人職員の教育を担当。口頭で伝えていた手順を書き出して共有し、聞き直しの手間を減らしました。',n:'何が変わったかまで'}
+      ]});
+  }
+
+  if(f.yakin){
+    const k=f.yakin==='あり'?'夜勤':`月${f.yakin}回程度の夜勤`;
+    C.push({key:'yakin',h:'夜勤の書き方',q:'夜勤の可否は、採用側が最初に確認する項目です。',
+      o:[
+        {t:`${k}を含む交替制勤務に従事。`,n:'事実のみ'},
+        {t:`${k}に対応し、夜間帯の急変対応も経験しています。`,n:'できることを足す'},
+        {t:`${k}を継続して担当しました。夜間は判断を一人で下す場面が多く、記録の残し方を意識してきました。`,n:'姿勢まで'}
+      ]});
+  }
+
+  if(f.shikaku.length){
+    C.push({key:'shikaku',h:'資格の並べ方',q:'取った順に並べると、成長が見えます。',
+      o:[
+        {t:f.shikaku.join('／'),n:'並べるだけ'},
+        {t:`${f.shikaku.join('、')}を保有。`,n:'一文にする'},
+        {t:`${f.shikaku.join('、')}を保有しています。働きながら取得しました。`,n:'努力を添える'}
+      ]});
+  }
+
+  const RIYU={
+    karada:[['体調面を考慮し、退職いたしました。','事実のみ'],
+      ['体調管理の必要から一度現場を離れましたが、回復し、現在は勤務を継続しています。','今は大丈夫と伝わる'],
+      ['腰を痛めたことをきっかけに働き方を見直し、体に負担の少ない進め方を身につけました。','学びに変える']],
+    kankei:[['一身上の都合により退職いたしました。','定型。触れない'],
+      ['職場の方針と自身の考えに違いがあり、環境を変える判断をしました。','角を立てず事実'],
+      ['チームの進め方について意見の相違があり、話し合いを重ねた上で退職を決めました。','向き合ったことを示す']],
+    kyuryo:[['一身上の都合により退職いたしました。','定型'],
+      ['将来設計を考え、待遇面を含めて見直す判断をしました。','正直に、前向きに'],
+      ['責任の範囲が広がる一方で処遇が伴わず、長く続ける形を探すため転職を決めました。','事実を丁寧に']],
+    tsukin:[['転居に伴い退職いたしました。','事実のみ'],
+      ['転居により通勤が難しくなったため退職しました。','理由が明確'],
+      ['家庭の事情で転居することになり、通勤時間の都合から退職しました。','背景まで']],
+    katei:[['家庭の事情により退職いたしました。','定型'],
+      ['家庭の事情で一度離れましたが、現在は勤務できる状況が整っています。','今は働けると伝える'],
+      ['育児と両立できる働き方を探すため、一度退職しました。現在は復帰しています。','具体的に']],
+    career:[['一身上の都合により退職いたしました。','定型'],
+      ['より幅広い経験を積みたいと考え、転職を決めました。','前向き'],
+      ['現職では経験できない領域に挑戦したいと考え、環境を変える判断をしました。','意欲を示す']]
+  };
+  if(f.riyu&&RIYU[f.riyu]){
+    C.push({key:'riyu',h:'退職理由',q:'ここが一番書きにくいところです。嘘は書かず、角も立てない形にします。',
+      o:RIYU[f.riyu].map(([t,n])=>({t,n}))});
+  }
+
+  C.push({key:'shime',h:'締めの一行',q:'最後に、これから何をしたいかを一行。',
+    o:[
+      {t:'これまでの経験を活かし、貴施設で貢献したいと考えております。',n:'定型。無難'},
+      {t:`${f.oshieta?'現場と人の育成の両面で':'日々のケアの積み重ねで'}、これまでの経験を活かしたいと考えております。`,n:'強みに繋げる'},
+      {t:'長く働き続けられる環境で、経験を還元していきたいと考えております。',n:'定着を示す'}
+    ]});
+  return C;
+}
+
+
+
+/* ───── 聞かれてもいいこと／いけないことの仕分け ───── */
+const NG=[
+ {k:['本籍','出身地','生まれ','ご実家','実家はどちら','出生'],
+  r:'本人に責任のない事項', why:'本籍や出生地は、本人が選べないことです。採用選考で尋ねないよう求められています。',
+  kaesu:'すみません、そこは差し控えさせてください。通勤には支障ありません。'},
+ {k:['父','母','両親','家族の仕事','ご家族は何','親の職業','兄弟','世帯主','扶養'],
+  r:'本人に責任のない事項', why:'家族の職業・収入・地位は本人の能力と関係がなく、尋ねないよう求められています。',
+  kaesu:'すみません、家族のことはお答えを控えております。私自身のことでしたらお話しできます。'},
+ {k:['持ち家','賃貸','間取り','どんな家','住宅','マンションですか','一戸建て'],
+  r:'本人に責任のない事項', why:'住宅の状況は、生活環境の推測につながるため尋ねないよう求められています。',
+  kaesu:'すみません、そこは差し控えさせてください。'},
+ {k:['宗教','信仰','政党','支持','политика','政治','思想','信条','愛読','購読','新聞は','尊敬する人'],
+  r:'本来自由であるべき事項', why:'思想・信条にかかわることは、採用選考で尋ねないよう求められています。',
+  kaesu:'すみません、そこはお答えを控えております。仕事の進め方でしたらお話しできます。'},
+ {k:['組合','労働組合','学生運動','デモ'],
+  r:'本来自由であるべき事項', why:'労働組合や社会運動への関与は、尋ねないよう求められています。',
+  kaesu:'すみません、その点はお答えを控えております。'},
+ {k:['結婚の予定','結婚は','恋人','彼氏','彼女','出産の予定','子どもの予定','妊娠'],
+  r:'慎重に扱われるもの', why:'結婚・出産の予定は、性別による取扱いの差につながりうるため、原則として尋ねられません。',
+  kaesu:'すみません、予定のことはお答えを控えております。勤務については問題なく続けられます。'},
+ {k:['病歴','持病','障害','手帳','通院','既往','精神','うつ'],
+  r:'慎重に扱われるもの', why:'健康状態は、その仕事の遂行に直接必要な範囲でしか尋ねられません。',
+  kaesu:'すみません、詳しくは差し控えます。業務に必要な配慮があれば、その点だけお伝えできます。'}
+];
+const OK=[
+ {k:['夜勤','シフト','早番','遅番','交替','土日','休日出勤','残業'],
+  why:'勤務条件は、実際に働けるかどうかの確認なので、聞かれて当然の質問です。',
+  kotae:'正直に答えて大丈夫です。できない条件は、はっきり伝えた方が後で困りません。'},
+ {k:['資格','免許','経験','前職','職務','スキル','使えますか','できますか'],
+  why:'資格や経験は、仕事の遂行に直接かかわるので、正当な質問です。',
+  kotae:'正直に答えてください。持っていないものは「これから取ります」で構いません。'},
+ {k:['志望','なぜ','どうして当','転職理由','辞めた理由'],
+  why:'志望動機や転職理由は、通常の質問です。',
+  kotae:'角の立たない言い方は、上の「退職理由」の候補が使えます。嘘は書かず、事実の中から選んでください。'},
+ {k:['通勤','通える','何分','交通手段','車'],
+  why:'通勤の可否は、実際に働けるかの確認なので、正当な質問です。',
+  kotae:'正直に。ただし「どこに住んでいるか」まで答える義務はありません。「◯分以内で通えます」で足ります。'},
+ {k:['いつから','入社','開始','時期'],
+  why:'着任時期は、採用側が知る必要のあることです。',
+  kotae:'正直に答えてください。'}
+];
+
+/* ───── 事情を受け止めて、仕分ける ─────
+   相手の事情を「かわいそう」で受けない。課題と、打てる手だけを静かに置く。 */
+const JIJOU=[
+ {k:['持病','通院','病気','治療','投薬','入院','手術','障害','手帳','てんかん','糖尿','うつ','適応障害','メンタル'],
+  midashi:'健康のこと',
+  kadai:'言わなければ後で気まずくなるのでは、と迷いやすいところです。',
+  kangae:['<b>書く義務はありません。</b>健康状態は、その仕事の遂行に直接必要な範囲でしか尋ねられないものとされています。',
+    '判断の目安はひとつだけ——<b>働き方に配慮が要るかどうか</b>。要らないなら書かなくて構いません。',
+    '配慮が要る場合は、<b>できないことではなく、どうすれば働けるかの形で</b>書くと伝わります。'],
+  kakikata:'例）「月1回、平日午前に通院しています。シフトで調整いただければ、業務に支障はありません。」'},
+
+ {k:['離婚','シングル','一人で育て','ひとり親','母子','父子','子ども','子供','保育園','学童','急な休み','熱を出'],
+  midashi:'家庭のこと',
+  kadai:'急な休みが出るかもしれない、と先に言うべきか迷うところです。',
+  kangae:['<b>家庭の事情そのものを書く必要はありません。</b>本人に責任のない事項として、尋ねないよう求められている領域です。',
+    'ただし<b>勤務の条件は、先に伝えた方が双方のため</b>です。入ってから食い違う方が困ります。',
+    '伝えるのは事情ではなく<b>条件</b>——「早番は難しい」「月に数回、急な欠勤の可能性がある」。理由は言わなくて構いません。'],
+  kakikata:'例）「勤務可能時間は9時〜17時です。年に数回、家庭の事情で急な調整をお願いする可能性があります。」'},
+
+ {k:['人間関係','上司','パワハラ','いじめ','馬が合','雰囲気が悪','ハラスメント','セクハラ','怒鳴'],
+  midashi:'人間関係で辞めたこと',
+  kadai:'正直に書くと「またすぐ辞める人」と見られないか、という不安があります。',
+  kangae:['<b>嘘は書かないでください。</b>ただし、詳細を書く義務もありません。',
+    '採用側が知りたいのは「何があったか」ではなく<b>「うちでも同じことが起きるか」</b>です。そこに答える形にすれば足ります。',
+    '相手を責める書き方だけは避けてください。<b>事実として起きたことと、自分がどうしたか</b>を書けば、読む人は察します。'],
+  kakikata:'例）「職場の進め方について意見の相違があり、話し合いを重ねた上で退職を決めました。」'},
+
+ {k:['ブランク','空白','無職','離職期間','働いていな','休んでいた','療養','介護してい'],
+  midashi:'働いていない期間',
+  kadai:'空白期間があると、それだけで落とされないかが心配になります。',
+  kangae:['<b>空白があること自体は、落とす理由になりません。</b>説明が無いことの方が気になられます。',
+    '一行でいいので<b>何をしていたかを書く</b>——療養、家族の介護、資格の勉強、就職活動。それだけで空白は空白でなくなります。',
+    '<b>今は働ける状態だと明記する。</b>これが一番大事です。'],
+  kakikata:'例）「2023年4月〜2024年3月　家族の介護に専念。現在は解消し、フルタイム勤務が可能です。」'},
+
+ {k:['短期','すぐ辞め','半年で','数ヶ月','転職が多','職を転々','回数が多'],
+  midashi:'在職期間が短いこと',
+  kadai:'短い経歴が並ぶと、続かない人だと思われないかが心配になります。',
+  kangae:['<b>並べ方で見え方が変わります。</b>期間の短いものは、まとめて書いても構いません（虚偽でなければ）。',
+    '一つずつ言い訳を並べるより、<b>「何を探していたのか」を一行</b>で書く方が伝わります。',
+    '今回こそ長く働きたいなら、<b>その理由を具体的に</b>。「落ち着きたい」ではなく「◯◯ができる環境だから」。'],
+  kakikata:'例）「自分に合う働き方を探す中で複数の職場を経験しました。夜勤のある常勤で長く続けたいと考えています。」'},
+
+ {k:['年齢','歳','高齢','若すぎ','未経験','経験がな','資格がな','無資格'],
+  midashi:'年齢や経験のこと',
+  kadai:'そもそも条件に届いていないのでは、という不安があります。',
+  kangae:['<b>年齢は書く欄があれば書きますが、詫びる必要はありません。</b>',
+    '未経験・無資格なら、<b>今持っているもので何ができるか</b>を書いてください。前職が別業界でも、人と話した経験や体力は伝わります。',
+    '<b>取る予定の資格があれば書く。</b>意欲は具体的な予定でしか伝わりません。'],
+  kakikata:'例）「介護は未経験ですが、接客業で10年、高齢のお客様への対応を続けてきました。初任者研修を◯月に受講予定です。」'},
+
+ {k:['借金','債務','自己破産','前科','逮捕','事故','違反'],
+  midashi:'言いにくい過去のこと',
+  kadai:'書かなければならないのか、隠していいのかが分かりにくいところです。',
+  kangae:['<b>職務経歴書に書く義務は、原則としてありません。</b>',
+    'ただし<b>業務に直接関わる場合は別</b>です（例：運転業務と免許の取消し、金銭を扱う職と関連する事由）。ここは正直に。',
+    '<b>判断に迷う場合は、ここで結論を出さないでください。</b>都道府県労働局・ハローワーク、必要なら法律の専門家に相談してください。'],
+  kakikata:'（この項目は、書き方の例を出しません。個別の事情に強く左右されるためです。）'},
+
+ {k:['給料','給与','年収','手取り','いくら','希望額','賃金','時給','待遇'],
+  midashi:'お金のこと',
+  kadai:'現職の額を言うべきか、希望をいくらにするかで迷います。',
+  kangae:['<b>聞かれて当然の話ですし、こちらから聞いてもいい話です。</b>遠慮する必要はありません。',
+    '<b>現職の額を必ず言う義務はありません。</b>「希望は◯◯円です」と希望額だけ伝えて構いません。',
+    '<b>先に相場を聞いてよい。</b>「差し支えなければ、この職種の給与レンジを教えていただけますか」で足ります。'],
+  kakikata:'例）「希望年収は◯◯万円です。業務内容次第で相談させてください。」'}
+];
+
+function shiwake(){
+  const q=(document.getElementById('shiwakeIn').value||'').trim();
+  const out=document.getElementById('shiwakeOut');
+  out.innerHTML='';
+  if(!q) return;
+
+  const waku=(iro,bg)=>{const d=document.createElement('div');
+    d.style.cssText=`border:2px solid ${iro};background:${bg};border-radius:10px;padding:16px 18px;margin-bottom:12px;font-size:14px;line-height:2`;return d;};
+
+  // 一．聞かれてはいけない質問が混ざっていないか
+  const ng=NG.filter(x=>x.k.some(k=>q.includes(k)));
+  ng.forEach(g=>{
+    const d=waku('#A83E2A','#FBF0EC'); d.style.color='#5a2c20';
+    d.innerHTML=`<b style="color:#A83E2A">答えなくて構いません</b>（${g.r}）<br>${g.why}
+      <br><br><b>断り方：</b><br>「${g.kaesu}」
+      <br><br><span style="font-size:12.5px;opacity:.8">断ったことで不利に扱う会社は、入ってからも同じ扱いをします。そこが分かるのは、こちらにとっても悪い話ではありません。</span>`;
+    out.appendChild(d);
+  });
+
+  // 二．事情そのものを受け止める
+  const j=JIJOU.filter(x=>x.k.some(k=>q.includes(k)));
+  j.forEach(x=>{
+    const d=waku('var(--line)','var(--paper2)'); d.style.color='var(--ink2)';
+    d.innerHTML=`<div style="font-size:12px;letter-spacing:.12em;color:var(--mori);font-weight:700;margin-bottom:6px">${x.midashi}</div>
+      <div style="color:var(--ink3);font-size:13px;margin-bottom:12px">${x.kadai}</div>
+      <b style="color:var(--ink);font-size:13px">考え方</b>
+      <ul style="margin:6px 0 12px;padding-left:1.2em">${x.kangae.map(k=>`<li style="margin-bottom:4px">${k}</li>`).join('')}</ul>
+      <b style="color:var(--ink);font-size:13px">書くなら</b><br>
+      <span style="font-size:13.5px">${x.kakikata}</span>`;
+    out.appendChild(d);
+  });
+
+  // 三．普通の質問
+  const ok=OK.filter(x=>x.k.some(k=>q.includes(k)));
+  ok.forEach(o=>{
+    const d=waku('var(--mori-bd)','var(--mori-lt)'); d.style.color='#2c4a3b';
+    d.innerHTML=`<b style="color:var(--mori)">聞かれて当然の質問です</b><br>${o.why}<br><br><b>答え方：</b>${o.kotae}`;
+    out.appendChild(d);
+  });
+
+  if(!ng.length&&!j.length&&!ok.length){
+    const d=waku('var(--line)','var(--paper2)'); d.style.color='var(--ink2)';
+    d.innerHTML=`<b>この文面からは、仕分けられませんでした。</b><br>
+      目安はひとつです——<b>仕事の中身・条件・経験</b>に関することなら、聞かれて当然の質問。
+      <b>本人に選べないこと</b>（生まれ・家族・住まい）や<b>考え方</b>（宗教・政治・愛読書）に関わるなら、答えを控えて構いません。<br>
+      判断に迷うときは、都道府県労働局またはハローワークに相談できます。`;
+    out.appendChild(d);
+  }
+
+  const shime=document.createElement('p');
+  shime.style.cssText='font-size:12px;color:var(--ink3);line-height:1.9;margin:4px 0 0';
+  shime.innerHTML='ここに書いた内容は、この端末から出ていません。ページを閉じると消えます。<br>'+
+    'この案内は一般的なもので、個別の事案についての法的助言ではありません。';
+  out.appendChild(shime);
+}
+
+const KYURYO_UNUSED={k:['給料','給与','年収','月給','手取り','いくらもらって','希望額','賃金','時給'],
+  why:'給与の話は、聞かれることも、こちらから聞くことも、まったく正当です。遠慮する必要はありません。',
+  kotae:'現職の額を必ず言う義務はありません。「希望は◯◯円です」と、希望額だけ伝えて構いません。\n聞きにくければ、この言い方が使えます——\n「差し支えなければ、この職種の給与レンジを教えていただけますか」'};
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='shiwakeIn'&&!e.isComposing) shiwake();
+});
+
+/* ───── 話しかけて書く ─────
+   ふわっとした問いから始めて、だんだん具体へ。
+   答えはそのまま「書き出し」に積まれ、最後にいつもの整形へ渡す。 */
+const TOI=[
+ {q:'こんにちは。職務経歴書、いっしょに作りましょう。\nまず、ざっくりで大丈夫です——いま、どんなお仕事をされていますか？（辞めたばかりでも構いません）',hint:''},
+ {q:'ありがとうございます。\nその仕事、いつごろから始めましたか？ 年だけで大丈夫です。「たしか2018年くらい」でも。',hint:''},
+ {q:'どんなところで働いていましたか？\n特養、デイ、老健、保育園、病院……施設の種類が分かれば。',hint:''},
+ {q:'そこでは、主にどんなことをしていましたか？\n「ふつうに介護」でも大丈夫です。あとでこちらが言葉にします。',hint:''},
+ {q:'夜勤はありましたか？ 月に何回くらいでしたか？\n（無ければ「なし」で）',hint:''},
+ {q:'資格はお持ちですか？\n働きながら取ったものがあれば、それも。',hint:''},
+ {q:'人に教えたり、まとめたりした経験はありますか？\n新人さんの指導、シフトを組む、後輩の相談にのる——そういうのも入ります。',hint:'ここ、実は一番強みになるところです。'},
+ {q:'何人くらいのチームでしたか？ だいたいで結構です。',hint:''},
+ {q:'「これは自分でやってよかった」と思うことはありますか？\n手順を書き出した、物の置き場を変えた、記録の仕方を工夫した——小さなことで構いません。',hint:'採用側は、ここを一番読みたがります。'},
+ {q:'差し支えなければ、辞めた理由（または辞めようと思った理由）を教えてください。\n書きたくなければ「なし」で飛ばせます。',hint:'角の立たない書き方は、こちらで用意します。'},
+ {q:'最後に。これからどんなふうに働きたいですか？\n一言で大丈夫です。',hint:''}
+];
+let ti=0, kotae=[];
+
+function setIn(m){
+  document.getElementById('paneTalk').classList.toggle('hidden',m!=='talk');
+  document.getElementById('paneWrite').classList.toggle('hidden',m!=='write');
+  document.getElementById('mTalk').classList.toggle('on',m==='talk');
+  document.getElementById('mWrite').classList.toggle('on',m!=='talk');
+  if(m==='talk'&&!document.getElementById('log').children.length) hanasu();
+}
+function fukidashi(t,kind){
+  const d=document.createElement('div'); d.className='bub '+kind; d.textContent=t;
+  const L=document.getElementById('log'); L.appendChild(d);
+  L.scrollTop=L.scrollHeight;
+}
+function hanasu(){
+  if(ti>=TOI.length){ shimeru(); return; }
+  const t=TOI[ti];
+  fukidashi(t.q+(t.hint?'\n\n（'+t.hint+'）':''),'q');
+  document.getElementById('bar').style.width=Math.round(ti/TOI.length*100)+'%';
+}
+function okuru(){
+  const el=document.getElementById('say');
+  const v=el.value.trim();
+  if(!v) return;
+  fukidashi(v,'a');
+  kotae.push({q:TOI[ti].q.split('\n')[0],a:v});
+  el.value=''; ti++;
+  setTimeout(hanasu,420);
+}
+document.getElementById('btnSay').addEventListener('click',okuru);
+document.getElementById('say').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.isComposing) okuru();
+});
+function shimeru(){
+  document.getElementById('bar').style.width='100%';
+  fukidashi('ありがとうございました。ここまでのお話を、職務経歴書の形にします。','q');
+  document.getElementById('say').disabled=true;
+  document.getElementById('btnSay').disabled=true;
+  // 会話の答えを、そのまま「書き出し」に積む
+  const nama=kotae.filter(k=>!/^(なし|ない|特になし|わからない|不明)$/.test(k.a))
+                  .map(k=>k.a).join('\n');
+  document.getElementById('nama').value=nama;
+  setTimeout(()=>{ document.getElementById('btnGo').click(); },700);
+}
+setIn('talk');
+
+let CARDS=[],SEL={};
+document.getElementById('btnGo').addEventListener('click',()=>{
+  const nama=document.getElementById('nama').value.trim();
+  if(nama.length<10){ alert('もう少しだけ書いてみてください。箇条書きで大丈夫です。'); return; }
+  const f=toru(nama);
+  CARDS=tsukuru(f,nama);
+  SEL={}; CARDS.forEach(c=>SEL[c.key]=0);
+  render();
+  document.getElementById('out').classList.remove('hidden');
+  document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+function render(){
+  const box=document.getElementById('cards'); box.innerHTML='';
+  CARDS.forEach((c,ci)=>{
+    const d=document.createElement('div'); d.className='card';
+    const h=document.createElement('div'); h.className='card-h'; h.textContent=c.h;
+    const q=document.createElement('p'); q.className='card-q'; q.textContent=c.q;
+    d.appendChild(h); d.appendChild(q);
+    c.o.forEach((o,oi)=>{
+      const b=document.createElement('button');
+      b.className='opt'+(SEL[c.key]===oi?' on':'');
+      b.textContent=o.t;
+      const s=document.createElement('small'); s.textContent=o.n; b.appendChild(s);
+      b.addEventListener('click',()=>{ SEL[c.key]=oi; render(); shiage(); });
+      d.appendChild(b);
+    });
+    const j=document.createElement('input'); j.className='jiyu'; j.type='text';
+    j.placeholder='自分の言葉で直す（ここに書くと、こちらが優先されます）';
+    j.value=(SEL[c.key+'_jiyu']||'');
+    j.addEventListener('input',e=>{ SEL[c.key+'_jiyu']=e.target.value; shiage(); });
+    d.appendChild(j);
+    box.appendChild(d);
+  });
+  shiage();
+}
+
+function shiage(){
+  const L=[];
+  CARDS.forEach(c=>{
+    const j=(SEL[c.key+'_jiyu']||'').trim();
+    L.push(j || c.o[SEL[c.key]||0].t);
+  });
+  document.getElementById('deki').textContent='【職務経歴】\n\n'+L.join('\n\n');
+}
+
+function copyAll(){
+  const t=document.getElementById('deki').textContent;
+  navigator.clipboard.writeText(t)
+    .then(()=>msg('コピーしました。そのまま貼り付けて使えます。'))
+    .catch(()=>msg('コピーできませんでした。文面を選んで手でコピーしてください。'));
+}
+function saveTxt(){
+  const t=document.getElementById('deki').textContent;
+  const b=new Blob([t],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download='職務経歴.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  msg('書き出しました。この端末の中にだけ残ります。');
+}
+function msg(s){
+  const e=document.getElementById('copied'); e.textContent=s;
+  setTimeout(()=>{e.textContent='';},4000);
+}
+</script>
