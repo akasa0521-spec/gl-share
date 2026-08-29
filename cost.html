@@ -791,7 +791,35 @@
         <span class="input-card-title">内製構成の料金</span>
       </div>
       <p class="input-card-desc">録音・文字起こし・項目への自動配置まで含めた、月あたりの実費。
-        数字の作り方：回線・保存の基本料に、文字起こしとAI処理の従量費（通話分数 × 単価）を足したもの。初期値の¥6,000は月3,000分ほど話す人の概算で、実際の通話量が分かれば実費に置き換えてください。</p>
+        <b>基本料（固定）＋ 音声AIの従量費</b>で計算します。従量費は下で自動計算され、右の結果に反映されます。</p>
+
+      <p class="input-card-desc" style="margin-top:14px;">話すペース。<b>同じ1分でも、早口の人は文字数が多いぶん高くつきます。</b>文字起こしもAIの読み書きも、料金は文字数で決まるからです。</p>
+      <div class="presetrow" id="cti_pace_row" style="margin-bottom:14px;">
+        <button class="preset-btn" data-pace="480" onclick="setPace(480)">しんちゃん<small>早口。1分480字</small></button>
+        <button class="preset-btn on" data-pace="330" onclick="setPace(330)">ドラえもん<small>ふつう。1分330字</small></button>
+        <button class="preset-btn" data-pace="230" onclick="setPace(230)">サザエさん<small>ゆっくり。1分230字</small></button>
+      </div>
+
+      <div class="sliderow">
+        <label>基本料（回線・保存）<span class="unit">円/人/月</span></label>
+        <input type="range" id="cti_self" min="0" max="15000" value="1500" step="100">
+        <div class="val" id="cti_self_v">¥1,500</div>
+      </div>
+      <div class="sliderow">
+        <label>文字起こし<span class="unit">円/1時間</span></label>
+        <input type="range" id="cti_ai_stt" min="0" max="200" value="36" step="2">
+        <div class="val" id="cti_ai_stt_v">¥36</div>
+      </div>
+      <div class="sliderow">
+        <label>AIの読み書き<span class="unit">円/1万字</span></label>
+        <input type="range" id="cti_ai_llm" min="0" max="500" value="60" step="5">
+        <div class="val" id="cti_ai_llm_v">¥60</div>
+      </div>
+
+      <div class="why" style="margin-top:14px;">
+        <div class="why-label">音声AIの従量費（1人あたり月）</div>
+        <div class="why-line" id="cti_ai_why"></div>
+      </div>
       <div class="sliderow">
         <label>基盤コスト<span class="unit">円/人/月</span></label>
         <input type="range" id="cti_self" min="0" max="15000" value="6000" step="500">
@@ -1137,17 +1165,19 @@ function yen(n){ return '¥' + Math.round(n).toLocaleString('ja-JP'); }
 const ctiIds = ['cti_agents','cti_days',
   'cti_a_calls','cti_a_connect','cti_a_mins',
   'cti_b_calls','cti_b_connect','cti_b_mins',
-  'cti_seat','cti_rate_mobile','cti_rate_fixed','cti_fixed_ratio','cti_rec_addon','cti_self'];
+  'cti_seat','cti_rate_mobile','cti_rate_fixed','cti_fixed_ratio','cti_rec_addon','cti_self','cti_ai_stt','cti_ai_llm'];
 
 const ctiDefaults = {
   cti_agents:5, cti_days:20,
   cti_a_calls:100, cti_a_connect:35, cti_a_mins:3.25,
   cti_b_calls:8, cti_b_connect:70, cti_b_mins:15.5,
   cti_seat:6500, cti_rate_mobile:17, cti_rate_fixed:8, cti_fixed_ratio:30, cti_rec_addon:5000,
-  cti_self:6000
+  cti_self:1500, cti_ai_stt:36, cti_ai_llm:60
 };
 
 function fmtCTI(id,v){
+  if(id==='cti_ai_stt') return yen(v)+'/時';
+  if(id==='cti_ai_llm') return yen(v)+'/万字';
   if(id==='cti_agents') return v+' 名';
   if(id==='cti_days') return v+' 日';
   if(id==='cti_a_calls'||id==='cti_b_calls') return v+' 件';
@@ -1182,7 +1212,20 @@ function calcCTI(){
 
   const vendorPerAgent = (incSeat?seat:0) + (incCall?totalMins*blendedRate:0) + (incRec?recAddon:0);
   const vendorTotal = vendorPerAgent * agents;
-  const selfTotal = self * agents;
+  /* 音声AIの従量費：実際に話した分数で計算する（切り上げは相手の請求の話） */
+  const sttEn  = namaMins/60 * g('cti_ai_stt');            // 文字起こし：時間で課金
+  const moji   = namaMins * pace;                          // 話した文字数
+  const llmEn  = moji/10000 * g('cti_ai_llm');             // AIの読み書き：文字数で課金
+  const aiEn   = sttEn + llmEn;
+  const selfPerAgent = self + aiEn;
+  const selfTotal = selfPerAgent * agents;
+  const aiWhy = document.getElementById('cti_ai_why');
+  if(aiWhy) aiWhy.innerHTML =
+`話した分数　　　= <span class="fig">${Math.round(namaMins).toLocaleString()}分</span>（切り上げ前の実時間）
+文字起こし　　　= ${Math.round(namaMins/60).toLocaleString()}時間 <span class="op">×</span> ${yen(g('cti_ai_stt'))} <span class="op">=</span> <span class="fig">${yen(sttEn)}</span>
+話した文字数　　= ${Math.round(namaMins).toLocaleString()}分 <span class="op">×</span> ${pace}字 <span class="op">=</span> <span class="fig">${Math.round(moji).toLocaleString()}字</span>
+AIの読み書き　　= ${(moji/10000).toFixed(1)}万字 <span class="op">×</span> ${yen(g('cti_ai_llm'))} <span class="op">=</span> <span class="fig">${yen(llmEn)}</span>
+音声AI合計/人　 = <span class="fig">${yen(aiEn)}</span>　＋基本料 ${yen(self)} <span class="op">=</span> <span class="fig">${yen(selfPerAgent)}/人/月</span>`;
 
   /* 三段の見取り：体制・通話量・単価は共通、席料と録音AIだけ各段の初期値 */
   if(typeof ctiTiers!=='undefined'){
@@ -1219,7 +1262,7 @@ B: ヒアリング通話分/月/人　= ${bCalls}件 <span class="op">×</span> 
 加重通話単価　　　　　　　= ¥${rateMobile}×${(100-fixedRatio*100).toFixed(0)}% <span class="op">+</span> ¥${rateFixed}×${(fixedRatio*100).toFixed(0)}% <span class="op">=</span> <span class="fig">${yen(blendedRate)}/分</span>
 比較先/人/月　　　　　　　= 席料${incSeat?yen(seat):'（含めない）'} <span class="op">+</span> 通話${incCall?'('+yen(blendedRate)+'×'+Math.round(totalMins).toLocaleString()+'分)':'（含めない）'} <span class="op">+</span> 録音AI${incRec?yen(recAddon):'（含めない）'} <span class="op">=</span> <span class="fig">${yen(vendorPerAgent)}</span>
 比較先/月(全体)　　　　　　= <span class="fig">${yen(vendorPerAgent)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(vendorTotal)}</span>
-自社/月(全体)　　　　　　　= <span class="fig">${yen(self)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(selfTotal)}</span>
+自社/月(全体)　　　　　　　= <span class="fig">${yen(selfPerAgent)}</span>（基本${yen(self)}＋音声AI${yen(aiEn)}） <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(selfTotal)}</span>
 削減額/年　　　　　　　　　= (${yen(vendorTotal)} <span class="op">−</span> ${yen(selfTotal)}) <span class="op">×</span> 12ヶ月 <span class="op">=</span> <span class="fig">${yen(rawDiff*12)}</span>${rawDiff<0?'　（マイナスのため削減額は0円扱い）':''}`;
 }
 
@@ -1238,6 +1281,16 @@ function resetCTI(){
   if(typeof ctiTierSync==='function') ctiTierSync();
   calcCTI();
 }
+/* 話すペース（1分あたりの文字数）。文字起こしもAIも料金は文字数で決まる */
+let pace = 330;
+function setPace(p){
+  pace = p;
+  document.querySelectorAll('#cti_pace_row .preset-btn').forEach(b=>b.classList.toggle('on', Number(b.dataset.pace)===p));
+  calcCTI();
+  if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
+}
+
 /* 通話料の課金単位（秒）。30なら30秒ごとに切り上げ */
 let callUnit = 30;
 function setCallUnit(u){
@@ -1467,7 +1520,10 @@ function updateDashboard(){
   const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
   const inc = id => { const el=document.getElementById(id); return el ? el.checked : true; };
   const ctiVendor = ((inc('cti_inc_seat')?seat:0) + (inc('cti_inc_call')?totalMins*blendedRate:0) + (inc('cti_inc_rec')?recAddon:0)) * agents;
-  const ctiSelf = self * agents;
+  const namaU = aCalls*aConn*days*aMins + bCalls*bConn*days*bMins;
+  const pc = (typeof pace==='number'&&pace>0)?pace:330;
+  const aiU = namaU/60*g('cti_ai_stt') + (namaU*pc)/10000*g('cti_ai_llm');
+  const ctiSelf = (self + aiU) * agents;
   const ctiDiff = Math.max(0, ctiVendor - ctiSelf);
 
   // --- 地図マッチング削減額（月・安い方を基準） ---
@@ -1504,6 +1560,7 @@ function saveState(){
   });
   state.mapMode = mapMode;
   state.callUnit = callUnit;
+  state.pace = pace;
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1536,6 +1593,7 @@ function loadState(evt){
           }
         }
       });
+      if([230,330,480].includes(state.pace)) setPace(state.pace);
       if([1,30,60].includes(state.callUnit)) setCallUnit(state.callUnit);
       setMapMode(['A','B','min'].includes(state.mapMode) ? state.mapMode : 'min');
       ctiTierSync();
@@ -1653,6 +1711,7 @@ function simSave(){
     allIds.forEach(id=>{ const el=document.getElementById(id); if(el) st[id]=el.value; });
     st.mapMode = mapMode;
     st.callUnit = callUnit;
+    st.pace = pace;
     ['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
       const el=document.getElementById(id); if(el) st[id]=el.checked;
     });
@@ -1678,6 +1737,7 @@ function simRestore(){
   ['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
     const el=document.getElementById(id); if(el && typeof st[id]==='boolean') el.checked=st[id];
   });
+  if([230,330,480].includes(st.pace)) setPace(st.pace);
   if([1,30,60].includes(st.callUnit)) setCallUnit(st.callUnit);
   if(['A','B','min'].includes(st.mapMode)) setMapMode(st.mapMode);
   ctiTierSync();
