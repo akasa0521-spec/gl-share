@@ -287,7 +287,7 @@ footer a{color:var(--tokiwa);text-decoration:none;}
 <script>
 /* ============ 音：その場で作る ============ */
 const AC=window.AudioContext||window.webkitAudioContext;
-let ctx=null,master=null,nodes=[],playing=false,melTimer=null,layers={},melStep=null;
+let ctx=null,master=null,nodes=[],playing=false,melTimer=null,layers={},melStep=null,soujiTimer=null;
 let manual=false, mix={voice:.70,room:.18,air:.05,drone:.12,mel:.26};
 let MAX=0.16, mode='auto';
 
@@ -319,6 +319,7 @@ function bp(f,q){const x=ctx.createBiquadFilter();x.type='bandpass';x.frequency.
 function g(v){const n=ctx.createGain();n.gain.value=v;return n;}
 
 function build(){
+  clearTimeout(soujiTimer); soujiTimer=null;   /* 前の掃除が、これから作る音を止めないように */
   master=g(0); master.connect(ctx.destination);
   const p=manual?mix:T[active()];
 
@@ -371,6 +372,7 @@ function build(){
 /* 時間帯を移す。時計の自動遷移はゆっくり、手で選んだときはすぐ分かるように */
 function shade(fast){
   if(manual){document.body.className='t-'+active();return;}
+  if(mwActive){document.body.className='t-'+active();return;}  /* 見回り中は触らない */
   const p=T[active()];
   if(!playing||!layers.voice){document.body.className='t-'+active();return;}
   const t=ctx.currentTime, D=fast?1.8:12;   /* 自動は十二秒かけて、気づかれずに */
@@ -415,7 +417,7 @@ async function toggle(){
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(master.gain.value,t);
     master.gain.linearRampToValueAtTime(0,t+1.8);
-    setTimeout(()=>{nodes.forEach(n=>{try{n.stop();}catch(e){}});nodes=[];layers={};},2000);
+    soujiTimer=setTimeout(()=>{nodes.forEach(n=>{try{n.stop();}catch(e){}});nodes=[];layers={};soujiTimer=null;},2000);
     go.classList.remove('on'); goT.textContent='音を、灯す';
     document.title=TITLE_OFF; favicon(false);
     try{silent.pause();}catch(e){}

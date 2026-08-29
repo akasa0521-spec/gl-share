@@ -1251,6 +1251,7 @@ AIの読み書き　　= ${(moji/10000).toFixed(1)}万字 <span class="op">×</s
       if(df) df.textContent=d<0?'削減なし（自社の方が高い）':yen(d)+' /月';
       const row=document.getElementById('tierrow_'+k);
       if(row) row.style.background = (tp.cti_seat===seat&&tp.cti_rec_addon===recAddon)?'var(--accent-soft)':'';
+      if(!incSeat && !incRec && c) c.textContent = '—（席料も録音AIも外しているため、三段の違いが出ません）';
     });
   }
   const rawDiff = vendorTotal - selfTotal;
@@ -1293,8 +1294,13 @@ function resetCTI(){
   });
   if(typeof ctiTierSync==='function') ctiTierSync();
   calcCTI();
+  ['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{const e=document.getElementById(id); if(e) e.checked=true;});
+  setCallUnit(30); setPace(330);
+  if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
 }
 /* 話すペース（1分あたりの文字数）。文字起こしもAIも料金は文字数で決まる */
+let mapMode = 'min';   /* 地図の方式。どの初期化より先に生まれている必要がある */
 let pace = 330;
 function setPace(p){
   pace = p;
@@ -1347,7 +1353,6 @@ function setCtiTier(t){
 }
 
 /* ---------------- MAP ---------------- */
-let mapMode = 'min';
 function setMapMode(m){
   mapMode = m;
   document.querySelectorAll('#map_mode_row .preset-btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
@@ -1419,6 +1424,10 @@ function resetMAP(){
     document.getElementById(id+'_v').textContent = fmtMAP(id, mapDefaults[id]);
   });
   calcMAP();
+  const mi=document.getElementById('map_inc'); if(mi) mi.checked=true;
+  setMapMode('min');
+  if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
 }
 resetMAP();
 
@@ -1474,6 +1483,8 @@ function resetENV(){
     document.getElementById(id+'_v').textContent = fmtENV(id, envDefaults[id]);
   });
   calcENV();
+  if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
 }
 resetENV();
 
@@ -1774,8 +1785,10 @@ document.querySelectorAll('.val').forEach(v=>{
     if(raw===null) return;
     const n = Number(String(raw).replace(/[,¥円%\s]/g,''));
     if(!isFinite(n)){ alert('数字を入れてください。'); return; }
+    const motoStep = el.step;
     el.step = 'any';  // 見積書どおりの端数をそのまま入れられるように
     el.value = Math.min(Number(el.max), Math.max(Number(el.min), n));
+    el.step = motoStep;  // つまみの刻みは元に戻す
     const applied = el.value;
     if(ctiIds.includes(id)){ v.textContent = fmtCTI(id, applied); calcCTI(); }
     else if(mapIds.includes(id)){ v.textContent = fmtMAP(id, applied); calcMAP(); }
