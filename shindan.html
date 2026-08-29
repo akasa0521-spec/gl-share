@@ -8,7 +8,21 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>十分の診断｜Good Luck</title>
-<meta name="description" content="120問、十分ほどの自己診断。答えは送信されず、あなたの端末の中だけで動きます。">
+<meta name="description" content="120問の自己診断。答えは送信されず、この端末の中だけで完結します。">
+<link rel="canonical" href="https://gd-luck.co.jp/shindan.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Good Luck">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="十分の診断｜Good Luck">
+<meta property="og:description" content="120問の自己診断。答えは送信されず、この端末の中だけで完結します。">
+<meta property="og:url" content="https://gd-luck.co.jp/shindan.html">
+<meta property="og:image" content="https://gd-luck.co.jp/ogp/shindan.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="十分の診断｜Good Luck">
+<meta name="twitter:description" content="120問の自己診断。答えは送信されず、この端末の中だけで完結します。">
+<meta name="twitter:image" content="https://gd-luck.co.jp/ogp/shindan.jpg">
 <style>
 :root{color-scheme:light only;
   --paper:#F7F6F1; --card:#FFFFFF; --ink:#211F1A; --ink-soft:#4A473F;
@@ -22,24 +36,37 @@ html,body{margin:0;padding:0;}
 body{background:var(--paper);color:var(--ink);font-family:var(--serifB);
   line-height:2;letter-spacing:.03em;-webkit-font-smoothing:antialiased;}
 .wrap{max-width:640px;margin:0 auto;padding:0 22px 100px;}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 
-#pbar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--ai);z-index:500;
-  transition:width .6s cubic-bezier(.3,.5,.2,1);}
+#pbar{position:fixed;top:0;left:env(safe-area-inset-left,0);height:3px;width:0;background:var(--ai);
+  z-index:500;transition:width .6s cubic-bezier(.3,.5,.2,1);}
 
 .toybar{max-width:640px;margin:0 auto;padding:20px 22px 0;font-family:var(--sans);}
-.toybar a{font-size:12.5px;letter-spacing:.06em;color:var(--usuzumi);text-decoration:none;transition:color .4s;}
+.toybar a{font-size:12.5px;letter-spacing:.06em;color:var(--usuzumi);text-decoration:none;
+  display:inline-block;padding:10px 6px;margin:-10px -6px;transition:color .4s;}
 .toybar a:hover{color:#C4622E;}
 
+#tabwarn{display:none;max-width:640px;margin:0 auto;padding:10px 22px 0;
+  font-family:var(--sans);font-size:11.5px;color:var(--ink-soft);}
+
 .act{padding-top:52px;animation:fadeUp .8s cubic-bezier(.25,.6,.2,1);}
+.act:focus{outline:none;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
 
 .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:var(--ai);font-weight:600;}
 h1{font-size:26px;font-weight:600;line-height:1.8;margin:14px 0 0;}
-h1 rt{font-size:10px;color:var(--usuzumi);font-weight:400;}
+h1 rt{font-size:10px;color:var(--ink-soft);font-weight:400;}
 .lead{font-size:14px;color:var(--ink-soft);margin:18px 0 0;}
 .dan{margin:20px 0 0;padding:14px 16px;border-radius:11px;background:#EFEDE5;
   font-family:var(--sans);font-size:11.5px;color:var(--ink-soft);line-height:1.95;}
 .dan b{color:var(--ink);}
+.dan .okiku{font-size:13.5px;}
+
+/* ---- 区画の名前を並べる ---- */
+.kukaku-ichiran{margin:20px 0 0;padding:14px 16px;border-radius:11px;background:var(--card);
+  border:1px solid var(--keiline);font-family:var(--sans);font-size:12px;color:var(--ink-soft);
+  line-height:2.1;}
+.kukaku-ichiran b{display:block;color:var(--ink);font-size:11px;letter-spacing:.1em;margin-bottom:6px;}
 
 /* ---- 区画の扉 ---- */
 .area-no{font-family:var(--latin);font-size:13px;letter-spacing:.24em;color:var(--ai);font-weight:600;}
@@ -47,34 +74,47 @@ h1 rt{font-size:10px;color:var(--usuzumi);font-weight:400;}
 .area-desc{font-size:13.5px;color:var(--ink-soft);margin:12px 0 0;}
 
 /* ---- 設問 ---- */
-.q-head{display:flex;justify-content:space-between;align-items:baseline;
-  font-family:var(--sans);font-size:11px;color:var(--usuzumi);letter-spacing:.08em;}
-.q-body{font-size:18px;font-weight:600;line-height:2;margin:26px 0 0;min-height:4em;}
-.opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:30px 0 0;}
+.q-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-family:var(--sans);font-size:11px;color:var(--ink-soft);letter-spacing:.08em;}
+.q-body{font-size:18px;font-weight:600;line-height:2;margin:26px 0 0;min-height:6em;}
+.opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:8px 0 0;}
 @media(max-width:420px){.opts{grid-template-columns:1fr;}}
-.opts button{height:56px;border-radius:12px;cursor:pointer;font-family:var(--serifB);
-  font-size:15px;letter-spacing:.06em;border:1px solid var(--keiline);background:var(--card);
-  color:var(--ink-soft);transition:background .3s,border-color .3s,color .3s;}
+.opts button{min-height:56px;padding:14px 10px;line-height:1.5;border-radius:12px;cursor:pointer;
+  font-family:var(--serifB);font-size:15px;letter-spacing:.06em;border:1px solid var(--keiline);
+  background:var(--card);color:var(--ink-soft);transition:background .3s,border-color .3s,color .3s;}
 .opts button:hover{background:#F3F2EC;}
-.opts button:focus-visible{outline:2px solid var(--ai-lt);outline-offset:2px;}
+.opts button:focus-visible{outline:2px solid var(--ai);outline-offset:2px;}
 .opts button.on{background:var(--ai-bg);border-color:var(--ai-lt);color:var(--ai);font-weight:600;}
 
 .nav{display:flex;gap:10px;margin-top:38px;}
-.nav button{flex:1;height:50px;border-radius:999px;cursor:pointer;font-family:var(--serifB);
-  font-size:14.5px;letter-spacing:.06em;border:1px solid var(--keiline);background:var(--card);
-  color:var(--ink-soft);transition:background .4s;}
+.nav button{flex:1;min-height:50px;padding:12px 10px;line-height:1.5;border-radius:999px;cursor:pointer;
+  font-family:var(--serifB);font-size:14.5px;letter-spacing:.06em;border:1px solid var(--keiline);
+  background:var(--card);color:var(--ink-soft);transition:background .4s;}
 .nav button:hover{background:#F0EEE6;}
+.nav button:focus-visible{outline:2px solid var(--ai);outline-offset:2px;}
 .nav .next{background:var(--ink);color:#F7F6F1;border-color:var(--ink);}
 .nav .next:hover{background:#3A3833;}
+.nav button[disabled]{opacity:.5;cursor:default;}
+
+/* ---- 区画へ跳ぶ一覧（確認画面） ---- */
+.jumps{margin:24px 0 0;}
+.jump{display:flex;width:100%;justify-content:space-between;align-items:baseline;gap:10px;
+  text-align:left;background:var(--card);border:1px solid var(--keiline);border-radius:12px;
+  padding:14px 16px;margin-bottom:8px;cursor:pointer;font-family:var(--serifB);
+  transition:background .3s;}
+.jump:hover{background:#F3F2EC;}
+.jump:focus-visible{outline:2px solid var(--ai);outline-offset:2px;}
+.jump .nm{font-size:14.5px;font-weight:600;color:var(--ink);}
+.jump .ct{font-family:var(--sans);font-size:10.5px;color:var(--ink-soft);}
 
 /* ---- 結果 ---- */
-.result h2{font-size:21px;font-weight:600;margin:0 0 6px;}
+.result h1{font-size:21px;font-weight:600;margin:0 0 6px;line-height:1.7;}
 .result .sum{font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);margin:0 0 22px;line-height:1.95;}
 .block{background:var(--card);border:1px solid var(--keiline);border-radius:12px;
   padding:15px 18px 13px;margin-bottom:10px;}
-.block-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
-.block-h .nm{font-size:14.5px;font-weight:600;}
-.block-h .ct{font-family:var(--sans);font-size:10.5px;color:var(--usuzumi);white-space:nowrap;}
+.block-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.block-h .nm{font-size:14.5px;font-weight:600;margin:0;}
+.block-h .ct{font-family:var(--sans);font-size:10.5px;color:var(--ink-soft);}
 .block-r{font-family:var(--sans);font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.85;}
 .rule{margin:22px 0 0;padding:14px 16px;border-radius:11px;background:#EFEDE5;
   font-family:var(--sans);font-size:11px;color:var(--ink-soft);line-height:1.95;}
@@ -83,32 +123,71 @@ h1 rt{font-size:10px;color:var(--usuzumi);font-weight:400;}
 .tail p{font-size:13px;color:var(--ink-soft);margin:0 0 10px;line-height:2;}
 .tail p:last-child{margin:0;}
 .tail b{color:var(--ink);}
-.acts{display:flex;gap:9px;margin-top:18px;}
-.acts button{flex:1;height:46px;border-radius:999px;cursor:pointer;font-family:var(--serifB);
-  font-size:13.5px;letter-spacing:.08em;border:1px solid var(--keiline);background:var(--card);
-  color:var(--ink-soft);transition:background .4s;}
+.acts{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap;}
+.acts button{flex:1;min-width:130px;min-height:46px;padding:12px 10px;line-height:1.5;
+  border-radius:999px;cursor:pointer;font-family:var(--serifB);font-size:13.5px;letter-spacing:.08em;
+  border:1px solid var(--keiline);background:var(--card);color:var(--ink-soft);transition:background .4s;}
 .acts button:hover{background:#F4F3EE;}
+.acts button:focus-visible{outline:2px solid var(--ai);outline-offset:2px;}
+.nokori{font-family:var(--sans);font-size:11px;color:var(--ink-soft);margin-top:16px;line-height:1.9;}
 
 footer{padding:46px 0 0;text-align:center;}
 .sig{font-family:var(--latin);font-size:17px;letter-spacing:.06em;}
 .sig-n{font-family:var(--sans);font-size:10.5px;color:var(--usuzumi);margin-top:7px;}
-footer a{color:var(--ai);text-decoration:none;border-bottom:1px solid var(--ai-lt);}
+footer a{color:var(--ai);text-decoration:none;border-bottom:1px solid var(--ai-lt);
+  display:inline-block;padding:10px 6px;margin:-10px -6px;}
+
+@media(prefers-reduced-motion:reduce){
+  .act{animation:none;}
+  #pbar{transition:none;}
+}
+@media(forced-colors:active){
+  .opts button.on{border-width:3px;}
+}
 
 @media print{
   @page{size:A4;margin:14mm 13mm;}
   body{background:#fff;font-size:10pt;line-height:1.8;}
   .wrap{max-width:none;padding:0;}
-  .toybar,#pbar,.acts,.nav{display:none!important;}
-  .block{break-inside:avoid;border:1px solid #CCC;}
+  .toybar,#pbar,#tabwarn,.acts,.nav,.nokori{display:none!important;}
+  .act{padding-top:0;}
+  .block,.rule,.tail,footer{break-inside:avoid;}
+  .block{border:1px solid #CCC;}
+  .rule{background:none;border:1px solid #DDD;}
+  .block-h .ct{color:#333;font-size:11.5px;}
   .tail{background:none;border:1px solid #DDD;}
   a[href]:after{content:"";}
 }
+
+/* ── 次の一手（出口） ── */
+.deguchi{max-width:720px;margin:56px auto 0;padding:0 22px}
+.deguchi h2{font-family:var(--serif,'Hiragino Mincho ProN',serif);font-size:19px;font-weight:600;
+  letter-spacing:.04em;margin:0 0 6px;color:var(--ink,#211F1A)}
+.deguchi .d-sub{font-size:13px;color:var(--ink3,#8B887D);margin:0 0 18px;line-height:1.9}
+.deguchi .d-list{display:grid;gap:10px}
+.deguchi a.d-item,.deguchi div.d-item{display:block;padding:15px 17px;border:1px solid var(--line,#DEDBD0);
+  border-radius:11px;background:var(--paper2,#FFFEFA);text-decoration:none;color:inherit;
+  transition:border-color .15s,background .15s}
+.deguchi a.d-item:hover{border-color:var(--mori-bd,#B4C4B0);background:var(--mori-lt,#E9EFE7)}
+.deguchi .d-na{font-size:14.5px;font-weight:600;color:var(--mori,#3F6B55);display:block}
+.deguchi .d-setu{font-size:12.5px;color:var(--ink2,#4A473F);line-height:1.85;display:block;margin-top:3px}
+.deguchi .d-item.soon{opacity:.55;cursor:default}
+.deguchi .d-item.soon .d-na{color:var(--ink3,#8B887D)}
+.deguchi .d-sodan{margin-top:16px;padding:16px 18px;border:1px solid var(--mori-bd,#B4C4B0);
+  border-radius:11px;background:var(--mori-lt,#E9EFE7);font-size:13.5px;line-height:1.95;color:#2c4a3b}
+.deguchi .d-sodan a{color:var(--mori,#3F6B55);font-weight:600}
+.deguchi .d-modoru{display:inline-block;margin-top:18px;font-size:12.5px;
+  color:var(--ink3,#8B887D);text-decoration:none}
+.deguchi .d-modoru:hover{color:var(--mori,#3F6B55)}
+@media(max-width:520px){.deguchi{padding:0 18px}}
 </style>
 </head>
 <body>
-<div class="toybar"><a href="./noren.html">← おもちゃ箱</a></div>
-<div id="pbar"></div>
-<div class="wrap" id="app"></div>
+<nav class="toybar"><a href="./noren.html">← おもちゃ箱</a></nav>
+<div id="pbar" role="progressbar" aria-label="答えた数" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+<div id="tabwarn"></div>
+<div class="sr" id="yomiage" aria-live="polite"></div>
+<main class="wrap" id="app"></main>
 
 <script>
 /* ============================================================
@@ -116,6 +195,15 @@ footer a{color:var(--ai);text-decoration:none;border-bottom:1px solid var(--ai-l
    120問・一回限り・その場で結果。
    全部この端末の中だけで動く。送信なし。
    済んだ印・途中のしおり・答えは localStorage にだけ残る。
+
+   送信ゼロの宣言は三箇所ある：
+     meta description「答えは送信されず」
+     表紙の断り「答えたものは、どこにも送っていません」
+     結果の注記「この結果は、この端末で」
+   送信や外部読込を足すときは、先にこの三つの文を直すこと。
+
+   区画は10問ずつ。ここを変えるなら KUKAKU_MON と、
+   結果画面の slice を一緒に見ること。
    ============================================================ */
 
 /* ---- 設問（12区画 × 10問） ---- */
@@ -124,7 +212,7 @@ const AREAS = [
   'うちの良いところを、いますぐ三つ、口に出して言える',
   'その三つは、よその同業でも言えそうな言葉ではなく、うちだけの話だ',
   '最近入った人に「なぜここを選んだのか」を聞いたことがある',
-  '辞めた人の本当の理由を、ひとつ以上知っている',
+  '辞めた人の理由を、本人から聞く場を設けている',
   '見学や来客に褒められたことを、書き留めてある',
   '代表の考えが、代表以外の口からも、だいたい同じ形で出てくる',
   '「うちらしいな」と思った出来事を、この一ヶ月でひとつ思い出せる',
@@ -139,7 +227,7 @@ const AREAS = [
   'ホームページは、スマホで読める（文字が小さすぎず、横にはみ出さない）',
   'ホームページの直しは、外に頼まず自分たちでできる',
   'どのページをいつ更新したか、だいたい把握している',
-  'いま求人を出している場所（媒体・サイト）を、全部言える',
+  'いま求人を出している先（媒体・サイト・学校・公的な窓口・紹介会社）を、全部言える',
   'もう募集していない古い求人は、どこにも残っていない',
   'ホームページの写真は、いまの建物・いまの人たちのものだ' ]},
 { name:'応募の入口', desc:'来たい人が、つまずかずに入ってこられるか。', q:[
@@ -151,7 +239,7 @@ const AREAS = [
   '応募に必要なもの（書類など）は、最初に全部伝えている',
   '応募の入口は、スマホからでも入力しやすい',
   '応募の入口を、自分で最後まで試したことがある',
-  '応募した人の情報は、まず自分たちのところに届く',
+  '応募した人から、自分たちに直接連絡が来る道がある',
   '応募の数を、月ごとに数えている' ]},
 { name:'返事とやりとり', desc:'待たせない・漏らさない形があるか。', q:[
   '問い合わせへの返事は、遅くとも翌営業日までに出せている',
@@ -173,36 +261,36 @@ const AREAS = [
   'その場で答えられなかった質問は、あとで必ず返している',
   '面談の記録が残っていて、二回目に同じことを聞かずに済む',
   '面談する人によって、伝える条件が食い違わない',
-  '断られたとき、差し支えなければ理由を聞いている',
+  '断られたとき、理由を聞くようにしている',
   '面談の場所と時間を、働きながら来る人に合わせて出せる' ]},
 { name:'迎え入れる', desc:'入った人が、初日から迷わずにいられるか。', q:[
   '初日に誰が何を教えるか、決まっている',
   '最初の一週間の過ごし方が、紙かデータになっている',
-  '道具・鍵・アカウントなど、初日に要るものが初日に揃う',
+  '道具・鍵・アカウント・提出書類など、初日に要るものが初日に揃う',
   '「これを聞いていいのかな」と迷わない相手を、決めてある',
   '仕事のやり方は、口伝えだけでなく、見て分かるものがある',
   '入って一ヶ月の人に、困っていることを聞く場を設けている',
   '新しい人からの「なぜこうしているの？」に、答えられている',
   '教える人の負担を、教える期間だけ軽くしている',
   '試用期間の条件は、入る前に伝えた通りになっている',
-  '入って三ヶ月以内に辞めた人は、この一年いない' ]},
+  '入って三ヶ月以内に辞めた人の数を、把握している' ]},
 { name:'続いていく', desc:'働きつづけられる形になっているか。', q:[
   '辞める人が出たとき、理由を推測ではなく本人から聞けている',
   '休みの希望は、気兼ねなく出せている',
-  '一人にしかできない仕事のせいで、休めない人がいない',
+  '一人しかできない仕事のせいで休めない人が、いま何人いるか言える',
   '残業の量を、月ごとに把握している',
   '給与や条件の見直しは、決まった時期にやっている',
   '良い働きが、その場の口頭だけでなく、評価や記録に残る',
   '困りごとを言い出せる先が、直属の上司以外にもある',
   '行事や繁忙期のあとに、休みを取り戻せている',
   '人間関係のもつれに、気づく仕組み（面談や声かけ）がある',
-  '三年以上続いている人が、半分より多い' ]},
+  '働いている年数の分布を、いま言える' ]},
 { name:'手作業の時間', desc:'慣れて、数えなくなった時間がどれだけあるか。', q:[
   '同じものを二度書き写す作業（転記）は、ほとんどない',
   '月末・月初の締め作業が、徹夜や休日出勤にならない',
   '紙でもらったものを、また手で打ち直す作業は、ほとんどない',
   '集計は、電卓ではなく、表計算などで自動でできている',
-  '「この作業、何のためだっけ」と思う仕事は、やめられている',
+  '何のためか説明できない作業が、いま残っていない',
   '手作業にかかっている時間を、数字で言える',
   '毎月同じ書類は、ひな形から作れる',
   '印刷して、押印して、スキャンして送る、の往復は減らせている',
@@ -218,17 +306,17 @@ const AREAS = [
   '取引先や業者の連絡先が、会社のものとして残っている',
   '「あの件どうなってる？」に、本人以外でも答えられる',
   '過去のやりとりや決めごとを、あとから探して見つけられる',
-  '新しい人が手順書を読んで、一人でできた例がある' ]},
+  '手順書だけで一人でできるか、確かめたことがある' ]},
 { name:'お金の見えかた', desc:'何にいくら出ているか、見えているか。', q:[
   '毎月の固定費（家賃・システム・保険など）を、全部言える',
-  '使っていないのに払い続けているものは、ないと言い切れる',
+  '使っていない契約が無いか、確かめたことがある',
   '採用に一人あたりいくらかかっているか、数字で言える',
   '何にいくら使ったかを、月が終わってすぐ見られる',
   '値上がりの知らせに、気づける仕組みがある',
   '大きな買い物の前に、相見積もりを取っている',
-  'なんとなく続けている契約を、年に一度は見直している',
+  '続けている契約を、年に一度見直す時期を決めてある',
   '急な出費に備える分を、分けてある',
-  '請求の間違い（過払い・二重払い）に、気づけたことがある',
+  '請求の中身を、毎月見て確かめている',
   'お金の話を、担当者一人だけが抱えていない' ]},
 { name:'道具立て', desc:'道具が、仕事の速さに追いついているか。', q:[
   '仕事で使うパソコンは、立ち上がりや動きを待たされない',
@@ -239,13 +327,13 @@ const AREAS = [
   '誰がどの情報を見られるか、決めてある',
   '辞めた人のアカウントは、止めてある',
   '道具の使い方を、詳しい一人に頼り切っていない',
-  '新しい道具（AIを含む）を、試してから決めている',
-  '道具に仕事を合わせるのではなく、仕事に道具を合わせて選べている' ]},
+  '新しい道具を、試してから決めている',
+  '道具を選ぶとき、いまの仕事のやり方に合うかを見ている' ]},
 { name:'決めかたと見直し', desc:'決めて、見直す、が回っているか。', q:[
   '何かを決めるとき、誰が決めるかが決まっている',
   '決めたことが、決めた通りに続いているか、あとで見ている',
   '会議は、終わったときに「誰が・何を・いつまでに」が残る',
-  'やめる判断（撤退・中止）を、この一年でひとつはしている',
+  'やめる／続けるを決める場が、決まった時期にある',
   '現場の「やりにくい」が、決める人まで届いている',
   '決めごとの理由が、あとから読める形で残っている',
   '先送りのままの案件が、いくつあるか言える',
@@ -253,160 +341,240 @@ const AREAS = [
   '外の声（利用者・取引先）を、決めるときの材料にしている',
   '一年前と比べて、やめたこと・変えたことを言える' ]}
 ];
-const QN = 120;
+const KUKAKU_MON = 10;
+const QN = AREAS.reduce((s,a)=>s+a.q.length, 0);
 
 /* ---- 保存（この端末の中だけ） ---- */
-const KEY = 'jubun_v1';
+const KEY = 'gl_jubun_v1';
 let storageOK = true;
 try{ localStorage.setItem(KEY+'_t','1'); localStorage.removeItem(KEY+'_t'); }
 catch(e){ storageOK = false; }
 
+const KOTAE_OK = { y:1, n:1, u:1 };
+
 function load(){
   if(!storageOK) return null;
-  try{ const s = JSON.parse(localStorage.getItem(KEY));
-    if(s && Array.isArray(s.ans) && s.ans.length===QN) return s; }catch(e){}
-  return null;
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if(!s || !Array.isArray(s.ans) || s.ans.length !== QN) return null;
+    s.ans = s.ans.map(v => KOTAE_OK[v] ? v : null);
+    s.pos = (Number.isInteger(s.pos) && s.pos >= 0 && s.pos < QN) ? s.pos : 0;
+    s.done = s.done === true;
+    s.finishedAt = Number.isFinite(s.finishedAt) ? s.finishedAt : null;
+    return s;
+  }catch(e){ return null; }
 }
 function save(){
   if(!storageOK) return;
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
 }
 
-let S = load() || { ans:Array(QN).fill(null), pos:0, done:false, sec:0, finishedAt:null };
+let S = load() || { ans:Array(QN).fill(null), pos:0, done:false, finishedAt:null };
 let qShownAt = Date.now();
+
+/* 別のタブで同じ診断が進んだとき、黙って食い違わせない */
+window.addEventListener('storage', e=>{
+  if(e.key !== KEY) return;
+  const w = document.getElementById('tabwarn');
+  w.textContent = '別のタブでも、この診断が進んでいます。答えが食い違うことがあります。';
+  w.style.display = 'block';
+});
 
 /* ---- 進行 ---- */
 const app = document.getElementById('app');
 
 function progress(){
   const n = S.ans.filter(a=>a!==null).length;
-  document.getElementById('pbar').style.width = Math.round(n/QN*100)+'%';
+  const pct = Math.round(n/QN*100);
+  const bar = document.getElementById('pbar');
+  bar.style.width = pct+'%';
+  bar.setAttribute('aria-valuenow', pct);
 }
 
-function show(html){
+function show(html, yomi){
   app.innerHTML = html;
   progress();
-  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
+  const a = app.querySelector('.act');
+  if(a){ a.setAttribute('tabindex','-1'); a.focus({preventScroll:true}); }
+  document.getElementById('yomiage').textContent = yomi || '';
+  window.scrollTo(0,0);
+}
+
+function kazoeru(ai){
+  const ans = S.ans.slice(ai*KUKAKU_MON, ai*KUKAKU_MON + KUKAKU_MON);
+  return { y: ans.filter(v=>v==='y').length,
+           n: ans.filter(v=>v==='n').length,
+           u: ans.filter(v=>v==='u').length };
 }
 
 /* ---- 表紙 ---- */
 function coverScreen(){
-  const hozon = storageOK
-    ? '途中で閉じるのは大丈夫です。しおりが挟まり、つづきから再開できます。'
-    : '<b>この端末は、保存が効かない設定になっています。</b>途中で閉じると答えは消え、済んだ印も残りません。';
+  const ikkai = storageOK
+    ? `<b>この診断は、この端末のこのブラウザでは一回きりです。</b>終えると、答えは変えられません。
+       二回目は、答えが少し動きます。最初の実感のほうを残したいので、一回きりにしています。<br>
+       途中で閉じるのは大丈夫です。しおりが挟まり、つづきから再開できます。<br>
+       済んだ印も、答えも、この端末の中にだけ残ります。`
+    : `<b>この端末では、済んだ印が残りません。</b>閉じると、最初からになります。<br>
+       途中の保存もできませんでした。答え終わるまで、閉じずにお使いください。`;
+  const ichiran = AREAS.map(a=>a.name).join('／');
   show(`
   <div class="act">
     <div class="eyebrow">十分の診断</div>
     <h1>かかるのは、<ruby>十分<rt>じゅっぷん</rt></ruby>。<br>わかるのは、どこが<ruby>十分<rt>じゅうぶん</rt></ruby>か。</h1>
     <p class="lead">12の区画に、10問ずつ。ぜんぶで120問です。<br>
       答えは「そう」「ちがう」「わからない」の三つ。考え込まず、いまの実感で答えてください。<br>
-      「わからない」も立派な答えです。数えていないことが、ひとつ分かります。</p>
-    <div class="dan"><b>答えたものは、どこにも送っていません。</b>この診断は、あなたの端末の中だけで動きます。
-      結果もこちらには届きません。</div>
-    <div class="dan"><b>この診断は、一回きりです。</b>終えると、答えは変えられません。
-      二回目の答えは、良く見えるほうへ寄っていくものだからです。<br>
-      ${hozon}<br>
-      済んだ印も、答えも、この端末の中にだけ残ります。</div>
+      「わからない」も答えのひとつです。数えていないことが、ひとつ分かります。<br>
+      一問五秒で答えれば、120問で十分ほど。迷えば、その分かかります。</p>
+    <div class="kukaku-ichiran"><b>きくこと（12の区画）</b>${ichiran}</div>
+    <div class="dan"><span class="okiku"><b>答えたものは、どこにも送っていません。</b></span>
+      この診断は、あなたの端末の中だけで動きます。結果もこちらには届きません。<br>
+      答えるのは、ひとりでも、何人かで一緒でも構いません。分からないところを人に聞きながらでも大丈夫です。</div>
+    <div class="dan">${ikkai}</div>
     <div class="nav"><span></span><button class="next" id="btnStart">はじめる</button></div>
-  </div>`);
+  </div>`, '十分の診断');
   document.getElementById('btnStart').addEventListener('click', ()=> areaScreen(0));
 }
 
 /* ---- しおり ---- */
 function shioriScreen(){
   const n = S.ans.filter(a=>a!==null).length;
+  const nxt = S.ans.findIndex(v=>v===null);
+  const ima = nxt === -1
+    ? '120問とも答えてあります。あとは、終えるだけです。'
+    : `120問のうち、${n}問。いまは ${Math.floor(nxt/KUKAKU_MON)+1}／12「${AREAS[Math.floor(nxt/KUKAKU_MON)].name}」の途中です。`;
   show(`
   <div class="act">
     <div class="eyebrow">十分の診断</div>
     <h1>しおりが、挟まっています。</h1>
-    <p class="lead">${n}問まで答えてあります。つづきから再開できます。</p>
+    <p class="lead">${ima}</p>
+    <div class="dan">答えは、この端末の中にだけ残っています。どこにも送っていません。<br>
+      <b>終えると、答えは変えられません。</b></div>
     <div class="nav"><span></span><button class="next" id="btnResume">つづきから</button></div>
-  </div>`);
+  </div>`, 'しおりが挟まっています');
   document.getElementById('btnResume').addEventListener('click', ()=>{
-    const nxt = S.ans.findIndex(v=>v===null);
-    if(nxt === -1){ confirmScreen(); }
-    else{ S.pos = nxt; save(); areaScreen(Math.floor(nxt/10)); }
+    const nx = S.ans.findIndex(v=>v===null);
+    if(nx === -1){ confirmScreen(); }
+    else{ S.pos = nx; save(); areaScreen(Math.floor(nx/KUKAKU_MON)); }
   });
 }
 
 /* ---- 区画の扉 ---- */
 function areaScreen(ai){
   const a = AREAS[ai];
+  const atama = ai*KUKAKU_MON;
+  const chuto = S.pos > atama && S.pos < atama + KUKAKU_MON;
   show(`
   <div class="act">
     <div class="area-no">${ai+1} / 12</div>
-    <div class="area-name">${a.name}</div>
+    <h1 class="area-name">${a.name}</h1>
     <p class="area-desc">${a.desc}</p>
-    <div class="nav">${ai>0||S.pos>0?'<button id="btnBack">戻る</button>':'<span></span>'}
-      <button class="next" id="btnGo">この10問へ</button></div>
-  </div>`);
-  document.getElementById('btnGo').addEventListener('click', ()=> qScreen(S.pos));
+    <div class="nav">${(ai>0 || S.pos>0) ? '<button id="btnBack">戻る</button>' : '<span></span>'}
+      <button class="next" id="btnGo">${chuto ? 'つづきへ' : 'この10問へ'}</button></div>
+  </div>`, `${ai+1}／12　${a.name}`);
+  document.getElementById('btnGo').addEventListener('click', ()=>{
+    qScreen(Math.min(Math.max(S.pos, atama), atama + KUKAKU_MON - 1));
+  });
   document.getElementById('btnBack')?.addEventListener('click', ()=>{
-    if(S.pos>0){ S.pos = Math.max(0, ai*10-1); qScreen(S.pos); } else coverScreen();
+    if(S.pos > 0){ S.pos = Math.max(0, Math.min(S.pos, atama) - 1); qScreen(S.pos); }
+    else coverScreen();
   });
 }
 
 /* ---- 設問 ---- */
 function qScreen(pos){
   S.pos = pos;
-  const ai = Math.floor(pos/10), qi = pos%10;
+  const ai = Math.floor(pos/KUKAKU_MON), qi = pos%KUKAKU_MON;
   const a = AREAS[ai];
   const cur = S.ans[pos];
+  /* 前に答えた問へ戻ったとき、続きへ帰る口を出す */
+  const saki = S.ans.findIndex((v,i)=> i > pos && v === null);
+  const modoru = (cur !== null && saki > -1)
+    ? `<button id="btnTsuzuki">つづき（${saki+1}問目）へ</button>` : '';
   show(`
   <div class="act">
     <div class="q-head"><span>${a.name}　${qi+1} / 10</span><span>${pos+1} / ${QN}</span></div>
-    <div class="q-body">${a.q[pos%10]}</div>
+    <h1 class="q-body">${a.q[qi]}</h1>
     <div class="opts">
-      <button data-v="y" class="${cur==='y'?'on':''}">そう</button>
-      <button data-v="n" class="${cur==='n'?'on':''}">ちがう</button>
-      <button data-v="u" class="${cur==='u'?'on':''}">わからない</button>
+      <button data-v="y" aria-pressed="${cur==='y'}" class="${cur==='y'?'on':''}">そう</button>
+      <button data-v="n" aria-pressed="${cur==='n'}" class="${cur==='n'?'on':''}">ちがう</button>
+      <button data-v="u" aria-pressed="${cur==='u'}" class="${cur==='u'?'on':''}">わからない</button>
     </div>
-    <div class="nav">${pos>0?'<button id="btnBack">戻る</button>':'<span></span>'}<span></span></div>
-  </div>`);
+    <div class="nav">${pos>0 ? '<button id="btnBack">戻る</button>' : '<span></span>'}${modoru}</div>
+  </div>`, `${pos+1}問目　${a.q[qi]}`);
   qShownAt = Date.now();
-  let tapped = false;
+  let osareta = false;
   document.querySelectorAll('.opts button').forEach(b=>{
     b.addEventListener('click', ()=>{
-      if(tapped) return; tapped = true;
-      document.querySelectorAll('.opts button').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
+      /* 描き替えた直後の二度目を、次の問の答えとして取らない */
+      if(osareta || Date.now() - qShownAt < 250) return;
+      osareta = true;
+      document.querySelectorAll('.opts button').forEach(x=>{
+        x.classList.remove('on'); x.setAttribute('aria-pressed','false');
+      });
+      b.classList.add('on'); b.setAttribute('aria-pressed','true');
       S.ans[pos] = b.dataset.v;
-      S.sec += Math.min((Date.now()-qShownAt)/1000, 30);
       save();
-      setTimeout(()=>{
-        /* 次は、最初の未回答へ。戻って直したときも、続きへ跳ぶ */
-        const nxt = S.ans.findIndex(v=>v===null);
-        if(nxt === -1){ confirmScreen(); }
-        else if(nxt === pos+1 && nxt%10===0){ S.pos = nxt; save(); areaScreen(nxt/10); }
-        else{ qScreen(nxt); }
-      }, 180);
+      document.getElementById('btnBack')?.setAttribute('disabled','');
+      document.getElementById('btnTsuzuki')?.setAttribute('disabled','');
+      setTimeout(()=> susumu(pos), 180);
     });
   });
   document.getElementById('btnBack')?.addEventListener('click', ()=> qScreen(pos-1));
+  document.getElementById('btnTsuzuki')?.addEventListener('click', ()=>{
+    S.pos = saki; save(); qScreen(saki);
+  });
+}
+
+/* 答えたあとの行き先。常に次の問へ進む（跳ばさない） */
+function susumu(pos){
+  const nx = pos + 1;
+  if(nx >= QN){
+    const nokori = S.ans.findIndex(v=>v===null);
+    if(nokori === -1) return confirmScreen();
+    S.pos = nokori; save();
+    return areaScreen(Math.floor(nokori/KUKAKU_MON));
+  }
+  if(nx % KUKAKU_MON === 0){ S.pos = nx; save(); return areaScreen(nx/KUKAKU_MON); }
+  qScreen(nx);
 }
 
 /* ---- 終える前の確認 ---- */
 function confirmScreen(){
   save();
+  const list = AREAS.map((a,ai)=>{
+    const c = kazoeru(ai);
+    return `<button class="jump" data-ai="${ai}">
+      <span class="nm">${a.name}</span>
+      <span class="ct">そう ${c.y} ／ ちがう ${c.n} ／ わからない ${c.u}</span></button>`;
+  }).join('');
   show(`
   <div class="act">
     <div class="eyebrow">おわりに</div>
     <h1>120問、答え終わりました。</h1>
     <p class="lead">「終える」を押すと、結果が出ます。<br>
-      <b>そのあと、答えは変えられません。</b>直したいところがあれば、いま戻れます。</p>
-    <div class="nav"><button id="btnBack">戻る</button>
+      <b>そのあと、答えは変えられません。</b>直したいところがあれば、いま戻れます。<br>
+      区画を押すと、その10問の先頭へ戻ります。</p>
+    <div class="jumps">${list}</div>
+    <div class="nav"><button id="btnBack">最後の問へ戻る</button>
       <button class="next" id="btnDone">終えて、結果を見る</button></div>
-  </div>`);
+  </div>`, '120問、答え終わりました');
+  document.querySelectorAll('.jump').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const ai = +b.dataset.ai;
+      S.pos = ai*KUKAKU_MON; save(); qScreen(S.pos);
+    });
+  });
   document.getElementById('btnBack').addEventListener('click', ()=> qScreen(QN-1));
   document.getElementById('btnDone').addEventListener('click', ()=>{
     S.done = true; S.finishedAt = Date.now(); save(); resultScreen();
   });
 }
 
-/* ---- 判定の線（画面にもこのまま書く） ---- */
+/* ---- 判定の線（画面の「数えかた」と同じ順・同じ数） ---- */
 function judge(y,n,u){
-  if(y>=8) return '足りています。ここに買い足すものは、たぶんありません。';
   if(u>=4) return 'まだ、分かっていないことが多い区画です。足りているかどうかの前に、数えるところからです。';
+  if(y>=8) return '足りています。ここは、いまのやり方で回っています。';
+  if(n>=5) return '足りていないところが、はっきり出ています。ただし、困っていないなら、急ぐ話ではありません。';
   return '足りていないかもしれません。ただし、困っていないなら、急ぐ話ではありません。';
 }
 
@@ -414,49 +582,84 @@ function judge(y,n,u){
 function resultScreen(){
   const d = S.finishedAt ? new Date(S.finishedAt) : new Date();
   const dateStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
-  const mm = Math.floor(S.sec/60), ss = Math.round(S.sec%60);
-  let blocks = '';
-  AREAS.forEach((a,ai)=>{
-    const ans = S.ans.slice(ai*10, ai*10+10);
-    const y = ans.filter(v=>v==='y').length;
-    const n = ans.filter(v=>v==='n').length;
-    const u = ans.filter(v=>v==='u').length;
-    blocks += `<div class="block">
-      <div class="block-h"><span class="nm">${a.name}</span>
-        <span class="ct">そう ${y} ／ ちがう ${n} ／ わからない ${u}</span></div>
-      <div class="block-r">${judge(y,n,u)}</div>
+  const blocks = AREAS.map((a,ai)=>{
+    const c = kazoeru(ai);
+    return `<div class="block">
+      <div class="block-h"><h2 class="nm">${a.name}</h2>
+        <span class="ct">そう ${c.y} ／ ちがう ${c.n} ／ わからない ${c.u}</span></div>
+      <div class="block-r">${judge(c.y, c.n, c.u)}</div>
     </div>`;
-  });
+  }).join('');
   const ty = S.ans.filter(v=>v==='y').length;
   const tn = S.ans.filter(v=>v==='n').length;
   const tu = S.ans.filter(v=>v==='u').length;
+  const nokori = storageOK
+    ? `<p class="nokori">この結果は、この端末でこのページを開けば、また見られます。</p>
+       <div class="acts"><button id="btnKesu">この端末の答えを消す</button></div>
+       <p class="nokori">消すと、最初からになります。</p>`
+    : `<p class="nokori">この結果は、この端末には残りません。閉じる前に、印刷するか、書き写してください。</p>`;
   show(`
   <div class="act result">
     <div class="eyebrow">十分の診断 ― 結果</div>
-    <h2>こう出ました。</h2>
-    <p class="sum">診断日：${dateStr}　答えている時間：${mm}分${ss}秒<br>
+    <h1>こう出ました。</h1>
+    <p class="sum">診断日：${dateStr}<br>
       120問のうち　そう ${ty} ／ ちがう ${tn} ／ わからない ${tu}</p>
     ${blocks}
-    <div class="rule">数えかた：各区画10問のうち、「そう」が8つ以上なら「足りています」。
-      「わからない」が4つ以上なら「まだ分かっていない」。どちらでもなければ「足りていないかもしれません」。<br>
+    <div class="rule">120問はすべて、「そう」が足りている側になるように書いています。<br>
+      数えかた：各区画10問を、上から順にこう読んでいます。<br>
+      「わからない」が4つ以上 → まだ分かっていない。<br>
+      そうでなく「そう」が8つ以上 → 足りています。<br>
+      そうでなく「ちがう」が5つ以上 → 足りていないところが、はっきり出ています。<br>
+      どれにも当たらなければ → 足りていないかもしれません。<br>
       この線は、こちらが仮に引いたものです。8つなら足りて7つなら足りない、という厳密な話ではありません。</div>
     <div class="tail">
       <p><b>この結果は、こちらが作ったものではありません。</b>すべて、そちらの答えから数えています。
         数えかたの線も、この画面に全部書いています。隠している前提はありません。</p>
-      <p>「足りている」が多いなら、それでいいのです。<b>この診断は、何かを売るための道具ではありません。</b>
+      <p>「足りている」が多いなら、それはそう出た、というだけです。
         「足りていないかもしれない」が出ても、困っていないなら、急ぐ話ではありません。
         どう見るかを決めるのは、そちらです。</p>
     </div>
     <div class="acts"><button onclick="window.print()">印刷する</button></div>
-    ${storageOK?'<p style="font-family:var(--sans);font-size:11px;color:var(--usuzumi);margin-top:16px;">この結果は、この端末でこのページを開けば、また見られます。</p>':''}
-    <footer><div class="sig">Good Luck</div>
+    ${nokori}
+    
+<div class="deguchi">
+  <h2>診断、おつかれさまでした。次は。</h2>
+  <p class="d-sub">この先も、どれも無料です。登録も要りません。</p>
+  <div class="d-list">
+      <a class="d-item " href="./cost.html">
+        <span class="d-na">いくら削れるか、数字で確かめる</span>
+        <span class="d-setu">診断で見えた無駄を、金額に置き換えます</span>
+      </a>
+      <a class="d-item " href="./keisan.html">
+        <span class="d-na">いま何が起きているかを、数字にする</span>
+        
+      </a>
+      <a class="d-item " href="./setsumeisho.html">
+        <span class="d-na">一人ひとりの扱われ方を、揃える</span>
+        
+      </a>
+  </div>
+  <div class="d-sodan">
+    この結果を持って、どこから手をつけるか一緒に決めます。<br>
+    <a href="./company.html#contact">相談のしかたを見る</a>　／　
+    <a href="mailto:gd-admin@gd-luck.co.jp?subject=%E3%81%94%E7%9B%B8%E8%AB%87">そのままメールで聞く</a>
+  </div>
+  <a class="d-modoru" href="./noren.html">← おもちゃ箱にもどる</a>
+</div>
+<footer><div class="sig">Good Luck</div>
       <div class="sig-n">仕組みに完璧を求めて、人には求めない会社が作っています<br>
         <a href="./noren.html">Good Luck のこと</a></div></footer>
-  </div>`);
+  </div>`, '結果が出ました');
+  document.getElementById('btnKesu')?.addEventListener('click', ()=>{
+    if(confirm('この端末の答えを消します。よろしいですか。')){
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      location.reload();
+    }
+  });
 }
 
 /* ---- 入口 ---- */
-if (S.done) resultScreen();
+if (S.done && S.ans.every(v=>v!==null)) resultScreen();
 else if (S.ans.some(a=>a!==null)) shioriScreen();
 else coverScreen();
 </script>

@@ -8,7 +8,21 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>面談の稽古｜Good Luck</title>
-<meta name="description" content="人材紹介の初回面談を、会話の間（ま）ごと稽古する道具。終わると四つの軸と、あなたの応答の癖が返ります。送信はしていません。">
+<meta name="description" content="人材紹介の初回面談を、会話の間（ま）ごと繰り返し稽古できます。">
+<link rel="canonical" href="https://gd-luck.co.jp/keiko.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Good Luck">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="面談の稽古｜Good Luck">
+<meta property="og:description" content="人材紹介の初回面談を、会話の間（ま）ごと繰り返し稽古できます。">
+<meta property="og:url" content="https://gd-luck.co.jp/keiko.html">
+<meta property="og:image" content="https://gd-luck.co.jp/ogp/keiko.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="面談の稽古｜Good Luck">
+<meta name="twitter:description" content="人材紹介の初回面談を、会話の間（ま）ごと繰り返し稽古できます。">
+<meta name="twitter:image" content="https://gd-luck.co.jp/ogp/keiko.jpg">
 <style>
 :root{color-scheme:light only;
   --paper:#F7F6F1; --card:#FFF; --ink:#211F1A; --ink2:#4A473F; --usu:#8B887D; --line:#DEDBD0;
@@ -35,6 +49,16 @@ h1{font-size:27px;font-weight:600;line-height:1.62;margin:14px 0 0;}
 .fuda{margin:30px 0 0;padding:20px 20px 17px;border-radius:12px;background:var(--card);
   border:1px solid var(--line);}
 .fuda-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+/* 間の帯：締め切りではない。息のどこにいるかが見えるだけ。数字も合否も出さない */
+.mabi{position:relative;height:3px;margin:14px 2px 0;opacity:0;transition:opacity .6s ease;pointer-events:none;}
+.mabi.deteru{opacity:1;}
+.mabi .track{position:absolute;inset:0;border-radius:2px;background:#EAE8DF;}
+.mabi .yoi{position:absolute;top:0;bottom:0;border-radius:2px;background:#D6D3C6;}
+.mabi .ima{position:absolute;top:-3px;left:0;width:2px;height:9px;border-radius:1px;
+  background:var(--usu);transition:background .4s ease;}
+.mabi.aiteru .ima{background:var(--midori);}
+@media (prefers-reduced-motion:reduce){ .mabi{transition:none;} }
+
 .maai{font-family:var(--serifB);font-size:12px;font-weight:700;color:var(--kane);
   background:var(--kane-bg);padding:4px 11px;border-radius:999px;letter-spacing:.1em;}
 .fuda-n{font-size:18px;font-weight:600;}
@@ -113,6 +137,28 @@ footer{padding:40px 0 0;text-align:center;}
 .sig-n{font-family:var(--sans);font-size:11px;color:var(--usu);margin-top:7px;}
 footer a{color:var(--midori);text-decoration:none;border-bottom:1px solid var(--midori-bd);}
 @media(max-width:600px){h1{font-size:23px;}}
+
+/* ── 次の一手（出口） ── */
+.deguchi{max-width:720px;margin:56px auto 0;padding:0 22px}
+.deguchi h2{font-family:var(--serif,'Hiragino Mincho ProN',serif);font-size:19px;font-weight:600;
+  letter-spacing:.04em;margin:0 0 6px;color:var(--ink,#211F1A)}
+.deguchi .d-sub{font-size:13px;color:var(--ink3,#8B887D);margin:0 0 18px;line-height:1.9}
+.deguchi .d-list{display:grid;gap:10px}
+.deguchi a.d-item,.deguchi div.d-item{display:block;padding:15px 17px;border:1px solid var(--line,#DEDBD0);
+  border-radius:11px;background:var(--paper2,#FFFEFA);text-decoration:none;color:inherit;
+  transition:border-color .15s,background .15s}
+.deguchi a.d-item:hover{border-color:var(--mori-bd,#B4C4B0);background:var(--mori-lt,#E9EFE7)}
+.deguchi .d-na{font-size:14.5px;font-weight:600;color:var(--mori,#3F6B55);display:block}
+.deguchi .d-setu{font-size:12.5px;color:var(--ink2,#4A473F);line-height:1.85;display:block;margin-top:3px}
+.deguchi .d-item.soon{opacity:.55;cursor:default}
+.deguchi .d-item.soon .d-na{color:var(--ink3,#8B887D)}
+.deguchi .d-sodan{margin-top:16px;padding:16px 18px;border:1px solid var(--mori-bd,#B4C4B0);
+  border-radius:11px;background:var(--mori-lt,#E9EFE7);font-size:13.5px;line-height:1.95;color:#2c4a3b}
+.deguchi .d-sodan a{color:var(--mori,#3F6B55);font-weight:600}
+.deguchi .d-modoru{display:inline-block;margin-top:18px;font-size:12.5px;
+  color:var(--ink3,#8B887D);text-decoration:none}
+.deguchi .d-modoru:hover{color:var(--mori,#3F6B55)}
+@media(max-width:520px){.deguchi{padding:0 18px}}
 </style>
 <style>.toybar{max-width:1160px;margin:0 auto;padding:22px 22px 0;}
 .toybar a{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;font-size:12.5px;
@@ -150,8 +196,34 @@ footer a{color:var(--midori);text-decoration:none;border-bottom:1px solid var(--
 <div class="talk" id="talk"></div>
 <div class="opts-h" id="optsh" hidden></div>
 <div class="opts" id="opts"></div>
+<div class="mabi" id="mabi"><span class="track"></span><span class="yoi"></span><span class="ima"></span></div>
 <div class="kekka" id="kekka" hidden></div>
 
+
+<div class="deguchi">
+  <h2>稽古、おつかれさまでした。次は。</h2>
+  <p class="d-sub">この先も、どれも無料です。登録も要りません。</p>
+  <div class="d-list">
+      <a class="d-item " href="./setsumeisho.html">
+        <span class="d-na">自分の扱われ方を、先に渡す</span>
+        <span class="d-setu">どう任されると力が出るかを、言葉にしておく</span>
+      </a>
+      <a class="d-item " href="./shokureki.html">
+        <span class="d-na">職務経歴を、書いておく</span>
+        <span class="d-setu">話せるようになったら、書けるようになります</span>
+      </a>
+      <a class="d-item " href="./keisan.html">
+        <span class="d-na">チームの現状を、数字で置く</span>
+        
+      </a>
+  </div>
+  <div class="d-sodan">
+    現場に合わせた稽古の型を作ることもできます。<br>
+    <a href="./company.html#contact">相談のしかたを見る</a>　／　
+    <a href="mailto:gd-admin@gd-luck.co.jp?subject=%E3%81%94%E7%9B%B8%E8%AB%87">そのままメールで聞く</a>
+  </div>
+  <a class="d-modoru" href="./noren.html">← おもちゃ箱にもどる</a>
+</div>
 <footer>
   <div class="sig">Good Luck</div>
   <div class="sig-n">仕組みに完璧を求めて、人には求めない会社が作っています<br>
@@ -387,13 +459,15 @@ const optsh=document.getElementById('optsh');
 /* ---- 抽選。周回ごとに並びと出現が変わる。規準は変わらない ---- */
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i];a[i]=a[j];a[j]=t; } return a; }
 function pickN(a,n){ return shuffle(a).slice(0,n); }
+/* 初手の四択も並びを散らす。ただし稽古の中では固定（型は覚えられるように） */
+const SHOTE_ORDER = shuffle(SHOTE);
 
 /* ---- 台詞のストリーム。一文ずつ、読み上げるくらいの速さで ---- */
 let stTimer=0, stActive=false, doneAt=0, stQueue=[], stWho='', stCls='', stFirst=true, stAfter=null;
 function stream(who,cls,lines,after){
   clearTimeout(stTimer);
   stQueue=lines.slice(); stWho=who; stCls=cls; stFirst=true; stAfter=after||null;
-  if(!stQueue.length){ stActive=false; doneAt=performance.now(); if(stAfter)stAfter(); return; }
+  if(!stQueue.length){ stActive=false; doneAt=performance.now(); maBandStart(); if(stAfter)stAfter(); return; }
   stActive=true;
   stTimer=setTimeout(stNext,520);
 }
@@ -401,7 +475,7 @@ function stNext(){
   const line=stQueue.shift();
   say(stWho, stCls+(stFirst?'':' cont'), line, stFirst);
   stFirst=false;
-  if(!stQueue.length){ stActive=false; doneAt=performance.now(); if(stAfter)stAfter(); return; }
+  if(!stQueue.length){ stActive=false; doneAt=performance.now(); maBandStart(); if(stAfter)stAfter(); return; }
   stTimer=setTimeout(stNext, Math.min(PACE_BASE+line.length*PACE_CHAR, PACE_MAX));
 }
 /* 食い気味に押されたとき：残りの台詞は一気に出す（情報は失わせない）。ト書きで返す */
@@ -434,6 +508,35 @@ function goodMa(){
     o.connect(g); g.connect(AC.destination);
     o.start(); o.stop(AC.currentTime+0.07);
   }catch(e){}
+}
+
+/* ---- 間の帯。息のどこにいるかを出すだけ。締め切りでも、採点でもない ---- */
+const MA_HABA=4.0;                    /* 帯の左端から右端までにあたる秒数 */
+let maArmed=false, maRaf=0;
+const mabi=document.getElementById('mabi');
+const mabiYoi=mabi.querySelector('.yoi');
+const mabiIma=mabi.querySelector('.ima');
+mabiYoi.style.left  = (MA_KUI/MA_HABA*100)+'%';
+mabiYoi.style.width = ((MA_GOOD-MA_KUI)/MA_HABA*100)+'%';
+
+function maBandArm(){ maArmed=true; if(!stActive) maBandStart(); }
+function maBandStart(){
+  if(!maArmed) return;
+  mabi.classList.add('deteru');
+  cancelAnimationFrame(maRaf);
+  const tick=()=>{
+    const t=(performance.now()-doneAt)/1000;
+    const r=Math.min(t/MA_HABA,1);
+    mabiIma.style.left=(r*100)+'%';
+    mabi.classList.toggle('aiteru', t>=MA_KUI && t<=MA_GOOD);
+    if(r<1){ maRaf=requestAnimationFrame(tick); }
+    else { mabi.classList.remove('deteru','aiteru'); maRaf=0; }
+  };
+  maRaf=requestAnimationFrame(tick);
+}
+function maBandOff(){
+  maArmed=false; cancelAnimationFrame(maRaf); maRaf=0;
+  mabi.classList.remove('deteru','aiteru');
 }
 
 /* ---- 反応クラス。組み合わせ→クラスのパターン規則（規準はファイル頭に固定） ---- */
@@ -483,11 +586,12 @@ function renderShote(){
   optsh.hidden=false; optsh.textContent='どう入りますか。';
   opts.innerHTML='';
   const t0=performance.now();
-  SHOTE.forEach(sh=>{
+  SHOTE_ORDER.forEach(sh=>{
     const b=document.createElement('button');
     b.className='opt';
     b.innerHTML='<span class="opt-k">'+sh.tag+'</span>'+sh.t;
     b.addEventListener('click',()=>{
+      maBandOff();
       ma1=maJudge();
       sec1=Math.max(1,Math.round((performance.now()-t0)/1000));
       shotePick=sh.k;
@@ -498,10 +602,12 @@ function renderShote(){
     });
     opts.appendChild(b);
   });
+  maBandArm();
 }
 
 /* ② 相槌。カタログから抽選して5つ。ミスリードは毎回2つ混ぜる。並びはシャッフル */
 function renderAiz(){
+  maBandOff();                       /* ここでは間を測っていない。出さない */
   const s=S[step];
   optsh.hidden=false; optsh.textContent='なんと受けますか。';
   opts.innerHTML='';
@@ -547,6 +653,7 @@ function renderNaka(){
     b.className='opt';
     b.innerHTML='<span class="opt-n">'+String.fromCharCode(65+i)+'</span>'+o.t;
     b.addEventListener('click',()=>{
+      maBandOff();
       const ma2=judgeHere?maJudge():'';
       const sec2=Math.max(1,Math.round((performance.now()-t0)/1000));
       Object.keys(o.p).forEach(k=>score[k]+=o.p[k]);
@@ -562,6 +669,7 @@ function renderNaka(){
     });
     opts.appendChild(b);
   });
+  if(judgeHere) maBandArm(); else maBandOff();
 }
 
 /* 初手の癖。良し悪しは断定しない。癖として返すだけ */
@@ -602,6 +710,7 @@ function misText(n,m){
 }
 
 function finish(){
+  maBandOff();
   /* 満点は、設問データ S から毎回数え直す。手で書くと、設問を足したときにずれる。
      実際、かえすは12点取れるのに分母が11で109%と出て、
      とめるは最大5点なのに分母が7で、誰も71%を超えられなかった。
