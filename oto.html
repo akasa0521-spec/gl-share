@@ -155,6 +155,16 @@ footer a{color:var(--tokiwa);text-decoration:none;}
   header{padding:56px 0 6px;} h1{font-size:24px;}
   .wrap{padding:0 20px;} .times{grid-template-columns:repeat(3,1fr);}
 }
+
+/* 動きが苦手な人の設定を尊重する（OSの「視差効果を減らす」がオンのとき） */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
 </style>
 </head>
 <body class="t-gogo">
