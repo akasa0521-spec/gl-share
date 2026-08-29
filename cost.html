@@ -590,7 +590,7 @@
       <div class="dash-value"><span class="yen-mark">¥</span><span id="dashCTI"></span><span class="unit">/月</span></div>
     </div>
     <div class="dash-item">
-      <div class="dash-label">02 地図マッチング</div>
+      <div class="dash-label" id="dashMAPLabel">02 地図マッチング</div>
       <div class="dash-value"><span class="yen-mark">¥</span><span id="dashMAP"></span><span class="unit">/月</span></div>
     </div>
   </div>
@@ -1408,9 +1408,10 @@ function updateDashboard(){
   const over = Math.max(0, calls-cap);
   const units = step>0 ? Math.ceil(over/step) : 0;
   const bMonthly = base + units*addon;
-  // 方式を選ぶまでは、未契約かもしれない地図の分を削減額に入れない
-  const mapBase = mapMode==='A' ? aMonthly : (mapMode==='B' ? bMonthly : 0);
-  const mapDiff = Math.max(0, mapBase);
+  // 地図の数字は常に動かす。合計に入れるかどうかだけ、方式の選択で分ける
+  const mapView = Math.max(0, mapMode==='A' ? aMonthly : (mapMode==='B' ? bMonthly : Math.min(aMonthly,bMonthly)));
+  const mapCounted = mapMode!=='min';   // 方式を選ぶまでは、未契約かもしれない分を合計に入れない
+  const mapDiff = mapCounted ? mapView : 0;
 
   const totalMonth = ctiDiff + mapDiff;
   const totalYear = totalMonth * 12;
@@ -1420,7 +1421,9 @@ function updateDashboard(){
   renderSlotDigits('dashTotalMonth', totalMonth);
   renderSlotDigits('dashTotalYear', totalYear);
   renderSlotDigits('dashCTI', ctiDiff);
-  renderSlotDigits('dashMAP', mapDiff);
+  renderSlotDigits('dashMAP', mapView);
+  const ml=document.getElementById('dashMAPLabel');
+  if(ml) ml.textContent = mapCounted ? '02 地図マッチング' : '02 地図マッチング（参考・合計に入れず）';
 }
 const allIds = [...ctiIds, ...mapIds, ...envIds];
 
