@@ -692,8 +692,8 @@
       </div>
       <div class="sliderow">
         <label>平均通話時間<span class="unit">分</span></label>
-        <input type="range" id="cti_a_mins" min="1" max="15" value="3" step="1">
-        <div class="val" id="cti_a_mins_v">3 分</div>
+        <input type="range" id="cti_a_mins" min="0.5" max="15" value="3.25" step="0.25">
+        <div class="val" id="cti_a_mins_v">3分15秒</div>
       </div>
     </div>
 
@@ -715,8 +715,8 @@
       </div>
       <div class="sliderow">
         <label>平均通話時間<span class="unit">分</span></label>
-        <input type="range" id="cti_b_mins" min="10" max="60" value="15" step="5">
-        <div class="val" id="cti_b_mins_v">15 分</div>
+        <input type="range" id="cti_b_mins" min="3" max="60" value="15.5" step="0.25">
+        <div class="val" id="cti_b_mins_v">15分30秒</div>
       </div>
     </div>
 
@@ -746,6 +746,13 @@
       </div>
       <p class="input-card-desc">いま検討している（または導入済みの）サービスの料金体系。
         計算に入れない費目は、チェックを外せます（外した分は月額にも削減額にも入りません）。</p>
+      <p class="input-card-desc" style="margin-top:0;">通話料の課金単位。<b>30秒単位なら、3分1秒の通話は3分30秒ぶん請求されます。</b>請求書か料金表に書いてあります。</p>
+      <div class="presetrow" id="cti_unit_row" style="margin-bottom:14px;">
+        <button class="preset-btn" data-unit="1" onclick="setCallUnit(1)">1秒単位<small>実際に話した秒数ぶん</small></button>
+        <button class="preset-btn on" data-unit="30" onclick="setCallUnit(30)">30秒単位<small>30秒ごとに切り上げ（多い）</small></button>
+        <button class="preset-btn" data-unit="60" onclick="setCallUnit(60)">1分単位<small>1分ごとに切り上げ</small></button>
+      </div>
+
       <div class="presetrow" style="margin-bottom:10px;">
         <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_seat" checked> 席料を含める</label>
         <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_call" checked> 通話料を含める</label>
@@ -1134,8 +1141,8 @@ const ctiIds = ['cti_agents','cti_days',
 
 const ctiDefaults = {
   cti_agents:5, cti_days:20,
-  cti_a_calls:100, cti_a_connect:35, cti_a_mins:3,
-  cti_b_calls:8, cti_b_connect:70, cti_b_mins:15,
+  cti_a_calls:100, cti_a_connect:35, cti_a_mins:3.25,
+  cti_b_calls:8, cti_b_connect:70, cti_b_mins:15.5,
   cti_seat:6500, cti_rate_mobile:17, cti_rate_fixed:8, cti_fixed_ratio:30, cti_rec_addon:5000,
   cti_self:6000
 };
@@ -1145,7 +1152,10 @@ function fmtCTI(id,v){
   if(id==='cti_days') return v+' 日';
   if(id==='cti_a_calls'||id==='cti_b_calls') return v+' 件';
   if(id==='cti_a_connect'||id==='cti_b_connect'||id==='cti_fixed_ratio') return v+' %';
-  if(id==='cti_a_mins'||id==='cti_b_mins') return v+' 分';
+  if(id==='cti_a_mins'||id==='cti_b_mins'){
+    const t=Math.round(Number(v)*60), m=Math.floor(t/60), sec=t%60;
+    return sec ? m+'分'+String(sec).padStart(2,'0')+'秒' : m+'分';
+  }
   return yen(v);
 }
 
@@ -1157,9 +1167,14 @@ function calcCTI(){
   const seat=g('cti_seat'), rateMobile=g('cti_rate_mobile'), rateFixed=g('cti_rate_fixed'),
         fixedRatio=g('cti_fixed_ratio')/100, recAddon=g('cti_rec_addon'), self=g('cti_self');
 
-  const minsA = aCalls*aConn*aMins*days;
-  const minsB = bCalls*bConn*bMins*days;
+  /* 課金単位。30秒単位なら、1本ごとにその単位へ切り上げてから足す */
+  const unit = (typeof callUnit==='number' && callUnit>0) ? callUnit : 1;
+  const kake = m => unit<=1 ? m : Math.ceil(m*60/unit)*unit/60;   // 分→単位切り上げ→分
+  const callsA = aCalls*aConn*days, callsB = bCalls*bConn*days;
+  const minsA = callsA * kake(aMins);
+  const minsB = callsB * kake(bMins);
   const totalMins = minsA + minsB;
+  const namaMins = callsA*aMins + callsB*bMins;   // 切り上げ前（実際に話した分）
   const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
 
   const inc = id => { const el=document.getElementById(id); return el ? el.checked : true; };
@@ -1196,8 +1211,10 @@ function calcCTI(){
   document.getElementById('cti_out_year').innerHTML = yen(yearDiff) + ' <small>/年</small>';
 
   document.getElementById('cti_why').innerHTML =
-`A: マッチング通話分/月/人　= ${aCalls}件 <span class="op">×</span> ${(aConn*100).toFixed(0)}% <span class="op">×</span> ${aMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsA).toLocaleString()}分</span>
-B: ヒアリング通話分/月/人　= ${bCalls}件 <span class="op">×</span> ${(bConn*100).toFixed(0)}% <span class="op">×</span> ${bMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span>
+`課金単位　　　　　　　　　= <span class="fig">${unit===1?'1秒（切り上げなし）':unit+'秒ごとに切り上げ'}</span>${unit>1?`　1本${aMins}分 → <span class="fig">${kake(aMins).toFixed(2)}分</span>ぶん請求`:''}
+A: マッチング通話分/月/人　= ${aCalls}件 <span class="op">×</span> ${(aConn*100).toFixed(0)}% <span class="op">×</span> ${unit>1?kake(aMins).toFixed(2):aMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsA).toLocaleString()}分</span>
+B: ヒアリング通話分/月/人　= ${bCalls}件 <span class="op">×</span> ${(bConn*100).toFixed(0)}% <span class="op">×</span> ${unit>1?kake(bMins).toFixed(2):bMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span>${unit>1?`
+切り上げで増えた分　　　　= <span class="fig">${Math.round(totalMins-namaMins).toLocaleString()}分</span>（実際に話したのは ${Math.round(namaMins).toLocaleString()}分）`:''}
 通話分合計/人/月　　　　　= <span class="fig">${Math.round(minsA).toLocaleString()}分</span> <span class="op">+</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span> <span class="op">=</span> <span class="fig">${Math.round(totalMins).toLocaleString()}分</span>
 加重通話単価　　　　　　　= ¥${rateMobile}×${(100-fixedRatio*100).toFixed(0)}% <span class="op">+</span> ¥${rateFixed}×${(fixedRatio*100).toFixed(0)}% <span class="op">=</span> <span class="fig">${yen(blendedRate)}/分</span>
 比較先/人/月　　　　　　　= 席料${incSeat?yen(seat):'（含めない）'} <span class="op">+</span> 通話${incCall?'('+yen(blendedRate)+'×'+Math.round(totalMins).toLocaleString()+'分)':'（含めない）'} <span class="op">+</span> 録音AI${incRec?yen(recAddon):'（含めない）'} <span class="op">=</span> <span class="fig">${yen(vendorPerAgent)}</span>
@@ -1221,6 +1238,16 @@ function resetCTI(){
   if(typeof ctiTierSync==='function') ctiTierSync();
   calcCTI();
 }
+/* 通話料の課金単位（秒）。30なら30秒ごとに切り上げ */
+let callUnit = 30;
+function setCallUnit(u){
+  callUnit = u;
+  document.querySelectorAll('#cti_unit_row .preset-btn').forEach(b=>b.classList.toggle('on', Number(b.dataset.unit)===u));
+  calcCTI();
+  if(typeof updateDashboard==='function') updateDashboard();
+  if(typeof simSave==='function') simSave();
+}
+
 /* 比較先の使い方（三段） */
 const ctiTiers = {
   call:{ cti_seat:2000, cti_rec_addon:0 },      // 素のCTI：通話のみ
@@ -1434,7 +1461,9 @@ function updateDashboard(){
   const bCalls=g('cti_b_calls'), bConn=g('cti_b_connect')/100, bMins=g('cti_b_mins');
   const seat=g('cti_seat'), rateMobile=g('cti_rate_mobile'), rateFixed=g('cti_rate_fixed'),
         fixedRatio=g('cti_fixed_ratio')/100, recAddon=g('cti_rec_addon'), self=g('cti_self');
-  const totalMins = aCalls*aConn*aMins*days + bCalls*bConn*bMins*days;
+  const u = (typeof callUnit==='number' && callUnit>0) ? callUnit : 1;
+  const kk = m => u<=1 ? m : Math.ceil(m*60/u)*u/60;
+  const totalMins = aCalls*aConn*days*kk(aMins) + bCalls*bConn*days*kk(bMins);
   const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
   const inc = id => { const el=document.getElementById(id); return el ? el.checked : true; };
   const ctiVendor = ((inc('cti_inc_seat')?seat:0) + (inc('cti_inc_call')?totalMins*blendedRate:0) + (inc('cti_inc_rec')?recAddon:0)) * agents;
@@ -1474,6 +1503,7 @@ function saveState(){
     state[id] = document.getElementById(id).value;
   });
   state.mapMode = mapMode;
+  state.callUnit = callUnit;
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1506,6 +1536,7 @@ function loadState(evt){
           }
         }
       });
+      if([1,30,60].includes(state.callUnit)) setCallUnit(state.callUnit);
       setMapMode(['A','B','min'].includes(state.mapMode) ? state.mapMode : 'min');
       ctiTierSync();
       calcCTI(); calcMAP(); calcENV(); updateDashboard();
@@ -1621,6 +1652,7 @@ function simSave(){
     const st = {};
     allIds.forEach(id=>{ const el=document.getElementById(id); if(el) st[id]=el.value; });
     st.mapMode = mapMode;
+    st.callUnit = callUnit;
     ['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
       const el=document.getElementById(id); if(el) st[id]=el.checked;
     });
@@ -1646,6 +1678,7 @@ function simRestore(){
   ['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
     const el=document.getElementById(id); if(el && typeof st[id]==='boolean') el.checked=st[id];
   });
+  if([1,30,60].includes(st.callUnit)) setCallUnit(st.callUnit);
   if(['A','B','min'].includes(st.mapMode)) setMapMode(st.mapMode);
   ctiTierSync();
   calcCTI(); calcMAP(); calcENV();
