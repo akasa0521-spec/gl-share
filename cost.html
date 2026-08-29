@@ -823,7 +823,10 @@
       <button class="preset-btn" data-mode="B" onclick="setMapMode('B')">うちは方式B<small>検索回数課金型を使っている・検討中</small></button>
       <button class="preset-btn on" data-mode="min" onclick="setMapMode('min')">まだ決めていない<small>両方を見比べる</small></button>
     </div>
-    <p class="preset-note">AとBは別々のサービスの料金方式で、同じ機能にどちらか一方を選ぶものです。両方を同時に契約して足し合わせる関係ではありません。選んだ方式のカードだけ入力すれば大丈夫です。<b>方式を選ぶまでは、この節の金額は上の削減額の合計に入れません</b>（契約していないものを「削れた」ことにしないためです）。</p>
+    <p class="preset-note">AとBは別々のサービスの料金方式で、同じ機能にどちらか一方を選ぶものです。両方を同時に契約して足し合わせる関係ではありません。選んだ方式のカードだけ入力すれば大丈夫です。</p>
+    <div class="presetrow" style="margin-bottom:14px;">
+      <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="map_inc" checked> この節を削減額の合計に入れる</label>
+    </div>
 
     <div class="input-card card-blue">
       <div class="input-card-head">
@@ -1408,9 +1411,10 @@ function updateDashboard(){
   const over = Math.max(0, calls-cap);
   const units = step>0 ? Math.ceil(over/step) : 0;
   const bMonthly = base + units*addon;
-  // 地図の数字は常に動かす。合計に入れるかどうかだけ、方式の選択で分ける
+  // 地図の数字は常に動かす。合計に入れるかどうかは、本人のチェックだけで決まる
   const mapView = Math.max(0, mapMode==='A' ? aMonthly : (mapMode==='B' ? bMonthly : Math.min(aMonthly,bMonthly)));
-  const mapCounted = mapMode!=='min';   // 方式を選ぶまでは、未契約かもしれない分を合計に入れない
+  const mi = document.getElementById('map_inc');
+  const mapCounted = mi ? mi.checked : true;
   const mapDiff = mapCounted ? mapView : 0;
 
   const totalMonth = ctiDiff + mapDiff;
@@ -1561,7 +1565,7 @@ function simSave(){
     const st = {};
     allIds.forEach(id=>{ const el=document.getElementById(id); if(el) st[id]=el.value; });
     st.mapMode = mapMode;
-    ['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{
+    ['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
       const el=document.getElementById(id); if(el) st[id]=el.checked;
     });
     localStorage.setItem(SIM_KEY, JSON.stringify(st));
@@ -1583,14 +1587,14 @@ function simRestore(){
       else if(envIds.includes(id)) vEl.textContent = fmtENV(id, applied);
     }
   });
-  ['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{
+  ['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
     const el=document.getElementById(id); if(el && typeof st[id]==='boolean') el.checked=st[id];
   });
   if(['A','B','min'].includes(st.mapMode)) setMapMode(st.mapMode);
   ctiTierSync();
   calcCTI(); calcMAP(); calcENV();
 }
-['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{
+['cti_inc_seat','cti_inc_call','cti_inc_rec','map_inc'].forEach(id=>{
   const el=document.getElementById(id);
   if(el) el.addEventListener('change', ()=>{ calcCTI(); updateDashboard(); simSave(); });
 });
