@@ -2,13 +2,6 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta property="og:title" content="GoodLuck">
-<meta property="og:description" content="おもしろい！をみつける会社。くぐると、道具が置いてあります。">
-<meta property="og:image" content="https://gd-luck.co.jp/ogp.jpg">
-<meta property="og:url" content="https://gd-luck.co.jp/noren.html">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://gd-luck.co.jp/noren.html">
 
 <link rel="icon" href="./favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
@@ -17,7 +10,21 @@
 <meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>GoodLuck</title>
-<meta name="description" content="おもしろい！をみつける会社。">
+<meta name="description" content="Good Luckのおもちゃ箱。無料の道具が並んでいます。登録も送信もありません。">
+<link rel="canonical" href="https://gd-luck.co.jp/noren.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Good Luck">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="GoodLuck">
+<meta property="og:description" content="Good Luckのおもちゃ箱。無料の道具が並んでいます。登録も送信もありません。">
+<meta property="og:url" content="https://gd-luck.co.jp/noren.html">
+<meta property="og:image" content="https://gd-luck.co.jp/ogp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GoodLuck">
+<meta name="twitter:description" content="Good Luckのおもちゃ箱。無料の道具が並んでいます。登録も送信もありません。">
+<meta name="twitter:image" content="https://gd-luck.co.jp/ogp.jpg">
 <style>
 :root{color-scheme:light;
   --paper:#EDEBE6; --ink:#3A372F; --deep:#26241F;
@@ -309,6 +316,23 @@ footer{font-family:var(--sans);font-size:10.5px;line-height:2.1;
   *{animation-duration:.01s !important;animation-delay:0s !important;
     transition-duration:.01s !important;}
 }
+
+/* ── 名刺から来た人にだけ出る一枚 ── */
+#fuda-in{display:none;margin:0 0 30px;padding:22px 24px;
+  border:1px solid var(--mori-bd,#B4C4B0);border-radius:14px;
+  background:var(--mori-lt,#E9EFE7);
+  opacity:0;transform:translateY(8px);
+  transition:opacity 1.4s cubic-bezier(.3,.5,.2,1),transform 1.4s cubic-bezier(.3,.5,.2,1)}
+#fuda-in.on{display:block}
+#fuda-in.in{opacity:1;transform:none}
+#fuda-in .yobi{font-family:var(--serifB,serif);font-size:22px;line-height:1.7;
+  color:var(--tokiwa,#2E5B3D);margin:0 0 14px;font-weight:600;letter-spacing:.04em}
+#fuda-in .no{font-family:'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.24em;
+  color:var(--usuzumi,#8B887D);display:block;margin-top:16px;text-align:right}
+#fuda-in .ko{font-family:var(--serifB,serif);font-size:17px;line-height:1.95;
+  color:var(--ink,#211F1A);margin:0}
+#fuda-in .ato{font-size:12.5px;color:var(--usuzumi,#8B887D);line-height:1.9;margin:11px 0 0}
+@media (prefers-reduced-motion:reduce){#fuda-in{transition:none}}
 </style>
 </head>
 <body>
@@ -351,6 +375,13 @@ footer{font-family:var(--sans);font-size:10.5px;line-height:2.1;
 <!-- ===================== 中身 ===================== -->
 <div id="naka">
 <div class="wrap">
+<div id="fuda-in">
+  <p class="yobi" id="fuda-yobi"></p>
+  <p class="ko" id="fuda-ko"></p>
+  <p class="ato" id="fuda-ato"></p>
+  <span class="no" id="fuda-no"></span>
+</div>
+
 
   <section class="kudari tatami" data-key="yobikata">
     <div class="tobira" role="button" tabindex="0" aria-expanded="true">
@@ -653,6 +684,8 @@ function mihari(){
   const ban=new URLSearchParams(location.search).get('m')||'';
   const banEl = document.getElementById('ban');
   if(ban) banEl.textContent = ban;
+
+
   const btn=document.getElementById('tsutaeru');
   const torikeshiWrap = document.getElementById('torikeshiWrap');
   const torikeshiBtn = document.getElementById('torikeshiBtn');
@@ -704,6 +737,47 @@ function mihari(){
     });
   }
 }
+
+  /* 名刺から来た人にだけ、一枚出す。売り込まない。そっと置く。
+   名前は、この端末に覚えさせておいたものだけを使う（URLには入れない）。
+   渡す側が事前に登録しておくと、その番号で来た人が名前で迎えられる。 */
+(function(){
+  const meNo=new URLSearchParams(location.search).get('m')||'';
+  if(!/^\d{3,6}$/.test(meNo)) return;
+  const box=document.getElementById('fuda-in');
+  if(!box) return;
+  const yobi=document.getElementById('fuda-yobi');
+  const ko=document.getElementById('fuda-ko');
+  const ato=document.getElementById('fuda-ato');
+  const no=document.getElementById('fuda-no');
+
+  /* 番号から名前を引く。#n=お名前 で登録できる（渡す側が自分の端末で仕込む） */
+  let cho={};
+  try{ cho=JSON.parse(localStorage.getItem('gl_meishi_cho')||'{}'); }catch(e){}
+  const h=decodeURIComponent((location.hash||'').replace(/^#/,''));
+  if(h.startsWith('n=')){
+    cho[meNo]=h.slice(2).slice(0,20);
+    try{ localStorage.setItem('gl_meishi_cho',JSON.stringify(cho)); }catch(e){}
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  const namae=cho[meNo]||'';
+
+  const jikan=new Date().getHours();
+  const aisatsu = jikan<11?'おはようございます。':(jikan<18?'こんにちは。':'こんばんは。');
+
+  yobi.innerHTML = namae
+    ? namae.replace(/[<>]/g,'')+' さま<br>'+aisatsu
+    : aisatsu;
+  ko.textContent = namae
+    ? 'お渡しした一枚から、ここへ来てくださってありがとうございます。'
+    : 'お渡しした一枚から、ここへ来てくださってありがとうございます。';
+  ato.innerHTML = '中の道具は、どれも無料です。登録も要りません。<br>'+
+    '書いたものは、この端末から出ません。どうぞ、ご自由に。';
+  no.textContent='No. '+meNo;
+
+  box.classList.add('on');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('in')));
+})();
 </script>
 </body>
 </html>
