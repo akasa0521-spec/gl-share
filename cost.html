@@ -1664,7 +1664,7 @@ function payFix(){
   if(!(amount>=0)){ alert('金額を入れてください（0円でも大丈夫です）。'); return; }
   const cap = payRef(15);
   let capped = false;
-  if(cap>0 && amount>cap){ amount = cap; capped = true; document.getElementById('pay_amount').value = cap; }
+  if(amount>cap){ amount = cap; capped = true; document.getElementById('pay_amount').value = cap; }
   const memo = document.getElementById('pay_memo').value.trim();
   const d = payLoad();
   d.history[payYm()] = {amount, memo, at:new Date().toISOString().slice(0,10)};

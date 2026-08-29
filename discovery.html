@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>人の流れ、言葉にする。</title>
-<meta name="description" content="15〜20分のディスカバリースプリント。書いたものは、あなたの端末だけに残ります。">
+<meta name="description" content="15〜20分のディスカバリースプリント。書いたものはどこにも送られません。残したいときは、ファイルとして書き出せます。">
 <style>
 :root{color-scheme:light only;
   --paper:#F7F5F0; --card:#FFFFFF; --ink:#211F1A; --ink2:#4A473F; --usu:#8B887D; --line:#E2DECF;
@@ -442,7 +442,7 @@ function downloadRecord(){
     '■ まわりのいいところ', ...C.others.filter(Boolean), '',
     '■ 代表に求められているもの', C.boss, '', '■ 足りてないところ', C.lack, '',
     '■ MVVと近いところ', D.near, '', '■ 違うところ', D.diff, '',
-    '---', 'この記録は本人が書いたものです。あなたの端末にのみ保存されています。'
+    '---', 'この記録は本人が書いたものです。どこにも送られていません。'
   ];
   const blob = new Blob([L.join('\n')], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a');
