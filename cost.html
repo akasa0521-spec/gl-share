@@ -1043,17 +1043,24 @@
       <h2 class="section-title">今月のお支払いを、決める</h2>
     </div>
     <p class="section-sub">
-      この試算から、そのまま今月の支払い額をあなたが決められます。
-      計算式は自由です。上の参考値を使っても、独自の式でも構いません。金額の理由はメモ欄に残せます。
+      <b>納得した金額でいいですよ。</b>
+      下の三つの根拠を見て、腹に落ちる額を入れてください。計算式は自由、理由はメモ欄に残せます。
+      あとで「もう少し払うべきだったな」と思ったら、来月の額で直せばいい——そのための鏡です。
       確定がなかった月は、前回確定した額がそのまま引き継がれます。
       入力は全部この端末の中に保存され、どこにも送信されません。
     </p>
 
     <div class="paycard">
+      <table class="compare" style="margin-bottom:14px;">
+        <thead><tr><th>根拠</th><th>月額にすると</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>お試し料率（削減額の10%）</td><td id="pay_ref">—</td><td><button class="reset-btn" onclick="payUsePct(10)">入れる</button></td></tr>
+          <tr><td>上限（削減額の15%。これより上は受け取りません）</td><td id="pay_ref15">—</td><td><button class="reset-btn" onclick="payUsePct(15)">入れる</button></td></tr>
+          <tr><td>（参考）世間の相場：削減系コンサルは初年度30〜50%一括が一般的</td><td id="pay_ref30">—</td><td></td></tr>
+        </tbody>
+      </table>
+      <p class="preset-note">下はいくらでも構いません（0円でも）。上は削減額の15%で頭打ちです。</p>
       <div class="payrow">
-        <label>参考値（削減額の10%）</label>
-        <span id="pay_ref" style="font-family:var(--serif);font-size:20px;font-weight:600;">—</span>
-        <button class="reset-btn" onclick="payUseRef()">この額を入れる</button>
         <button class="reset-btn" onclick="payUseLast()">前回確定と同じにする</button>
       </div>
       <div class="payrow">
@@ -1061,6 +1068,7 @@
         <input type="number" id="pay_amount" min="0" step="1000" placeholder="0">
         <span class="unit">円</span>
       </div>
+      <p class="pay-status" id="pay_compare"></p>
       <div class="payrow">
         <label for="pay_memo">計算式・ひとこと</label>
         <input type="text" id="pay_memo" placeholder="例：削減額の10%。／今月は世話になったので気持ち上乗せ。">
@@ -1496,11 +1504,22 @@ function payLastConfirmed(){
   const keys = Object.keys(h).sort();
   return keys.length ? {ym:keys[keys.length-1], ...h[keys[keys.length-1]]} : null;
 }
-function payRef(){ return Math.max(0, Math.round((window._totalMonthDiff||0) * 0.10)); }
+function payRef(pct){ return Math.max(0, Math.round((window._totalMonthDiff||0) * (pct||10)/100)); }
+function payCompare(){
+  const el = document.getElementById('pay_compare'); if(!el) return;
+  const raw = document.getElementById('pay_amount').value.trim();
+  const base = payRef(10);
+  if(raw==='' || !(Number(raw)>=0) || base<=0){ el.textContent=''; return; }
+  const pctOfSaving = Number(raw) / (window._totalMonthDiff||1) * 100;
+  el.textContent = 'この額は、削減額の約 '+pctOfSaving.toFixed(1)+'% にあたります。上の三つの根拠と見比べて、来月もう一度考え直せます。';
+}
 function payRefresh(){
   const refEl = document.getElementById('pay_ref');
   if(!refEl) return;
-  refEl.textContent = yen(payRef()) + ' /月';
+  refEl.textContent = yen(payRef(10)) + ' /月';
+  const r15=document.getElementById('pay_ref15'); if(r15) r15.textContent = yen(payRef(15)) + ' /月';
+  const r30=document.getElementById('pay_ref30'); if(r30) r30.textContent = yen(payRef(30)) + ' /月';
+  payCompare();
   const ym = payYm();
   const h = payLoad().history;
   const st = document.getElementById('pay_status');
@@ -1513,7 +1532,7 @@ function payRefresh(){
       : 'まだ確定した月はありません。';
   }
 }
-function payUseRef(){ document.getElementById('pay_amount').value = payRef(); }
+function payUsePct(pct){ document.getElementById('pay_amount').value = payRef(pct); payCompare(); }
 function payUseLast(){
   const last = payLastConfirmed();
   if(!last){ alert('まだ確定した月がないので、引き継げる額はありません。'); return; }
@@ -1523,13 +1542,20 @@ function payUseLast(){
 function payFix(){
   const raw = document.getElementById('pay_amount').value.trim();
   if(raw===''){ alert('金額を入れてください（0円にするなら、0と入れてください）。'); return; }
-  const amount = Number(raw);
+  let amount = Number(raw);
   if(!(amount>=0)){ alert('金額を入れてください（0円でも大丈夫です）。'); return; }
+  const cap = payRef(15);
+  let capped = false;
+  if(cap>0 && amount>cap){ amount = cap; capped = true; document.getElementById('pay_amount').value = cap; }
   const memo = document.getElementById('pay_memo').value.trim();
   const d = payLoad();
   d.history[payYm()] = {amount, memo, at:new Date().toISOString().slice(0,10)};
   paySave(d);
   payRefresh();
+  if(capped){
+    const st=document.getElementById('pay_status');
+    if(st) st.textContent += '（上限の15%で受け付けました。お気持ちはしかと）';
+  }
 }
 function payExport(){
   const ym = payYm();
@@ -1543,7 +1569,7 @@ function payExport(){
     '金額　　：'+yen(cur.amount),
     '決め方　：'+(cur.memo || '（記載なし）'),
     (h[ym] ? '確定日　：'+cur.at : '状態　　：今月分は未確定のため、前回確定額（'+cur.ym.replace('-','年')+'月）を引き継ぎ'),
-    '参考値　：削減額試算 '+yen(window._totalMonthDiff||0)+'/月 の10% ＝ '+yen(payRef())+'/月',
+    '根拠　　：削減額試算 '+yen(window._totalMonthDiff||0)+'/月（お試し10%='+yen(payRef(10))+' / 適正15%='+yen(payRef(15))+' / 相場下限30%='+yen(payRef(30))+'）',
     '─────────────────',
     'この明細は、この端末のブラウザ内だけで作られたものです。'
   ];
@@ -1552,6 +1578,7 @@ function payExport(){
   if(navigator.clipboard) navigator.clipboard.writeText(lines.join('\n')).catch(()=>{});
 }
 payRefresh();
+(function(){ const a=document.getElementById('pay_amount'); if(a) a.addEventListener('input', payCompare); })();
 
 /* 全スライダーに、常設パネル更新のフックを追加 */
 [...ctiIds, ...mapIds].forEach(id=>{
