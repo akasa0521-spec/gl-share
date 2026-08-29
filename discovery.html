@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>人の流れ、言葉にする。</title>
+<meta name="description" content="15〜20分のディスカバリースプリント。書いたものは、あなたの端末だけに残ります。">
+<style>
+:root{color-scheme:light only;
+  --paper:#F7F5F0; --card:#FFFFFF; --ink:#211F1A; --ink2:#4A473F; --usu:#8B887D; --line:#E2DECF;
+  --gold:#A9863F; --gold-bg:#F4EDDB; --gold-bd:#DCC98C;
+  --serifB:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP','Noto Serif CJK JP',serif;
+  --sans:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+  --latin:'Hoefler Text','Baskerville','Palatino','Times New Roman',serif;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serifB);
+  line-height:2;letter-spacing:.03em;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:640px;margin:0 auto;padding:0 22px 100px;}
+
+/* ---- 進捗の細線 ---- */
+#pbar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--gold);z-index:500;
+  transition:width .8s cubic-bezier(.3,.5,.2,1);}
+
+/* ---- 幕の切り替え ---- */
+.act{display:none;padding-top:56px;animation:fadeUp .9s cubic-bezier(.25,.6,.2,1);}
+.act.on{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+.roman{font-family:var(--latin);font-size:12px;letter-spacing:.3em;color:var(--gold);font-weight:600;}
+.eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:var(--usu);margin-top:6px;}
+h1{font-size:26px;font-weight:600;line-height:1.7;margin:14px 0 0;}
+.lead{font-size:14px;color:var(--ink2);margin:18px 0 0;}
+.dan{margin:22px 0 0;padding:14px 16px;border-radius:11px;background:#EFECE1;
+  font-family:var(--sans);font-size:11.5px;color:var(--ink2);line-height:1.9;}
+
+/* ---- タイマー ---- */
+.timer-box{margin:30px 0 0;text-align:center;}
+.timer-n{font-family:var(--latin);font-size:64px;font-weight:300;color:var(--gold);line-height:1;
+  font-variant-numeric:tabular-nums;}
+.timer-l{font-family:var(--sans);font-size:11px;color:var(--usu);letter-spacing:.14em;margin-top:6px;}
+.timer-n.warn{color:#B4614E;}
+
+/* ---- ラウンド：単語をひたすら書く ---- */
+.round-t{font-size:17px;font-weight:600;margin:34px 0 14px;}
+.words{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;}
+@media(max-width:420px){.words{grid-template-columns:1fr;}}
+.word-row{display:flex;align-items:center;gap:8px;}
+.word-no{font-family:var(--latin);font-size:12px;color:var(--usu);width:18px;flex:none;}
+.word-row input{flex:1;min-width:0;font-family:var(--serifB);font-size:14.5px;padding:9px 4px;
+  border:none;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);}
+.word-row input:focus{outline:none;border-color:var(--gold);}
+
+/* ---- 通常の問い ---- */
+.q{margin:32px 0 0;}
+.q-t{font-size:15.5px;font-weight:600;line-height:1.85;}
+.q-h{font-family:var(--sans);font-size:11.5px;color:var(--usu);margin-top:5px;line-height:1.8;}
+.q textarea, .q input[type=text]{width:100%;margin-top:12px;padding:12px 13px;border-radius:9px;
+  border:1px solid var(--line);background:var(--card);font-family:var(--serifB);font-size:14px;
+  line-height:1.9;color:var(--ink);resize:vertical;}
+.q textarea{min-height:70px;}
+.q textarea:focus, .q input:focus{outline:2px solid var(--gold-bd);outline-offset:1px;}
+.scale{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap;}
+.scale button{font-family:var(--sans);font-size:12.5px;padding:9px 15px;border-radius:999px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink2);cursor:pointer;
+  transition:background .3s,border-color .3s,color .3s;}
+.scale button.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold);font-weight:700;}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+@media(max-width:480px){.pair{grid-template-columns:1fr;}}
+
+/* ---- MVVの扉 ---- */
+.mvv-lock{margin:34px 0 0;padding:26px 22px;border-radius:14px;background:#EDEAE0;
+  border:1px dashed var(--line);text-align:center;}
+.mvv-lock p{font-family:var(--sans);font-size:12.5px;color:var(--usu);margin:0;line-height:1.9;}
+.mvv-open{margin:26px 0 0;padding:24px 22px;border-radius:14px;background:var(--gold-bg);
+  border:1px solid var(--gold-bd);}
+.mvv-open h3{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin:0 0 10px;}
+.mvv-open .body{font-family:var(--serifB);font-size:14.5px;line-height:2.1;color:var(--ink);}
+
+/* ---- 進む・戻る ---- */
+.nav{display:flex;gap:10px;margin-top:40px;}
+.nav button{flex:1;height:50px;border-radius:999px;cursor:pointer;font-family:var(--serifB);
+  font-size:14.5px;letter-spacing:.06em;border:1px solid var(--line);background:var(--card);
+  color:var(--ink2);transition:background .4s;}
+.nav .next{background:var(--ink);color:#F7F5F0;border-color:var(--ink);}
+.nav .next:hover{background:#3A3833;}
+.nav button:hover{background:#F0EDE2;}
+.nav .next:hover{background:#3A3833;}
+
+/* ---- 結果 ---- */
+.result h2{font-size:21px;font-weight:600;margin:0 0 6px;}
+.result .sum{font-family:var(--sans);font-size:13px;color:var(--ink2);margin:0 0 24px;line-height:1.95;}
+.beat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:11px;}
+.beat-h{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--sans);
+  font-size:11px;color:var(--usu);letter-spacing:.06em;}
+.beat-h b{font-family:var(--latin);font-size:14px;color:var(--gold);font-weight:600;}
+.beat-t{font-size:13px;color:var(--ink2);margin-top:5px;line-height:1.85;}
+
+.tail{margin-top:34px;padding:22px 22px 19px;border-radius:12px;background:#EFECE1;}
+.tail p{font-family:var(--sans);font-size:12.5px;color:var(--ink2);margin:0 0 9px;line-height:2;}
+.tail p:last-child{margin:0;}
+.tail b{color:var(--ink);font-family:var(--serifB);}
+
+footer{padding:46px 0 0;text-align:center;}
+.sig{font-family:var(--latin);font-size:17px;letter-spacing:.06em;}
+.sig-n{font-family:var(--sans);font-size:10.5px;color:var(--usu);margin-top:7px;}
+</style>
+</head>
+<body>
+<div style="max-width:640px;margin:0 auto;padding:20px 22px 0;font-family:'Hiragino Sans','Yu Gothic',sans-serif;"><a href="./noren.html" style="font-size:12.5px;color:#8B887D;text-decoration:none;">← おもちゃ箱</a></div>
+<div id="pbar"></div>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ============================================================
+   人の流れ、言葉にする。― Web版
+   全部ブラウザの中だけで完結。送信なし。
+   各設問にかかった時間（着手〜次へ進むまで）を、その場で測る。
+   ============================================================ */
+
+const START = Date.now();
+let ts = Date.now();           /* 現在の設問の開始時刻 */
+const timing = [];             /* {key, sec} */
+
+function markTime(key){
+  const sec = Math.round((Date.now() - ts) / 1000);
+  timing.push({ key, sec });
+  ts = Date.now();
+}
+
+/* ---- 状態 ---- */
+const A = { r1: Array(10).fill(''), r2: Array(10).fill(''), r3: Array(5).fill('') };
+const B = { pick:'', when:'', teach:'', diff:'', self_score:'', self_sure:'' };
+const C = { like:'', dislike:'', mendo:'', who:'', future:'', advice:'',
+            others:['','','','','',''], boss:'', lack:'' };
+const D = { near:'', why:'', diff:'' };
+let name = '';
+
+/* ---- 御社のMVV ----------------------------------------------
+   この三行を、その会社の実際の言葉に差し替えてから渡すこと。
+   差し替えないまま渡しても壊れない。
+   入っていなければ、開示の場面そのものが出なくなる（下の MVV_ARU）。
+   「開きます」と言っておいて空欄を出す、という形にはしない。 */
+const MVV = {
+  mission: '',
+  vision:  '',
+  value:   ''
+};
+/* 三つとも空なら、開示の場面を出さない */
+const MVV_ARU = !!(MVV.mission.trim() || MVV.vision.trim() || MVV.value.trim());
+
+/* ---- 進行 ---- */
+const ACTS = ['cover','r1','r2','r3','dig1','dig2','dig3','more1','more2','more3','more4','link1','link2','result'];
+let idx = 0;
+
+function progress(){
+  document.getElementById('pbar').style.width = Math.round((idx/(ACTS.length-1))*100) + '%';
+}
+
+function render(){
+  progress();
+  const app = document.getElementById('app');
+  app.innerHTML = SCREENS[ACTS[idx]]();
+  wire();
+  window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'});
+}
+
+function go(delta, key){
+  if (key) markTime(key);
+  idx = Math.max(0, Math.min(ACTS.length - 1, idx + delta));
+  render();
+}
+
+/* ---- 画面ごとの中身 ---- */
+const SCREENS = {
+
+cover: () => `
+  <div class="act on">
+    <div class="roman">Ⅰ</div>
+    <div class="eyebrow">DISCOVERY SPRINT ― WEB版</div>
+    <h1>人の流れを、<br>いちど言葉にしてみる。</h1>
+    <p class="lead">15〜20分ほどです。うまくまとめようとしなくて大丈夫。<br>
+      思ったことを、そのまま書いてください。</p>
+    <div class="dan"><b>書いたものは、どこにも送っていません。</b>あなたのブラウザの中だけで進みます。
+      こちらのサーバーには何も届かず、記録もしていません。</div>
+    <div class="dan"><b>これは、いまの時点でのあなたの見立てです。</b>正解を当てる場ではありません。
+      あとで<b>みんなの分を集めて、並べます。</b>誰の答えだったかが分からなくなってから、まとめます。
+      <b>個々の答えそのものは、代表にも見せません。</b>まとまった声としてだけ届けます。
+      集める方法は、最後に出てくるファイルを渡してもらう形です。</div>
+    <div class="q">
+      <div class="q-t">お名前</div>
+      <input type="text" id="f_name" value="${esc(name)}">
+    </div>
+    <div class="nav"><span></span><button class="next" id="btnStart">はじめる</button></div>
+  </div>`,
+
+r1: () => roundScreen(1, 'この会社の「良いところ」', A.r1, 10, 30),
+r2: () => roundScreen(2, '「うちの会社っぽいな」って瞬間・出来事', A.r2, 10, 30),
+r3: () => roundScreen(3, '同じ仕事をしている他社と比べて「うちはここが違う」', A.r3, 5, 30),
+
+dig1: () => `
+  <div class="act on">
+    <div class="roman">Ⅱ</div>
+    <div class="eyebrow">ほりさげる</div>
+    <h1>ひとつだけ、深く聞かせて。</h1>
+    <p class="lead">さっき書いた中から、一番いいなと思ったものをひとつ選んでください。</p>
+    <div class="q"><div class="q-t">選んだ言葉</div>
+      <input type="text" id="f_pick" value="${esc(B.pick)}"></div>
+    <div class="q"><div class="q-t">それって、具体的にはどんな時の話？</div>
+      <div class="q-h">いつ・誰が・何してた</div>
+      <textarea id="f_when">${esc(B.when)}</textarea></div>
+    ${navRow('dig1')}
+  </div>`,
+
+dig2: () => `
+  <div class="act on">
+    <div class="eyebrow">ほりさげる ― つづき</div>
+    <div class="q"><div class="q-t">新しく入ってくる人に「これをやればOK」って伝えるなら、なんて言う？</div>
+      <textarea id="f_teach">${esc(B.teach)}</textarea></div>
+    <div class="q"><div class="q-t">それができてる人と、できてない人の違いは？</div>
+      <textarea id="f_diff">${esc(B.diff)}</textarea></div>
+    ${navRow('dig2')}
+  </div>`,
+
+dig3: () => `
+  <div class="act on">
+    <div class="eyebrow">自分について ― 素直でいい</div>
+    <p class="lead">自己評価が高いのは、全然恥ずかしいことじゃないです。</p>
+    <div class="q"><div class="q-t">上に書いたこと、自分は今どれくらいできてると思う？</div>
+      <div class="scale" id="sc_score">${scaleBtns(['まだまだ','ぼちぼち','できてる','かなり自信あり'], B.self_score)}</div></div>
+    <div class="q"><div class="q-t">自分が一番自信持って「これはできてる」って言えることは？</div>
+      <textarea id="f_sure">${esc(B.self_sure)}</textarea></div>
+    ${navRow('dig3')}
+  </div>`,
+
+more1: () => `
+  <div class="act on">
+    <div class="roman">Ⅱ</div>
+    <div class="eyebrow">もうすこし ― 好き・嫌い・面倒</div>
+    <h1>仕事のこと、まわりのこと。</h1>
+    <div class="q"><div class="q-t">好きな仕事</div><textarea id="f_like">${esc(C.like)}</textarea></div>
+    <div class="q"><div class="q-t">嫌いな仕事</div><textarea id="f_dislike">${esc(C.dislike)}</textarea></div>
+    <div class="q"><div class="q-t">面倒だなと思う仕事</div><textarea id="f_mendo">${esc(C.mendo)}</textarea></div>
+    ${navRow('more1')}
+  </div>`,
+
+more2: () => `
+  <div class="act on">
+    <div class="eyebrow">自分・未来</div>
+    <div class="q"><div class="q-t">自分は何をしてる人間だと思う？</div><textarea id="f_who">${esc(C.who)}</textarea></div>
+    <div class="q"><div class="q-t">3年後、会社がどうなってたら最高？</div><textarea id="f_future">${esc(C.future)}</textarea></div>
+    <div class="q"><div class="q-t">新しく入る人へのアドバイスをひとつ</div><textarea id="f_advice">${esc(C.advice)}</textarea></div>
+    ${navRow('more2')}
+  </div>`,
+
+more3: () => `
+  <div class="act on">
+    <div class="eyebrow">まわりの、いいところ</div>
+    <p class="lead">自分以外のメンバーについて、いいところを書いてください（2つずつ、書ける範囲で）。</p>
+    <div class="pair">
+      ${[0,1,2,3,4,5].map(i=>`<input type="text" id="f_oth${i}" placeholder="いいところ ${i+1}" value="${esc(C.others[i])}">`).join('')}
+    </div>
+    ${navRow('more3')}
+  </div>`,
+
+more4: () => `
+  <div class="act on">
+    <div class="eyebrow">社長に求められているもの</div>
+    <div class="q"><div class="q-t">代表から求められていると感じるもの</div><textarea id="f_boss">${esc(C.boss)}</textarea></div>
+    <div class="q"><div class="q-t">その中で、自分がまだ足りてないなと思うところは？</div><textarea id="f_lack">${esc(C.lack)}</textarea></div>
+    ${navRow('more4')}
+  </div>`,
+
+link1: () => `
+  <div class="act on">
+    <div class="roman">Ⅲ</div>
+    <div class="eyebrow">つなげる</div>
+    <h1>さっき置いといたやつ、<br>もう一度見てみようか。</h1>
+    <div class="mvv-lock"><p>${MVV_ARU
+      ? 'ここまで、代表のMVVは伏せたまま進めてきました。<br>次の画面で、開きます。'
+      : 'この道具は、代表のMVVを入れてから使うものです。<br><b>今回は入っていません。</b>だから、開く場面はありません。<br>ここまで出てきた言葉は、そのまま次へ持っていけます。'}</p></div>
+    <div class="nav"><span></span><button class="next" id="btnOpenMvv">${MVV_ARU?'MVVを、開く':'つづける'}</button></div>
+  </div>`,
+
+link2: () => `
+  <div class="act on">
+    <div class="eyebrow">つなげる ― つづき</div>
+    ${MVV_ARU ? `<div class="mvv-open">
+      ${MVV.mission.trim()?`<h3>MISSION</h3><div class="body">${esc(MVV.mission)}</div>`:''}
+      ${MVV.vision.trim()?`<h3 style="margin-top:18px;">VISION</h3><div class="body">${esc(MVV.vision)}</div>`:''}
+      ${MVV.value.trim()?`<h3 style="margin-top:18px;">VALUE</h3><div class="body">${esc(MVV.value)}</div>`:''}
+    </div>` : ''}
+    <div class="q"><div class="q-t">今日出てきた言葉の中で、「あ、これ近いな」って思うものは？</div>
+      <div class="q-h">どのあたりが近いと思った？</div>
+      <textarea id="f_near">${esc(D.near)}</textarea></div>
+    <div class="q"><div class="q-t">逆に、「ここはちょっと違うかも」「もっとこう言った方がしっくりくる」ってところは？</div>
+      <textarea id="f_diff2">${esc(D.diff)}</textarea></div>
+    <div class="dan">ここで出てきたことが、そのまま代表へのコメントになります。<br>
+      「みんなで話したら、こういう繋がりが見えてきました」――そのままで大丈夫です。</div>
+    <div class="nav"><button id="btnBack">戻る</button><button class="next" id="btnFinish">おわる</button></div>
+  </div>`,
+
+result: () => resultScreen()
+
+};
+
+function roundScreen(n, title, arr, count, sec){
+  const rn = ['','ひとつめ','ふたつめ','みっつめ'][n];
+  return `
+  <div class="act on">
+    <div class="roman">Ⅱ</div>
+    <div class="eyebrow">あつめる ― ラウンド${n}</div>
+    <h1>30秒で、何個出せる？</h1>
+    <p class="lead">声に出さず、思いついた単語をひたすら書く。数を競う感覚でOK。</p>
+    <div class="round-t">${title}</div>
+    <div class="timer-box"><div class="timer-n" id="timerN">${sec}</div><div class="timer-l">のこり秒</div></div>
+    <div class="words">
+      ${arr.map((v,i)=>`<div class="word-row"><span class="word-no">${String(i+1).padStart(2,'0')}</span>
+        <input type="text" id="w${n}_${i}" value="${esc(v)}"></div>`).join('')}
+    </div>
+    <div class="nav"><span></span><button class="next" id="btnNext" data-key="r${n}">${n<3?'次のラウンドへ':'つぎへ'}</button></div>
+  </div>`;
+}
+
+function scaleBtns(labels, val){
+  return labels.map(l=>`<button data-v="${l}" class="${val===l?'on':''}">${l}</button>`).join('');
+}
+function navRow(key){
+  return `<div class="nav"><button id="btnBack">戻る</button><button class="next" id="btnNext" data-key="${key}">つぎへ</button></div>`;
+}
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+/* ---- 結果画面 ---- */
+function resultScreen(){
+  const totalSec = Math.round((Date.now() - START)/1000);
+  const mm = Math.floor(totalSec/60), ss = totalSec%60;
+  const heavy = timing.filter(t=>!t.key.startsWith('r')).sort((a,b)=>b.sec-a.sec).slice(0,3);
+  const LABEL = {
+    dig1:'選んだ言葉を、深く聞かせて', dig2:'新しい人への伝え方',
+    dig3:'自己評価', more1:'好き・嫌い・面倒', more2:'自分・未来',
+    more3:'まわりのいいところ', more4:'代表に求められているもの',
+    link1:'MVVを見る前', link2:'MVVを見て、感じたこと'
+  };
+  return `
+  <div class="act on result">
+    <div class="roman">Ⅳ</div>
+    <div class="eyebrow">おわりました</div>
+    <h2>${mm}分${ss}秒、かかりました。</h2>
+    <p class="sum">これは、うまい・へたの数字ではありません。<br>
+      考えた時間の長さです。長くかかったところほど、<b>ちゃんと考えた証拠</b>だと思います。</p>
+    ${heavy.length? `<div style="margin-bottom:8px;font-family:var(--sans);font-size:11px;color:var(--usu);letter-spacing:.1em;">特に時間がかかったところ</div>` : ''}
+    ${heavy.map(h=>`<div class="beat"><div class="beat-h"><span>${LABEL[h.key]||h.key}</span><b>${h.sec}秒</b></div></div>`).join('')}
+    <div class="nav"><button class="next" id="btnSave">この記録を、手元に保存する</button></div>
+    <div class="tail">
+      <p>はじめにお伝えしたとおり、ここで出てきた言葉は<b>みんなの分を集めて、並べます。</b>
+        誰の答えだったかが分からなくなってから、まとめます。</p>
+      <p>答えたことと、それを集めて代表に見せることは、別の話だと思っています。<br>
+        <b>個々の答えそのものは、代表にも見せません。</b>まとまった声としてだけ届けます。</p>
+    </div>
+    <footer><div class="sig">Good Luck</div><div class="sig-n">DISCOVERY SPRINT ― 2026</div></footer>
+  </div>`;
+}
+
+/* ---- 配線 ---- */
+function wire(){
+  const $ = s => document.querySelector(s);
+
+  $('#btnStart')?.addEventListener('click', ()=>{ name = $('#f_name').value; go(1); startRound(1); });
+  $('#btnBack')?.addEventListener('click', ()=>{ saveCurrent(); go(-1); });
+  $('#btnFinish')?.addEventListener('click', ()=>{ saveCurrent(); go(1,'link2'); });
+  $('#btnOpenMvv')?.addEventListener('click', ()=> go(1));
+  $('#btnSave')?.addEventListener('click', downloadRecord);
+
+  const nb = $('#btnNext');
+  if (nb){
+    nb.addEventListener('click', ()=>{
+      saveCurrent();
+      const key = nb.dataset.key;
+      go(1, key);
+      if (key && key.startsWith('r')) startRound(+key[1]+1 > 3 ? null : +key[1]+1);
+    });
+  }
+
+  document.querySelectorAll('.scale button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      B.self_score = b.dataset.v;
+    });
+  });
+}
+
+function saveCurrent(){
+  const $ = s => document.querySelector(s);
+  const v = id => ($('#'+id)?.value) ?? '';
+  const key = ACTS[idx];
+  if (key==='r1') A.r1 = A.r1.map((_,i)=>v('w1_'+i));
+  if (key==='r2') A.r2 = A.r2.map((_,i)=>v('w2_'+i));
+  if (key==='r3') A.r3 = A.r3.map((_,i)=>v('w3_'+i));
+  if (key==='dig1'){ B.pick=v('f_pick'); B.when=v('f_when'); }
+  if (key==='dig2'){ B.teach=v('f_teach'); B.diff=v('f_diff'); }
+  if (key==='dig3'){ B.self_sure=v('f_sure'); }
+  if (key==='more1'){ C.like=v('f_like'); C.dislike=v('f_dislike'); C.mendo=v('f_mendo'); }
+  if (key==='more2'){ C.who=v('f_who'); C.future=v('f_future'); C.advice=v('f_advice'); }
+  if (key==='more3'){ C.others = C.others.map((_,i)=>v('f_oth'+i)); }
+  if (key==='more4'){ C.boss=v('f_boss'); C.lack=v('f_lack'); }
+  if (key==='link2'){ D.near=v('f_near'); D.diff=v('f_diff2'); }
+}
+
+/* ---- ラウンドのタイマー（30秒） ---- */
+let roundTimer = null;
+function startRound(n){
+  clearInterval(roundTimer);
+  if (!n || n > 3) return;
+  let left = 30;
+  const el = document.getElementById('timerN');
+  roundTimer = setInterval(()=>{
+    left--;
+    const t = document.getElementById('timerN');
+    if (t){ t.textContent = left; if(left<=10) t.classList.add('warn'); }
+    if (left <= 0){ clearInterval(roundTimer); }
+  }, 1000);
+}
+
+/* ---- 手元に保存 ---- */
+function downloadRecord(){
+  const totalSec = Math.round((Date.now() - START)/1000);
+  const L = ['人の流れ、言葉にする。','DISCOVERY SPRINT ― 記録',`所要時間：${Math.floor(totalSec/60)}分${totalSec%60}秒`,'',
+    `お名前：${name||'（未記入）'}`,'',
+    '■ ラウンド1｜良いところ', ...A.r1.filter(Boolean), '',
+    '■ ラウンド2｜うちの会社っぽい瞬間', ...A.r2.filter(Boolean), '',
+    '■ ラウンド3｜他社との違い', ...A.r3.filter(Boolean), '',
+    '■ 選んだ言葉', B.pick, '', '■ 具体的には', B.when, '',
+    '■ 新しい人への伝え方', B.teach, '', '■ できてる人/できてない人の違い', B.diff, '',
+    '■ 自己評価', B.self_score, '', '■ 自信があること', B.self_sure, '',
+    '■ 好きな仕事', C.like, '', '■ 嫌いな仕事', C.dislike, '', '■ 面倒な仕事', C.mendo, '',
+    '■ 自分は何をしてる人間か', C.who, '', '■ 3年後', C.future, '', '■ アドバイス', C.advice, '',
+    '■ まわりのいいところ', ...C.others.filter(Boolean), '',
+    '■ 代表に求められているもの', C.boss, '', '■ 足りてないところ', C.lack, '',
+    '■ MVVと近いところ', D.near, '', '■ 違うところ', D.diff, '',
+    '---', 'この記録は本人が書いたものです。あなたの端末にのみ保存されています。'
+  ];
+  const blob = new Blob([L.join('\n')], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `discovery_${name||'記録'}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+render();
+</script>
+</body>
+</html>

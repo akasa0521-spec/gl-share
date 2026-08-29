@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>コインぽーん！｜Good Luck</title>
+<style>
+  :root{
+    --sky-top:#241b3a;
+    --sky-mid:#4a2f5c;
+    --sky-horizon:#ff8a5c;
+    --sky-glow:#ffd18a;
+    --water-deep:#1f4d73;
+    --ink:#241b3a;
+    --cream:#fff3e0;
+    --gold:#ffd23f;
+    --danger:#ff5c5c;
+    --good:#7fe3d4;
+  }
+  *{box-sizing:border-box;}
+  html{height:100%;}
+  body{
+    margin:0;padding:0;min-height:100%;
+    background:#120e1c;
+    display:flex;flex-direction:column;align-items:center;
+    font-family:'Courier New',ui-monospace,monospace;
+  }
+  #game-wrap{
+    position:relative;
+    width:100%;
+    max-width:720px;
+    margin:auto 16px;
+    padding:16px 0;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+  }
+  #canvas-frame{
+    position:relative;
+    width:100%;
+    border:4px solid var(--gold);
+    box-shadow:6px 6px 0 #000, 0 0 0 4px #120e1c;
+    overflow:hidden;
+    cursor:pointer;
+    background:var(--sky-top);
+  }
+  canvas{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+  .overlay{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;
+    gap:14px;
+    background:rgba(18,14,28,0.72);
+    text-align:center;
+    padding:20px;
+  }
+  .panel{
+    background:rgba(36,27,58,0.95);
+    border:3px solid var(--gold);
+    box-shadow:4px 4px 0 #000;
+    padding:22px 26px;
+    max-width:88%;
+  }
+  h1{
+    margin:0 0 6px;
+    color:var(--gold);
+    font-size:clamp(20px,5vw,32px);
+    letter-spacing:3px;
+    text-shadow:3px 3px 0 #000;
+  }
+  .sub{
+    color:var(--cream);
+    font-size:clamp(11px,2.6vw,14px);
+    line-height:1.7;
+    letter-spacing:1px;
+    margin:0 0 16px;
+    opacity:0.9;
+  }
+  .accent{color:var(--good);}
+  button{
+    font-family:inherit;
+    font-weight:bold;
+    font-size:clamp(14px,3.4vw,18px);
+    letter-spacing:2px;
+    color:var(--ink);
+    background:var(--gold);
+    border:none;
+    padding:12px 30px;
+    cursor:pointer;
+    box-shadow:4px 4px 0 #000;
+    transition:transform .05s;
+  }
+  button:hover{filter:brightness(1.08);}
+  button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000;}
+  button:focus-visible{outline:3px solid var(--good);outline-offset:2px;}
+  .hidden{display:none !important;}
+  #mute-btn{
+    position:absolute;top:8px;right:8px;
+    width:34px;height:34px;padding:0;
+    font-size:16px;line-height:1;
+    box-shadow:2px 2px 0 #000;
+    z-index:5;
+  }
+  #mute-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000;}
+  .score-line{
+    color:var(--cream);
+    font-size:clamp(13px,3vw,16px);
+    letter-spacing:2px;
+  }
+  .score-line b{color:var(--gold);}
+  .credit{
+    margin-top:10px;
+    color:var(--cream);
+    opacity:.55;
+    font-size:10px;
+    letter-spacing:1px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    button{transition:none;}
+  }
+  .toybar{width:100%;max-width:1160px;margin:0 auto;padding:22px 22px 0;}
+  .toybar a{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;font-size:12.5px;
+    letter-spacing:.06em;color:#8B887D;text-decoration:none;transition:color .4s ease;}
+  .toybar a:hover{color:#C4622E;}
+  footer{padding:28px 16px 44px;text-align:center;}
+  .sig{font-family:'Hoefler Text','Baskerville','Palatino','Times New Roman',serif;
+    font-size:18px;letter-spacing:.06em;color:var(--cream);}
+  .sig-n{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;
+    font-size:11px;color:#8B887D;margin-top:7px;line-height:1.9;}
+  .sig-n a{color:#a68a63;text-decoration:none;border-bottom:1px solid rgba(166,138,99,.5);}
+</style>
+</head>
+<body>
+<div class="toybar"><a href="./noren.html">← おもちゃ箱</a></div>
+
+<div id="game-wrap">
+  <div id="canvas-frame">
+    <canvas id="game" width="900" height="500"></canvas>
+    <button id="mute-btn" type="button" aria-label="音を切り替える">🔊</button>
+
+    <div id="title-screen" class="overlay">
+      <div class="panel">
+        <h1>コインぽーん！</h1>
+        <p class="sub">
+          ホールドして　ためる → はなして　ジャンプ！<br>
+          着地の目印が出るのは <span class="accent">さいしょの3回だけ</span>。<br>
+          あとは音とゲージのリズムで。<br>
+          深くためれば <span class="accent">1コ飛ばしの2連跳び＝得点2倍</span>。<br>
+          端っこに着いたら……<span class="accent">すばやくもう1回タップ</span>で踏みとどまれ！<br>
+          パーフェクトを重ねると <span class="accent">1円→5円→…→500円</span> に育つ。<br>
+          得点は額面ぶん。ドボンで <span class="accent">1円に逆もどり</span>。
+        
+        </p>
+        <button id="start-btn" type="button">はじめる</button>
+      </div>
+      <p class="credit">CLICK / TAP / SPACE で操作</p>
+    </div>
+
+    <div id="gameover-screen" class="overlay hidden">
+      <div class="panel">
+        <h1 id="go-title">ドボン！</h1>
+        <p class="score-line">SCORE <b id="go-score">0</b></p>
+        <p class="score-line">DIST &nbsp;<b id="go-dist">0</b>m</p>
+        <p class="score-line">BEST &nbsp;<b id="go-best">0</b></p>
+        <p class="sub" style="margin-top:14px;">※ベストはこのページを開いている間だけ記録されます</p>
+        <button id="retry-btn" type="button">もういちど</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="sig">Good Luck</div>
+  <div class="sig-n">仕組みに完璧を求めて、人には求めない会社が作っています<br>
+    <a href="./noren.html">Good Luck のこと</a></div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- setup ----------
+  var LOGICAL_W = 900, LOGICAL_H = 500;
+  var canvas = document.getElementById('game');
+  var ctx = canvas.getContext('2d');
+  var frame = document.getElementById('canvas-frame');
+  var titleScreen = document.getElementById('title-screen');
+  var gameoverScreen = document.getElementById('gameover-screen');
+  var startBtn = document.getElementById('start-btn');
+  var retryBtn = document.getElementById('retry-btn');
+  var muteBtn = document.getElementById('mute-btn');
+  var goScoreEl = document.getElementById('go-score');
+  var goDistEl = document.getElementById('go-dist');
+  var goBestEl = document.getElementById('go-best');
+  var goTitleEl = document.getElementById('go-title');
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    var cssW = frame.clientWidth;
+    var cssH = cssW * (LOGICAL_H/LOGICAL_W);
+    frame.style.height = cssH + 'px';
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = LOGICAL_W * dpr;
+    canvas.height = LOGICAL_H * dpr;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---------- audio ----------
+  var audioCtx = null;
+  var muted = false;
+  function ensureAudio(){
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioCtx = new AC();
+    } else if(audioCtx.state === 'suspended'){
+      audioCtx.resume();
+    }
+  }
+  function tone(freq, dur, type, vol, delay){
+    if(!audioCtx || muted) return;
+    dur = dur || 0.12; type = type || 'square'; vol = vol==null?0.18:vol; delay = delay||0;
+    var t0 = audioCtx.currentTime + delay;
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0+0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0+dur+0.03);
+  }
+  function noiseBurst(dur, vol, delay){
+    if(!audioCtx || muted) return;
+    dur = dur||0.3; vol = vol==null?0.2:vol; delay = delay||0;
+    var t0 = audioCtx.currentTime + delay;
+    var len = Math.floor(audioCtx.sampleRate * dur);
+    var buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    var data = buf.getChannelData(0);
+    for(var i=0;i<len;i++){ data[i] = (Math.random()*2-1) * (1 - i/len); }
+    var src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    var flt = audioCtx.createBiquadFilter();
+    flt.type = 'lowpass';
+    flt.frequency.setValueAtTime(900, t0);
+    var gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(vol, t0);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    src.connect(flt).connect(gain).connect(audioCtx.destination);
+    src.start(t0);
+    src.stop(t0+dur+0.03);
+  }
+  function sfxTick(){ tone(520,0.028,'square',0.045,0); }
+  // コンボが乗るほどピッチが上がる（半音単位・上限12）
+  function comboPitch(){ return Math.pow(2, Math.min(combo,12)/12 * 0.5); }
+  function sfxPerfect(bonus){
+    var p = comboPitch();
+    tone(880*p,0.09,'square',0.2,0);
+    tone(1175*p,0.09,'square',0.18,0.07);
+    tone(1568*p,0.16,'square',0.17,0.14);
+    if(bonus) tone(2093*p,0.2,'square',0.16,0.22);
+  }
+  function sfxOk(){ tone(660,0.09,'triangle',0.16,0); }
+  function sfxMiss(){
+    tone(240,0.16,'sawtooth',0.2,0);
+    tone(150,0.26,'sawtooth',0.18,0.09);
+    noiseBurst(0.42,0.24,0.02);
+  }
+  function sfxCombo(){
+    var p = comboPitch();
+    tone(1046*p,0.08,'square',0.16,0);
+    tone(1318*p,0.08,'square',0.16,0.06);
+    tone(1568*p,0.14,'square',0.18,0.12);
+  }
+  function sfxCoin(){
+    tone(1568,0.06,'square',0.17,0);
+    tone(2093,0.14,'square',0.16,0.06);
+  }
+  function sfxWobble(){
+    tone(880,0.05,'square',0.15,0);
+    tone(830,0.05,'square',0.15,0.07);
+    tone(880,0.05,'square',0.15,0.14);
+  }
+  function sfxSave(){
+    tone(392,0.07,'triangle',0.16,0);
+    tone(784,0.16,'triangle',0.18,0.08);
+  }
+  function sfxSinkWarn(){ tone(310,0.07,'square',0.12,0); }
+  function sfxGrow(){
+    tone(660,0.07,'triangle',0.16,0);
+    tone(880,0.07,'square',0.16,0.06);
+    tone(1320,0.16,'square',0.18,0.12);
+  }
+  function sfxChari(){
+    // ちゃりん…と切なく
+    tone(2093,0.05,'square',0.14,0);
+    tone(1568,0.06,'square',0.12,0.08);
+    tone(523,0.14,'triangle',0.13,0.2);
+    tone(392,0.28,'triangle',0.12,0.3);
+  }
+  function sfxThump(){
+    // 額面が上がるほど低く重い着地音
+    tone(180 - denomIdx*14, 0.06, 'sine', 0.05 + denomIdx*0.02, 0);
+  }
+  function sfxBest(){
+    tone(784,0.09,'square',0.18,0);
+    tone(988,0.09,'square',0.18,0.08);
+    tone(1175,0.09,'square',0.18,0.16);
+    tone(1568,0.22,'square',0.2,0.24);
+  }
+
+  muteBtn.addEventListener('pointerdown', function(e){
+    e.stopPropagation();
+  });
+  muteBtn.addEventListener('click', function(){
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+  });
+
+  // ---------- helpers ----------
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  function rand(a,b){ return a + Math.random()*(b-a); }
+
+  // ---------- game constants ----------
+  var MAX_JUMP = 430;          // 2連跳びが届くよう拡張
+  var PERFECT_RATIO = 0.45;
+  var EDGE_RATIO = 0.72;       // これより外側の着地は「ぐらぐら」
+  var WOBBLE_TIME = 0.5;       // 踏みとどまり猶予
+  var SINK_TIME = 2.0;         // 沈む石の猶予
+  var GROUND_Y = 330;
+  var SCREEN_ANCHOR_X = LOGICAL_W * 0.3;
+  var PREVIEW_HOPS = 3;        // 着地予測はこの回数だけ
+  var PX_PER_M = 40;           // 距離表示の縮尺
+  // コインの育ち：1円→5円→10円→50円→100円→500円
+  var DENOMS = [1,5,10,50,100,500];
+  var GROW_NEED = 3;           // パーフェクト3回で進化
+  var COIN_STYLE = [
+    {label:'1',   edge:'#9aa0a8', face:'#d8dde3', hole:false, r:14},
+    {label:'5',   edge:'#8f7a1f', face:'#c9a227', hole:true,  r:16},
+    {label:'10',  edge:'#7a4a26', face:'#b87333', hole:false, r:17},
+    {label:'50',  edge:'#8a919b', face:'#cdd3da', hole:true,  r:18},
+    {label:'100', edge:'#8a919b', face:'#d3d8de', hole:false, r:20},
+    {label:'500', edge:'#7f7a58', face:'#cfc7a0', hole:false, r:23}
+  ];
+
+  // ---------- state ----------
+  var STATE_TITLE='title', STATE_PLAY='play', STATE_OVER='over';
+  var state = STATE_TITLE;
+
+  var stones, player, camera, particles, rings, texts;
+  var score, best, combo, hopCount, shakeTime, failTimer, bounceTime;
+  var denomIdx, growthProg, failSank;
+  var prunedStones = 0;   // 刈り込んだ石の数。難度計算は「通算の石番号」で行う
+  var bestDistPx = 0, distBeaten = false;
+  var cameraTargetX = 0;
+
+  function nextStoneParams(level){
+    var t = clamp(level/18, 0, 1);
+    var halfWidth = clamp(lerp(50,23,t) + rand(-4,4), 20, 55);
+    var minTravel = lerp(130,170,t);
+    var maxTravel = lerp(200,238,t);
+    var travel = rand(minTravel, maxTravel);
+    return {halfWidth:halfWidth, travel:travel};
+  }
+
+  // 石の個性は3種まで：drift（流れる）/ sink（沈む）/ coin（小銭）
+  function pickStoneType(index, prevType){
+    if(index <= 4) return 'normal';
+    if(prevType !== 'normal') return 'normal';  // 特殊石は連続させない
+    var r = Math.random();
+    if(r < 0.14) return 'coin';
+    if(r < 0.27) return 'sink';
+    if(r < 0.40) return 'drift';
+    return 'normal';
+  }
+
+  function spawnStoneIfNeeded(){
+    // 通り過ぎた石は6個だけ残して捨てる（配列の無限伸長を止める）
+    var drop = player.currentIndex - 6;
+    if(drop > 0){
+      stones.splice(0, drop);
+      player.currentIndex -= drop;
+      prunedStones += drop;
+    }
+    while(stones.length < player.currentIndex + 7){
+      var prev = stones[stones.length-1];
+      var p = nextStoneParams(prunedStones + stones.length);
+      var x = prev.baseX + p.travel;
+      var type = pickStoneType(prunedStones + stones.length, prev.type);
+      stones.push({
+        baseX:x, x:x, halfWidth:p.halfWidth, type:type,
+        driftPhase:rand(0,Math.PI*2),
+        sinkTimer:null, sinkY:0
+      });
+    }
+  }
+
+  function resetGame(){
+    stones = [{baseX:0, x:0, halfWidth:58, type:'normal', driftPhase:0, sinkTimer:null, sinkY:0}];
+    prunedStones = 0;
+    player = {
+      currentIndex:0,
+      worldX:0,
+      standOffset:0,
+      hopY:0,
+      phase:'idle',      // idle | charging | air | wobble | fail
+      chargeStart:0,
+      jumpFromX:0,
+      jumpToX:0,
+      jumpStart:0,
+      jumpDur:0.4,
+      jumpHeight:36,
+      lockTimer:0,
+      fallVel:0,
+      wobbleTimer:0,
+      wobbleElapsed:0,
+      pendingSkip:false,
+      pendingStone:null,
+      lastJumpDist:0
+    };
+    camera = 0;
+    cameraTargetX = stones[0].x;
+    particles = [];
+    rings = [];
+    texts = [];
+    score = 0;
+    combo = 0;
+    hopCount = 0;
+    shakeTime = 0;
+    bounceTime = 0;
+    failTimer = 0;
+    distBeaten = false;
+    denomIdx = 0;
+    growthProg = 0;
+    failSank = false;
+    spawnStoneIfNeeded();
+  }
+
+  // ---------- particles / rings / texts ----------
+  function spawnParticles(x,y,color,count,spread){
+    spread = spread || 1;
+    for(var i=0;i<count;i++){
+      particles.push({
+        x:x, y:y,
+        vx:rand(-90,90)*spread,
+        vy:rand(-170,-40)*spread,
+        life:rand(0.35,0.7),
+        maxLife:0.7,
+        color:color,
+        size:rand(3,6)
+      });
+    }
+  }
+
+  function spawnRing(x,y){
+    rings.push({x:x, y:y, r:6, vr:rand(70,120), life:0.7, maxLife:0.7});
+  }
+
+  function pushText(text,x,y,color,size){
+    texts.push({text:text, x:x, y:y, life:1.0, maxLife:1.0, color:color||'#fff3e0', size:size||18});
+  }
+
+  function updateParticles(dt){
+    for(var i=particles.length-1;i>=0;i--){
+      var p = particles[i];
+      p.vy += 420*dt;
+      p.x += p.vx*dt;
+      p.y += p.vy*dt;
+      p.life -= dt;
+      if(p.life<=0) particles.splice(i,1);
+    }
+    for(var j=rings.length-1;j>=0;j--){
+      var r = rings[j];
+      r.r += r.vr*dt;
+      r.life -= dt;
+      if(r.life<=0) rings.splice(j,1);
+    }
+    for(var k=texts.length-1;k>=0;k--){
+      var tx = texts[k];
+      tx.y -= 34*dt;
+      tx.life -= dt;
+      if(tx.life<=0) texts.splice(k,1);
+    }
+  }
+
+  function drawParticles(){
+    for(var i=0;i<particles.length;i++){
+      var p = particles[i];
+      var a = clamp(p.life/p.maxLife,0,1);
+      ctx.globalAlpha = a;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-p.size/2, p.y-p.size/2, p.size, p.size);
+    }
+    for(var j=0;j<rings.length;j++){
+      var r = rings[j];
+      ctx.globalAlpha = clamp(r.life/r.maxLife,0,1)*0.7;
+      ctx.strokeStyle = '#bfe7ff';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(r.x, r.y, r.r, r.r*0.32, 0, 0, Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    for(var k=0;k<texts.length;k++){
+      var t = texts[k];
+      ctx.globalAlpha = clamp(t.life/t.maxLife,0,1);
+      pixelText(t.text, t.x, t.y, t.size, t.color, 'center');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------- input ----------
+  function startCharge(){
+    if(state !== STATE_PLAY) return;
+    if(player.phase !== 'idle') return;
+    if(player.lockTimer > 0) return;
+    player.phase = 'charging';
+    player.chargeStart = performance.now()/1000;
+    player.lastTickPhase = 0;
+  }
+
+  function releaseCharge(){
+    if(state !== STATE_PLAY) return;
+    if(player.phase !== 'charging') return;
+    var now = performance.now()/1000;
+    var charge = currentCharge(now);
+    var dist = charge * MAX_JUMP;
+    player.jumpFromX = player.worldX;
+    player.jumpToX = player.worldX + dist;
+    player.jumpStart = now;
+    player.jumpHeight = 32 + charge*40 - denomIdx*1.5;   // 重い硬貨は低く
+    player.jumpDur = 0.32 + charge*0.22 + denomIdx*0.008; // 重い硬貨はわずかに鈍い
+    player.lastJumpDist = dist;
+    player.phase = 'air';
+  }
+
+  function trySave(){
+    if(state !== STATE_PLAY) return false;
+    if(player.phase !== 'wobble') return false;
+    // 踏みとどまった！
+    sfxSave();
+    var px = worldToScreen(player.worldX);
+    pushText('あぶなっ…！', px, GROUND_Y-64, '#7fe3d4', 18);
+    spawnParticles(px, GROUND_Y-6, '#7fe3d4', 8, 0.7);
+    finishLanding('ok', player.pendingSkip, player.pendingStone);
+    player.lockTimer = 0.15;
+    return true;
+  }
+
+  function currentCharge(now){
+    var t = now - player.chargeStart;
+    var period = getPeriod();
+    var val = (1 - Math.cos(2*Math.PI*t/period)) / 2;
+    return val;
+  }
+
+  function getPeriod(){
+    var d = clamp((prunedStones + player.currentIndex)/16, 0, 1);
+    return lerp(1.55, 0.88, d);
+  }
+
+  var pointerActive = false;
+  function onDown(e){
+    if(e && e.cancelable) e.preventDefault();
+    if(state === STATE_TITLE || state === STATE_OVER) return;
+    pointerActive = true;
+    if(e && e.pointerId !== undefined){
+      try{ frame.setPointerCapture(e.pointerId); }catch(_){}
+    }
+    ensureAudio();
+    if(trySave()) return;
+    startCharge();
+  }
+  function onUp(e){
+    if(e && e.cancelable) e.preventDefault();
+    if(!pointerActive) return;
+    pointerActive = false;
+    releaseCharge();
+  }
+
+  frame.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+
+  window.addEventListener('keydown', function(e){
+    if(e.code === 'Space'){
+      if(e.cancelable) e.preventDefault();
+      if(e.repeat) return;
+      if(state === STATE_TITLE){ beginPlay(); return; }
+      if(state === STATE_OVER){ beginPlay(); return; }
+      onDown(null);
+    }
+  });
+  window.addEventListener('keyup', function(e){
+    if(e.code === 'Space'){
+      if(e.cancelable) e.preventDefault();
+      onUp(null);
+    }
+  });
+
+  startBtn.addEventListener('click', function(){ ensureAudio(); beginPlay(); });
+  retryBtn.addEventListener('click', function(){ ensureAudio(); beginPlay(); });
+
+  function beginPlay(){
+    resetGame();
+    state = STATE_PLAY;
+    titleScreen.classList.add('hidden');
+    gameoverScreen.classList.add('hidden');
+  }
+
+  // ---------- landing resolution ----------
+  function resolveLanding(){
+    var idx = player.currentIndex;
+    var cand = null, skip = false;
+    // 深ため→1コ飛ばしの2連跳びを先に判定（得点2倍）
+    var s2 = stones[idx+2];
+    if(s2 && Math.abs(player.jumpToX - s2.x) <= s2.halfWidth){ cand = s2; skip = true; }
+    var s1 = stones[idx+1];
+    if(!cand && s1 && Math.abs(player.jumpToX - s1.x) <= s1.halfWidth){ cand = s1; }
+
+    if(!cand){
+      startFail(false);
+      return;
+    }
+
+    var diff = Math.abs(player.jumpToX - cand.x);
+    var result = (diff <= cand.halfWidth*PERFECT_RATIO) ? 'perfect' : 'ok';
+
+    if(result !== 'perfect' && diff > cand.halfWidth*EDGE_RATIO){
+      // 端に着地：ぐらぐら。猶予内にもう一度タップで踏みとどまる
+      player.phase = 'wobble';
+      player.wobbleTimer = WOBBLE_TIME;
+      player.wobbleElapsed = 0;
+      player.pendingSkip = skip;
+      player.pendingStone = cand;
+      player.worldX = player.jumpToX;
+      player.hopY = 0;
+      sfxWobble();
+      return;
+    }
+
+    finishLanding(result, skip, cand);
+  }
+
+  function finishLanding(result, skip, stone){
+    var idx = stones.indexOf(stone);
+    player.currentIndex = idx;
+    player.standOffset = clamp(player.jumpToX - stone.x, -stone.halfWidth*0.8, stone.halfWidth*0.8);
+    player.worldX = stone.x + player.standOffset;
+    player.hopY = 0;
+    player.phase = 'idle';
+    if(player.lockTimer < 0.08) player.lockTimer = 0.08;
+    player.pendingStone = null;
+    cameraTargetX = stone.x;
+
+    if(result === 'perfect'){ combo++; } else { combo = 0; }
+    var mult = 1 + Math.min(combo*0.08, 1.5);
+    // 得点の芯は額面：500円玉なら1歩が500点
+    var base = DENOMS[denomIdx];
+    if(result==='perfect') base *= 2;
+    if(skip) base *= 2;   // 2連跳びは2倍
+    score += Math.round(base*mult);
+    hopCount++;
+    sfxThump();
+
+    var px = worldToScreen(player.worldX);
+    var py = GROUND_Y - 6;
+
+    // コインが育つ：パーフェクト（2連跳び成功もパーフェクト扱い）を重ねる
+    if(result==='perfect' || skip){
+      growthProg++;
+      if(growthProg >= GROW_NEED && denomIdx < DENOMS.length-1){
+        denomIdx++;
+        growthProg = 0;
+        sfxGrow();
+        pushText(DENOMS[denomIdx]+'円玉に進化！', px, py-96, '#ffd23f', 19);
+        spawnParticles(px, py-24, '#fff3c2', 16, 1);
+        shakeTime = reduceMotion ? 0 : Math.max(shakeTime, 0.06);
+      }
+    }
+
+    if(stone.type === 'coin'){
+      score += 10;
+      sfxCoin();
+      pushText('+10', px, py-52, '#ffd23f', 16);
+      spawnParticles(px, py-20, '#ffe3a3', 10, 0.8);
+      stone.type = 'normal';  // 拾ったら普通の石に
+    }
+    if(stone.type === 'sink' && stone.sinkTimer === null){
+      stone.sinkTimer = SINK_TIME;  // 着地から沈み始める
+      stone.warned = 0;
+    }
+
+    if(result==='perfect'){
+      spawnParticles(px,py, skip ? '#ffe3a3' : '#ffd23f', skip?18:12, 1);
+      shakeTime = reduceMotion ? 0 : 0.08;
+      bounceTime = reduceMotion ? 0 : 0.22;
+      sfxPerfect(skip);
+      if(skip) pushText('2連跳び x2！', px, py-70, '#ffd23f', 18);
+      if(combo>0 && combo%5===0) sfxCombo();
+    } else {
+      spawnParticles(px,py,'#bfe7ff',6,0.6);
+      if(skip){ pushText('2連跳び x2！', px, py-70, '#ffd23f', 18); }
+      sfxOk();
+    }
+
+    spawnStoneIfNeeded();
+  }
+
+  function startFail(sank){
+    player.phase = 'fail';
+    player.fallVel = sank ? 30 : 60;
+    failTimer = 0.9;
+    failSank = sank;
+    shakeTime = reduceMotion ? 0 : 0.28;
+    sfxMiss();
+    var px = worldToScreen(player.worldX);
+    // 派手なしぶき：粒2色＋波紋。重い硬貨ほど大きく
+    var heavy = 1 + denomIdx*0.25;
+    spawnParticles(px, GROUND_Y+18, '#bfe7ff', Math.round(20*heavy), 1.5);
+    spawnParticles(px, GROUND_Y+14, '#ffffff', Math.round(12*heavy), 1.1);
+    spawnRing(px, GROUND_Y+20);
+    spawnRing(px, GROUND_Y+20);
+    if(denomIdx>=4) spawnRing(px, GROUND_Y+20);
+    if(sank) pushText('しずんだ…', px, GROUND_Y-60, '#bfe7ff', 18);
+  }
+
+  // ドボン後：1円より上なら硬貨を失って続行、1円なら終了
+  function respawnAfterDobon(){
+    var wasYen = DENOMS[denomIdx];
+    denomIdx = 0;
+    growthProg = 0;
+    combo = 0;
+    var stone = stones[player.currentIndex];
+    if(failSank || !stone || (stone.sinkY||0) >= 40){
+      // 足場が沈んでいたら次の石から再開
+      player.currentIndex++;
+      spawnStoneIfNeeded();
+      stone = stones[player.currentIndex];
+      stone.sinkTimer = null; stone.sinkY = 0;
+    }
+    player.standOffset = 0;
+    player.worldX = stone.x;
+    player.hopY = 0;
+    player.fallVel = 0;
+    player.phase = 'idle';
+    player.lockTimer = 0.35;
+    cameraTargetX = stone.x;
+    sfxChari();
+    var px = worldToScreen(player.worldX);
+    pushText('ちゃりん… '+wasYen+'円が1円に', px, GROUND_Y-92, '#bfe7ff', 15);
+  }
+
+  function endGame(){
+    state = STATE_OVER;
+    best = Math.max(best||0, score);
+    bestDistPx = Math.max(bestDistPx, player.worldX);
+    goScoreEl.textContent = score;
+    goDistEl.textContent = Math.floor(player.worldX/PX_PER_M);
+    goBestEl.textContent = best;
+    goTitleEl.textContent = combo>=8 ? 'ナイスコンボ！' : 'ドボン！';
+    gameoverScreen.classList.remove('hidden');
+  }
+
+  // ---------- update ----------
+  var lastTime = null;
+  function update(dt){
+    // 石の挙動はプレイ外でも動かす（背景の生きた感じを保つ）
+    updateStones(dt);
+
+    if(state !== STATE_PLAY){
+      if(state === STATE_OVER && player && player.phase==='fail'){
+        player.fallVel += 500*dt;
+        player.hopY += player.fallVel*dt;
+      }
+      updateParticles(dt);
+      if(shakeTime>0) shakeTime = Math.max(0, shakeTime-dt);
+      if(bounceTime>0) bounceTime = Math.max(0, bounceTime-dt);
+      return;
+    }
+
+    if(player.lockTimer>0) player.lockTimer -= dt;
+
+    camera += ((cameraTargetX - camera)) * Math.min(dt*6, 1);
+
+    var stone = stones[player.currentIndex];
+
+    if(player.phase === 'idle' || player.phase === 'charging'){
+      // 流れる石に乗っているあいだは一緒に動く
+      player.worldX = stone.x + player.standOffset;
+      cameraTargetX = stone.x;
+      // 沈む石の上：時間切れでドボン
+      if(stone.sinkTimer !== null){
+        stone.sinkTimer -= dt;
+        if(stone.warned < 1 && stone.sinkTimer <= 1.0){ stone.warned = 1; sfxSinkWarn(); }
+        if(stone.warned < 2 && stone.sinkTimer <= 0.45){ stone.warned = 2; sfxSinkWarn(); }
+        if(stone.sinkTimer <= 0){
+          startFail(true);
+        }
+      }
+    }
+
+    if(player.phase === 'charging'){
+      var now = performance.now()/1000;
+      var c = currentCharge(now);
+      var period = getPeriod();
+      var phase01 = ((now-player.chargeStart) % period) / period;
+      if(phase01 < player.lastTickPhase){ sfxTick(); }
+      player.lastTickPhase = phase01;
+      player.previewCharge = c;
+    } else if(player.phase === 'air'){
+      var t = clamp((performance.now()/1000 - player.jumpStart)/player.jumpDur, 0, 1);
+      var ease = t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+      player.worldX = lerp(player.jumpFromX, player.jumpToX, ease);
+      var arc = Math.sin(Math.PI*t);
+      player.hopY = -player.jumpHeight*arc;
+      if(t>=1){ resolveLanding(); }
+    } else if(player.phase === 'wobble'){
+      player.wobbleElapsed += dt;
+      player.wobbleTimer -= dt;
+      if(player.wobbleTimer <= 0){
+        startFail(false);
+      }
+    } else if(player.phase === 'fail'){
+      player.fallVel += 500*dt;
+      player.hopY += player.fallVel*dt;
+      failTimer -= dt;
+      if(failTimer<=0){
+        if(denomIdx > 0){ respawnAfterDobon(); }
+        else { endGame(); }
+      }
+    }
+
+    // 自己ベスト線を越えた瞬間だけ演出
+    if(!distBeaten && bestDistPx > 0 && player.worldX > bestDistPx &&
+       (player.phase==='idle' || player.phase==='charging')){
+      distBeaten = true;
+      sfxBest();
+      var px = worldToScreen(player.worldX);
+      pushText('ベスト更新！', px, GROUND_Y-90, '#ffd23f', 20);
+      spawnParticles(px, GROUND_Y-40, '#ffd23f', 14, 1);
+      shakeTime = reduceMotion ? 0 : 0.06;
+    }
+
+    updateParticles(dt);
+    if(shakeTime>0) shakeTime = Math.max(0, shakeTime-dt);
+    if(bounceTime>0) bounceTime = Math.max(0, bounceTime-dt);
+  }
+
+  function updateStones(dt){
+    if(!stones) return;
+    for(var i=0;i<stones.length;i++){
+      var s = stones[i];
+      if(s.type === 'drift'){
+        s.x = s.baseX + Math.sin(waveT*0.8 + s.driftPhase) * 22;
+      }
+      if(s.sinkTimer !== null){
+        if(s.sinkTimer > 0){
+          s.sinkY = (1 - s.sinkTimer/SINK_TIME) * 10;   // じわじわ沈む
+        } else {
+          s.sinkY = Math.min(s.sinkY + 60*dt, 60);      // 時間切れで一気に
+        }
+      }
+    }
+  }
+
+  // ---------- render ----------
+  var waveT = 0;
+  function draw(dt){
+    waveT += dt;
+    var shakeX=0, shakeY=0;
+    if(shakeTime>0){
+      var mag = shakeTime*22;
+      shakeX = rand(-mag,mag);
+      shakeY = rand(-mag,mag);
+    }
+    // パーフェクト時：画面が小さく跳ねる
+    var bounceY = 0;
+    if(bounceTime>0){
+      bounceY = -Math.sin((1 - bounceTime/0.22) * Math.PI) * 5;
+    }
+    ctx.save();
+    ctx.translate(shakeX, shakeY + bounceY);
+
+    drawSky();
+    drawMountains();
+    drawWater();
+    drawBestLine();
+    drawStones();
+    if(state===STATE_PLAY && player.phase==='charging'){
+      if(hopCount < PREVIEW_HOPS){
+        drawLandingPreview();       // 目印は最初の3跳びだけ
+      } else {
+        drawGhostMark();            // 以後は直前の跳びの残像のみ
+        drawPowerGauge();
+      }
+    }
+    drawPlayer();
+    drawParticles();
+
+    ctx.restore();
+
+    drawHUD();
+  }
+
+  function drawSky(){
+    var g = ctx.createLinearGradient(0,0,0,GROUND_Y);
+    g.addColorStop(0,'#241b3a');
+    g.addColorStop(0.55,'#4a2f5c');
+    g.addColorStop(0.82,'#c85a5a');
+    g.addColorStop(1,'#ffb98a');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,LOGICAL_W,GROUND_Y);
+
+    var sunX = LOGICAL_W*0.76, sunY = GROUND_Y*0.42, r=46;
+    var glow = ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,r*2.4);
+    glow.addColorStop(0,'rgba(255,209,138,0.55)');
+    glow.addColorStop(1,'rgba(255,209,138,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(sunX,sunY,r*2.4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffe3a3';
+    ctx.beginPath(); ctx.arc(sunX,sunY,r,0,Math.PI*2); ctx.fill();
+  }
+
+  function drawMountains(){
+    var offset = -(camera*0.12) % 260;
+    ctx.fillStyle = 'rgba(20,14,34,0.55)';
+    for(var i=-1;i<5;i++){
+      var bx = offset + i*260;
+      ctx.beginPath();
+      ctx.moveTo(bx, GROUND_Y);
+      ctx.lineTo(bx+90, GROUND_Y-95);
+      ctx.lineTo(bx+190, GROUND_Y);
+      ctx.closePath();
+      ctx.fill();
+    }
+    var offset2 = -(camera*0.22) % 220;
+    ctx.fillStyle = 'rgba(20,14,34,0.75)';
+    for(var j=-1;j<6;j++){
+      var cx = offset2 + j*220;
+      ctx.beginPath();
+      ctx.moveTo(cx, GROUND_Y);
+      ctx.lineTo(cx+70, GROUND_Y-58);
+      ctx.lineTo(cx+150, GROUND_Y);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawWater(){
+    ctx.fillStyle = '#1f4d73';
+    ctx.fillRect(0,GROUND_Y,LOGICAL_W,LOGICAL_H-GROUND_Y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+    ctx.lineWidth = 2;
+    for(var row=0; row<6; row++){
+      var y = GROUND_Y + 16 + row*26;
+      ctx.beginPath();
+      for(var x=-20;x<=LOGICAL_W+20;x+=14){
+        var wob = Math.sin((x*0.045) + waveT*1.6 + row*0.9 - camera*0.01) * 3.5;
+        if(x===-20) ctx.moveTo(x,y+wob); else ctx.lineTo(x,y+wob);
+      }
+      ctx.globalAlpha = 0.35 - row*0.045;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function worldToScreen(wx){ return SCREEN_ANCHOR_X + (wx - camera); }
+
+  function drawBestLine(){
+    if(bestDistPx <= 0) return;
+    var sx = worldToScreen(bestDistPx);
+    if(sx < -40 || sx > LOGICAL_W+40) return;
+    ctx.strokeStyle = distBeaten ? 'rgba(255,210,63,0.9)' : 'rgba(255,243,224,0.55)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6,6]);
+    ctx.beginPath();
+    ctx.moveTo(sx, GROUND_Y-150);
+    ctx.lineTo(sx, GROUND_Y+4);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // 小さな旗
+    ctx.fillStyle = distBeaten ? '#ffd23f' : '#fff3e0';
+    ctx.beginPath();
+    ctx.moveTo(sx, GROUND_Y-150);
+    ctx.lineTo(sx+22, GROUND_Y-142);
+    ctx.lineTo(sx, GROUND_Y-134);
+    ctx.closePath();
+    ctx.fill();
+    pixelText('BEST', sx+4, GROUND_Y-118, 11, distBeaten ? '#ffd23f' : '#fff3e0', 'left');
+  }
+
+  function drawStones(){
+    for(var i=0;i<stones.length;i++){
+      var s = stones[i];
+      var sx = worldToScreen(s.x);
+      if(sx < -80 || sx > LOGICAL_W+80) continue;
+      var hw = s.halfWidth;
+      var sink = s.sinkY || 0;
+      var topY = GROUND_Y - 10 + sink;
+      if(sink >= 40) continue;   // 沈みきった石は描かない
+
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.beginPath();
+      ctx.ellipse(sx, GROUND_Y+8, hw*0.92, 9, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      var baseCol, topCol;
+      if(s.type==='coin'){ baseCol='#c9942f'; topCol='#f0c25c'; }
+      else if(s.type==='sink'){ baseCol='#4a5a66'; topCol='#7d93a1'; }
+      else if(s.type==='drift'){ baseCol='#5a6e46'; topCol='#8fa671'; }
+      else { baseCol='#6e5738'; topCol='#a68a63'; }
+
+      ctx.fillStyle = baseCol;
+      ctx.beginPath();
+      ctx.ellipse(sx, topY+7, hw, 17, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = topCol;
+      ctx.beginPath();
+      ctx.ellipse(sx, topY, hw, 15, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.22)';
+      ctx.beginPath();
+      ctx.ellipse(sx-hw*0.28, topY-4, hw*0.34, 5, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      if(s.type==='coin'){
+        // 小銭：上でコインがちらちら
+        var cy = topY-22 + Math.sin(waveT*3+i)*3;
+        ctx.fillStyle = '#a8701f';
+        ctx.beginPath(); ctx.arc(sx, cy+2, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#ffd23f';
+        ctx.beginPath(); ctx.arc(sx, cy, 8, 0, Math.PI*2); ctx.fill();
+      } else if(s.type==='drift'){
+        // 流れる石：水面に流れ線
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sx-hw-14, GROUND_Y+6);
+        ctx.lineTo(sx-hw-2, GROUND_Y+6);
+        ctx.moveTo(sx+hw+2, GROUND_Y+10);
+        ctx.lineTo(sx+hw+14, GROUND_Y+10);
+        ctx.stroke();
+      } else if(s.type==='sink' && s.sinkTimer!==null && s.sinkTimer>0){
+        // 沈み中：あわ
+        for(var b=0;b<3;b++){
+          var bx2 = sx + Math.sin(waveT*4+b*2.1)*hw*0.5;
+          var by2 = GROUND_Y+4 - ((waveT*30+b*17)%22);
+          ctx.fillStyle = 'rgba(255,255,255,0.4)';
+          ctx.beginPath(); ctx.arc(bx2, by2, 2.4, 0, Math.PI*2); ctx.fill();
+        }
+      }
+    }
+  }
+
+  function drawLandingPreview(){
+    var now = performance.now()/1000;
+    var c = currentCharge(now);
+    var dist = c*MAX_JUMP;
+    var projX = player.worldX + dist;
+    var target = stones[player.currentIndex+1];
+    var diff = Math.abs(projX - target.x);
+    var color;
+    if(diff <= target.halfWidth*PERFECT_RATIO) color = '#ffd23f';
+    else if(diff <= target.halfWidth) color = '#7fe3d4';
+    else color = '#ff5c5c';
+
+    var sx = worldToScreen(projX);
+    var sy = GROUND_Y - 4;
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.85;
+    ctx.setLineDash([4,5]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    var startX = worldToScreen(player.worldX);
+    var peakY = GROUND_Y - 70;
+    ctx.moveTo(startX, GROUND_Y-14);
+    ctx.quadraticCurveTo((startX+sx)/2, peakY, sx, sy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+
+    var pulse = 4 + Math.sin(now*14)*1.6;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy+6, 12+pulse*0.6, 5+pulse*0.25, 0, 0, Math.PI*2);
+    ctx.stroke();
+
+    if(hopCount === PREVIEW_HOPS-1){
+      pixelText('目印はここまで！', worldToScreen(player.worldX), GROUND_Y-110, 13, '#fff3e0', 'center');
+    }
+  }
+
+  function drawGhostMark(){
+    // 直前の跳びの残像（色の答え合わせはしない）
+    if(player.lastJumpDist <= 0) return;
+    var sx = worldToScreen(player.worldX + player.lastJumpDist);
+    ctx.strokeStyle = 'rgba(255,243,224,0.28)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([3,5]);
+    ctx.beginPath();
+    ctx.ellipse(sx, GROUND_Y+2, 12, 5, 0, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawPowerGauge(){
+    // 弾道の代わりの手掛かり：コインの横に力ゲージ（上端側が2連跳びゾーン）
+    var c = player.previewCharge || 0;
+    var sx = worldToScreen(player.worldX) - 38;
+    var gy = GROUND_Y - 88, gh = 64, gw = 9;
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(sx-2, gy-2, gw+4, gh+4);
+    ctx.fillStyle = 'rgba(255,210,63,0.28)';
+    ctx.fillRect(sx, gy, gw, gh*0.38);   // 上側＝深ため（2連跳び圏の目安）
+    ctx.fillStyle = c > 0.62 ? '#ffd23f' : '#7fe3d4';
+    var fh = gh*c;
+    ctx.fillRect(sx, gy+gh-fh, gw, fh);
+    ctx.strokeStyle = '#fff3e0';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(sx-2, gy-2, gw+4, gh+4);
+  }
+
+  function drawPlayer(){
+    var sx = worldToScreen(player.worldX);
+    var baseY = GROUND_Y - 8;
+    var squashX=1, squashY=1, rot=0;
+
+    var stone = stones[player.currentIndex];
+    var sink = (player.phase!=='air' && player.phase!=='fail' && stone) ? (stone.sinkY||0) : 0;
+
+    if(state===STATE_PLAY && player.phase==='charging'){
+      var c = player.previewCharge||0;
+      squashY = 1 - c*0.22;
+      squashX = 1 + c*0.16;
+    } else if(state===STATE_PLAY && player.phase==='air'){
+      squashY = 1.12; squashX = 0.92;
+    } else if(player.phase==='wobble'){
+      // ぐらぐら：残り時間が減るほど大きく傾く
+      var danger = 1 - player.wobbleTimer/WOBBLE_TIME;
+      rot = Math.sin(player.wobbleElapsed*26) * (0.18 + danger*0.34);
+    } else if(player.phase==='fail'){
+      squashY = 0.85; squashX = 1.1;
+    }
+
+    var y = baseY + player.hopY + sink;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    var shadowScale = clamp(1 - Math.abs(player.hopY)/140, 0.35, 1);
+    ctx.beginPath();
+    ctx.ellipse(sx, baseY+10+sink, 16*shadowScale, 5*shadowScale, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(sx,y);
+    ctx.rotate(rot);
+    ctx.scale(squashX, squashY);
+
+    var st = COIN_STYLE[denomIdx];
+    var r = st.r;
+
+    ctx.fillStyle = st.edge;
+    ctx.beginPath(); ctx.arc(0,2,r+1,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = st.face;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.arc(-r*0.3,-r*0.3,r*0.36,0,Math.PI*2); ctx.fill();
+
+    if(st.hole){
+      // 5円・50円は穴あき（チャームポイント）
+      ctx.fillStyle = '#241b3a';
+      ctx.beginPath(); ctx.arc(0, r*0.28, r*0.24, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = st.edge;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(0, r*0.28, r*0.24, 0, Math.PI*2); ctx.stroke();
+    }
+
+    var scared = player.phase==='fail' || player.phase==='wobble';
+    var ey = -r*0.15;
+    ctx.fillStyle = '#241b3a';
+    if(scared){
+      ctx.lineWidth=2; ctx.strokeStyle='#241b3a';
+      ctx.beginPath(); ctx.moveTo(-r*0.5,ey-2); ctx.lineTo(-r*0.15,ey+3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(r*0.5,ey-2); ctx.lineTo(r*0.15,ey+3); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(-r*0.34,ey,2.4,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(r*0.34,ey,2.4,0,Math.PI*2); ctx.fill();
+    }
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#241b3a';
+    ctx.beginPath();
+    if(scared){
+      ctx.ellipse(0, st.hole ? r*0.72 : r*0.42, 4.5,3.5,0,0,Math.PI*2);
+    } else if(st.hole){
+      ctx.arc(0, r*0.62, 3.4, 0, Math.PI, false);
+    } else {
+      ctx.arc(0, r*0.35, 4, 0, Math.PI, false);
+    }
+    ctx.stroke();
+
+    if(!st.hole){
+      ctx.font = 'bold '+Math.round(r*0.5)+'px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(36,27,58,0.6)';
+      ctx.fillText(st.label, 0, r*0.82);
+    }
+
+    ctx.restore();
+
+    if(player.phase==='wobble'){
+      pixelText('！', sx, y-40, 24, '#ff5c5c', 'center');
+      pixelText('タップ！', sx, y-62, 13, '#fff3e0', 'center');
+    }
+  }
+
+  function pixelText(text,x,y,size,color,align){
+    ctx.font = 'bold '+size+'px "Courier New", monospace';
+    ctx.textAlign = align||'left';
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillText(text,x+2,y+2);
+    ctx.fillStyle = color;
+    ctx.fillText(text,x,y);
+  }
+
+  function drawHUD(){
+    if(state !== STATE_PLAY) return;
+    pixelText('SCORE '+score, 14, 30, 20, '#fff3e0', 'left');
+    pixelText('BEST '+(best||0), 14, 52, 13, '#c9bfe0', 'left');
+    var m = Math.floor(Math.max(player.worldX,0)/PX_PER_M);
+    pixelText(m+'m', 14, 74, 15, '#bfe7ff', 'left');
+    // いまの硬貨と育ちの進み
+    var pips = '';
+    for(var pi=0; pi<GROW_NEED; pi++){ pips += (pi < growthProg) ? '●' : '○'; }
+    var denomColor = denomIdx>=5 ? '#ffd23f' : '#fff3e0';
+    pixelText('¥'+DENOMS[denomIdx]+' '+(denomIdx<DENOMS.length-1 ? pips : 'MAX'), 14, 96, 14, denomColor, 'left');
+    if(combo>0){
+      var comboColor = combo>=10 ? '#ff8a5c' : (combo>=5 ? '#ffd23f' : '#7fe3d4');
+      pixelText('COMBO x'+combo, LOGICAL_W-14, 30, 18, comboColor, 'right');
+    }
+    // あと少しでベスト
+    if(bestDistPx>0 && !distBeaten){
+      var remain = bestDistPx - player.worldX;
+      if(remain > 0 && remain <= 200){
+        pixelText('ベストまで あと'+Math.ceil(remain/PX_PER_M)+'m', LOGICAL_W-14, 54, 13, '#ffd23f', 'right');
+      }
+    }
+  }
+
+  // ---------- main loop ----------
+  best = 0;
+  resetGame();
+
+  function frame_(now){
+    if(lastTime===null) lastTime = now;
+    var dt = Math.min((now-lastTime)/1000, 0.05);
+    lastTime = now;
+    update(dt);
+    draw(dt);
+    requestAnimationFrame(frame_);
+  }
+  requestAnimationFrame(frame_);
+
+})();
+</script>
+</body>
+</html>

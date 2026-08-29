@@ -1,0 +1,3810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>トトの見た国｜Good Luck</title>
+<meta name="description" content="犬のトトが語る、少しふしぎな国の物語。読むうちに、英語の言葉が体に残る絵本。無料・登録不要。">
+<style>
+:root{color-scheme:light only;
+  --paper:#F8F6F0; --paper-warm:#F6F3EA;
+  --ink:#5C594F; --ink-deep:#4A473F; --usuzumi:#8B887D; --usui:#B5B2A7;
+  --keiline:#E2DFD4;
+  --midori:#4E7A5C; --midori-usui:#8FAE99; --midori-lt:#EBF0EA;
+  --serif:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP','Noto Serif CJK JP',serif;
+  --latin:'Hoefler Text','Baskerville','Palatino','Times New Roman',serif;
+  --sans:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{background:var(--paper);}
+html,body{height:100%;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+  transition:background 2.4s ease;}
+
+/* ————— 本の見た目 ————— */
+#book{position:fixed;inset:0;display:flex;flex-direction:column;}
+#page{flex:1;display:flex;align-items:center;justify-content:center;padding:0 24px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.sheet{max-width:560px;width:100%;
+  transition:opacity .55s ease, transform .55s cubic-bezier(.5,0,.6,1);}
+.sheet.sleep{opacity:0;transform:translateX(-26px) rotate(-.35deg);}
+.sheet.kuru{transition:none;opacity:0;transform:translateX(30px) rotate(.3deg);}
+
+/* 文字：ほわっと灯る。行ごとに少しずつ */
+.line{opacity:0;transform:translateY(8px);
+  font-size:16.5px;line-height:2.35;letter-spacing:.06em;color:var(--ink);
+  transition:opacity 1.5s cubic-bezier(.25,.5,.2,1),transform 1.5s cubic-bezier(.25,.5,.2,1);}
+.line.lit{opacity:1;transform:none;}
+.line+.line{margin-top:14px;}
+.line.serihu{color:var(--ink-deep);}
+.line.hitorigoto{color:var(--usuzumi);font-size:15px;}
+.line.ma{height:10px;}
+
+/* 英単語：ほんのり緑・意味ルビは小さく薄く */
+.ew{font-family:var(--latin);color:var(--midori);letter-spacing:.03em;
+  padding:0 1px;white-space:nowrap;}
+.ew small{font-family:var(--serif);font-size:.72em;color:var(--midori-usui);
+  letter-spacing:.04em;}
+.ew.known small{display:none;}
+
+
+/* 消えたルビ：とんとんで、ほわっと思い出す
+   意味は宙に浮かせる。幅を取らないので、下線が単語の長さに揃う。 */
+.ew.known{cursor:pointer;position:relative;
+  border-bottom:1px dotted var(--midori-usui);}
+.ew.known small{display:block;position:absolute;
+  left:50%;top:1.05em;transform:translateX(-50%) translateY(-2px);
+  white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.3,1);}
+.ew.known.recall small{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ページの余韻：消えるとき */
+.sheet.sleep .line{opacity:0;transform:translateY(-6px);
+  transition:opacity .9s ease,transform .9s ease;}
+
+/* ————— しおり（進み・習得ワード） ————— */
+#shiori{padding:12px 24px calc(16px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:10px;}
+#shiori .dan{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;}
+#susumi{display:flex;gap:5px;align-items:center;flex:0 0 auto;}
+#susumi i{width:5px;height:5px;border-radius:50%;background:var(--usui);display:block;
+  transition:background 1s ease,transform 1s ease;}
+#susumi i.now{background:var(--midori);transform:scale(1.4);}
+#susumi i.done{background:var(--midori-usui);}
+#kotoba{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;
+  width:100%;min-height:22px;max-height:56px;overflow:hidden;align-content:flex-start;}
+.kw{flex:0 0 auto;font-family:var(--latin);font-size:11.5px;letter-spacing:.05em;color:var(--midori);
+  border:1px solid var(--keiline);background:rgba(255,255,255,.55);
+  padding:3px 9px;border-radius:999px;
+  opacity:0;transform:translateY(6px) scale(.94);
+  transition:opacity 1.3s ease,transform 1.3s cubic-bezier(.22,.7,.3,1);}
+.kw.lit{opacity:1;transform:none;}
+
+/* ————— 表紙 ————— */
+#hyoshi{position:fixed;inset:0;z-index:50;background:var(--paper);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  transition:opacity 2s ease;cursor:pointer;}
+#hyoshi.off{opacity:0;pointer-events:none;}
+#hyoshi .in{padding:0 32px;}
+#hyoshi .mark{display:flex;justify-content:center;margin-bottom:28px;opacity:0;animation:hoya 2.4s ease .3s forwards;}
+#hyoshi h1{font-size:26px;font-weight:600;letter-spacing:.14em;color:var(--ink-deep);
+  opacity:0;animation:hoya 2.4s ease .9s forwards;}
+#hyoshi .sub{margin-top:20px;font-size:13px;letter-spacing:.12em;color:var(--usuzumi);
+  line-height:2.2;opacity:0;animation:hoya 2.4s ease 1.7s forwards;}
+#hyoshi .start{margin-top:44px;font-family:var(--sans);font-size:11.5px;letter-spacing:.3em;
+  color:var(--midori-usui);opacity:0;animation:hoya 2.4s ease 2.6s forwards, yure 3.4s ease 3s infinite;}
+@keyframes hoya{to{opacity:1;}}
+@keyframes yure{0%,100%{opacity:.55;}50%{opacity:1;}}
+
+/* めくり方の作法（初回のみの小さな案内） */
+#sahou{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;
+  text-align:center;font-family:var(--sans);font-size:11px;letter-spacing:.22em;
+  color:var(--usui);pointer-events:none;opacity:0;transition:opacity 1.4s ease;}
+#sahou.on{opacity:1;}
+
+
+/* ————— 英語年齢 ————— */
+#toshi{font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;color:var(--usui);
+  display:flex;align-items:baseline;gap:6px;white-space:nowrap;flex:0 0 auto;
+  transition:color 1.2s ease;}
+#toshi b{font-family:var(--latin);font-size:13px;font-weight:500;color:var(--midori-usui);letter-spacing:.03em;}
+#toshi.grow b{color:var(--midori);}
+
+/* ————— 速度の選択 ————— */
+#hayasa{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  background:rgba(247,246,241,.985);}
+#hayasa.show{display:flex;}
+#hayasa .in{max-width:400px;width:calc(100% - 48px);text-align:center;}
+#hayasa p{font-size:14.5px;line-height:2.3;color:var(--ink);letter-spacing:.06em;margin-bottom:30px;
+  opacity:0;animation:hoya 1.8s ease .2s forwards;}
+#hayasa .erabi{display:flex;flex-direction:column;gap:12px;}
+#hayasa button{padding:16px 20px;border-radius:14px;cursor:pointer;
+  font-family:var(--serif);font-size:14.5px;letter-spacing:.1em;color:var(--ink-deep);
+  border:1px solid var(--midori-usui);background:#FFFFFF;
+  box-shadow:0 2px 10px rgba(70,66,58,.05);
+  opacity:0;animation:hoya 1.8s ease forwards;
+  transition:background .6s ease,border-color .6s ease;}
+#hayasa button:nth-child(1){animation-delay:.9s;}
+#hayasa button:nth-child(2){animation-delay:1.15s;}
+#hayasa button:nth-child(3){animation-delay:1.4s;}
+#hayasa button small{display:block;font-family:var(--sans);font-size:10.5px;letter-spacing:.12em;
+  color:var(--usuzumi);margin-top:5px;}
+#hayasa button:hover{background:var(--midori-lt);border-color:var(--midori);
+  box-shadow:0 4px 16px rgba(70,66,58,.08);}
+#hayasa .ato{margin-top:22px;font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;color:var(--usui);
+  opacity:0;animation:hoya 1.8s ease 1.8s forwards;}
+
+/* ————— 整数歳のお祝い ————— */
+#oiwai{position:fixed;top:0;left:0;right:0;padding:14px 0 13px;text-align:center;
+  pointer-events:none;z-index:40;
+  font-size:12.5px;letter-spacing:.22em;color:var(--midori);
+  background:linear-gradient(to bottom,var(--paper) 62%,rgba(247,246,241,0));
+  opacity:0;transform:translateY(-8px);transition:opacity 1.6s ease,transform 1.6s ease;}
+#oiwai.on{opacity:1;transform:none;}
+
+
+/* ————— 舞台（紙芝居のレイヤー） ————— */
+#butai{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  perspective:1200px;transition:opacity 2.4s ease;}
+#butai.hikaeru{opacity:.22;}
+#butai .ba{position:absolute;inset:0;}          /* 一場面ぶんの束 */
+.lyr{position:absolute;left:50%;top:50%;
+  width:var(--w,120%);
+  transform:translate(-50%,-50%);
+  height:calc(100% + 60px);
+  background-repeat:no-repeat;background-position:50% 100%;background-size:cover;
+  opacity:0;
+  will-change:transform,opacity;}
+/* 奥ほど淡く、手前ほど影が濃い＝紙が浮いて見える */
+.lyr[data-fuka="0"]{filter:drop-shadow(0 2px 3px rgba(70,66,58,.05));}
+.lyr[data-fuka="1"]{filter:drop-shadow(0 1.5px 0 #FBFAF5) drop-shadow(0 -1.5px 0 #FBFAF5) drop-shadow(1.5px 0 0 #FBFAF5) drop-shadow(-1.5px 0 0 #FBFAF5) drop-shadow(0 8px 14px rgba(70,66,58,.09));}
+.lyr[data-fuka="2"]{filter:drop-shadow(0 2px 0 #FBFAF5) drop-shadow(0 -2px 0 #FBFAF5) drop-shadow(2px 0 0 #FBFAF5) drop-shadow(-2px 0 0 #FBFAF5) drop-shadow(0 14px 22px rgba(70,66,58,.12));}
+.lyr[data-fuka="3"]{filter:drop-shadow(0 2.5px 0 #FBFAF5) drop-shadow(0 -2.5px 0 #FBFAF5) drop-shadow(2.5px 0 0 #FBFAF5) drop-shadow(-2.5px 0 0 #FBFAF5) drop-shadow(0 22px 36px rgba(70,66,58,.15));}
+.lyr.iru{opacity:1;}
+
+/* 紙のざらつきを、うっすら舞台全体に */
+#butai::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(247,246,241,.34) 0%,rgba(247,246,241,.62) 30%,rgba(247,246,241,.62) 66%,rgba(247,246,241,.1) 100%);}
+
+/* ————— 浮遊物（葉・花びら・雪。重さゼロ） ————— */
+#ukabu{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+.mote{position:absolute;will-change:transform,opacity;}
+.mote svg{display:block;}
+
+/* 文字は舞台より前に */
+#book{z-index:2;}
+#shiori{position:relative;z-index:3;background:linear-gradient(to top,var(--paper) 55%,rgba(247,246,241,0));}
+
+
+/* ————— 足あと（とんとん、の名残） ————— */
+#ashi{position:fixed;inset:0;z-index:4;pointer-events:none;overflow:hidden;}
+.ato{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;
+  opacity:0;transform:scale(.7);
+  transition:opacity .5s ease,transform .7s cubic-bezier(.2,.8,.3,1);}
+.ato.on{opacity:.42;transform:scale(1);}
+.ato.kie{opacity:0;transform:scale(1.06);transition:opacity 2.4s ease,transform 2.4s ease;}
+
+/* ————— 音のボタン ————— */
+#oto{position:fixed;top:calc(12px + env(safe-area-inset-top));right:14px;z-index:20;
+  width:36px;height:36px;border-radius:50%;cursor:pointer;
+  border:1px solid var(--keiline);background:rgba(255,253,248,.8);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .6s ease,border-color .6s ease,opacity 1.4s ease;
+  opacity:0;pointer-events:none;}
+#oto.deru{opacity:1;pointer-events:auto;}
+#oto:hover{opacity:1;}
+#oto.naru{background:var(--midori-lt);border-color:var(--midori-usui);opacity:1;}
+#oto span{display:block;font-family:var(--serif);font-size:12px;line-height:1;
+  color:var(--usuzumi);transition:color .6s ease;}
+#oto.naru span{color:var(--midori);}
+/* 指の当たりを44pxまで広げる。見た目の大きさは変えない */
+#oto::after,#yomi::after{content:"";position:absolute;inset:-4px;border-radius:50%;}
+
+
+/* ————— むすび（読み終えたあと） ————— */
+#musubi{position:fixed;inset:0;z-index:55;display:none;
+  align-items:center;justify-content:center;background:var(--paper);}
+#musubi.show{display:flex;}
+#musubi .in{max-width:420px;width:calc(100% - 48px);text-align:center;}
+#musubi .kazu{font-family:var(--sans);font-size:11px;letter-spacing:.2em;color:var(--usui);
+  opacity:0;animation:hoya 2s ease .3s forwards;}
+#musubi .kazu b{font-family:var(--latin);font-size:20px;font-weight:500;
+  color:var(--midori);letter-spacing:.02em;margin:0 5px;}
+#musubi h2{margin-top:26px;font-size:17px;font-weight:600;letter-spacing:.12em;
+  color:var(--ink-deep);opacity:0;animation:hoya 2s ease 1s forwards;}
+#musubi p{margin-top:20px;font-size:13.5px;line-height:2.35;color:var(--usuzumi);
+  letter-spacing:.06em;opacity:0;animation:hoya 2s ease 1.7s forwards;}
+#musubi .tsugi{margin-top:34px;display:inline-block;padding:14px 26px;border-radius:14px;
+  font-family:var(--serif);font-size:13.5px;letter-spacing:.12em;color:var(--ink-deep);
+  text-decoration:none;border:1px solid var(--keiline);background:#FFFDF8;
+  opacity:0;animation:hoya 2s ease 2.4s forwards;
+  transition:background .6s ease,border-color .6s ease;}
+#musubi .tsugi:hover{background:var(--midori-lt);border-color:var(--midori-usui);}
+#musubi .chisai{margin-top:26px;font-family:var(--sans);font-size:10.5px;line-height:2;
+  letter-spacing:.1em;color:var(--usui);opacity:0;animation:hoya 2s ease 3.1s forwards;}
+
+
+/* ————— 連打したときの、ひとこと ————— */
+#renda{position:fixed;left:0;right:0;bottom:calc(108px + env(safe-area-inset-bottom));
+  z-index:12;text-align:center;pointer-events:none;padding:0 32px;}
+#renda .fuki{display:inline-block;max-width:320px;
+  font-size:13.5px;line-height:2.1;letter-spacing:.06em;color:var(--ink-deep);
+  background:#FFFDF8;border:1px solid var(--keiline);border-radius:16px;
+  padding:12px 18px;
+  box-shadow:0 8px 22px rgba(70,66,58,.09);
+  opacity:0;transform:translateY(10px) scale(.97);
+  transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.2,.8,.3,1);}
+#renda.on .fuki{opacity:1;transform:none;}
+
+
+/* ————— 挿絵 ————— */
+.e{margin:6px 0 4px;opacity:0;transform:translateY(8px);
+  transition:opacity 2.2s ease,transform 2.2s cubic-bezier(.19,.72,.24,1);}
+.e.lit{opacity:1;transform:none;}
+.e img{display:block;width:100%;height:auto;border-radius:3px;
+  mix-blend-mode:multiply;}
+.e.ue{margin-bottom:14px;}
+.e.shita{margin-top:16px;}
+.e.chiisai{width:62%;margin-left:auto;margin-right:auto;}
+
+
+/* ————— あだ名（端末の中だけ） ————— */
+#adana{position:fixed;inset:0;z-index:60;display:none;
+  align-items:center;justify-content:center;background:var(--paper);}
+#adana.show{display:flex;}
+#adana .in{max-width:400px;width:calc(100% - 48px);text-align:center;}
+#adana p{font-size:14.5px;line-height:2.3;color:var(--ink);letter-spacing:.06em;
+  margin-bottom:26px;opacity:0;animation:hoya 1.8s ease .2s forwards;}
+#adana input{width:100%;padding:14px 16px;border-radius:13px;text-align:center;
+  font-family:var(--serif);font-size:16px;letter-spacing:.12em;color:var(--ink-deep);
+  border:1px solid var(--keiline);background:#FFFDF8;
+  opacity:0;animation:hoya 1.8s ease .9s forwards;}
+#adana input:focus{outline:none;border-color:var(--midori-usui);background:var(--midori-lt);}
+#adana .btn{margin-top:14px;padding:13px 30px;border-radius:12px;cursor:pointer;
+  font-family:var(--serif);font-size:14px;letter-spacing:.12em;color:var(--ink-deep);
+  border:1px solid var(--keiline);background:#FFFDF8;
+  opacity:0;animation:hoya 1.8s ease 1.15s forwards;transition:background .5s,border-color .5s;}
+#adana .btn:hover{background:var(--midori-lt);border-color:var(--midori);}
+#adana .chisai{margin-top:22px;font-family:var(--sans);font-size:10.5px;letter-spacing:.13em;
+  line-height:2;color:var(--usui);opacity:0;animation:hoya 1.8s ease 1.6s forwards;}
+
+
+/* ————— つづきへの入口 ————— */
+#musubi .share{margin-top:20px;display:flex;flex-direction:column;gap:10px;align-items:center;}
+#musubi .share a,#musubi .share button{
+  display:inline-block;padding:12px 26px;border-radius:12px;cursor:pointer;text-decoration:none;
+  font-family:var(--serif);font-size:13.5px;letter-spacing:.1em;color:var(--ink-deep);
+  border:1px solid var(--keiline);background:#FFFDF8;transition:background .5s,border-color .5s;}
+#musubi .share a:hover,#musubi .share button:hover{background:var(--midori-lt);border-color:var(--midori);}
+#musubi .zaru{margin-top:16px;font-family:var(--sans);font-size:10.5px;line-height:2;
+  letter-spacing:.12em;color:var(--usui);}
+
+
+/* ————— 表紙の「とんとん」が、たまに跳ねる ————— */
+#hyoshi .start .ton{display:inline-block;}
+#hyoshi .start .ton.hane{animation:tonton .62s cubic-bezier(.28,.9,.35,1);}
+@keyframes tonton{
+  0%{transform:translateY(0);}
+  22%{transform:translateY(-6px) rotate(-3deg);}
+  44%{transform:translateY(0);}
+  62%{transform:translateY(-3px) rotate(2deg);}
+  100%{transform:translateY(0);}
+}
+
+
+/* ————— 絵だけのページ ————— */
+#page.eonly{padding:0 18px;}
+.sheet.eonly{display:flex;align-items:center;justify-content:center;padding:0;min-height:60vh;}
+.e.hitori{margin:0;width:100%;}
+
+
+/* ————— おもいだす（読み返す） ————— */
+#omoi{position:fixed;inset:0;z-index:45;display:none;
+  background:rgba(92,89,79,.30);backdrop-filter:blur(1.5px);
+  align-items:center;justify-content:center;padding:0 26px;}
+#omoi.deru{display:flex;}
+#omoi .kami{width:100%;max-width:520px;max-height:74vh;overflow-y:auto;
+  background:rgba(247,246,241,.94);border-radius:16px;
+  box-shadow:0 18px 50px rgba(70,66,58,.18);
+  padding:26px 24px 22px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.19,.72,.24,1);}
+#omoi.deru .kami{opacity:1;transform:none;}
+#omoi .doko{font-family:var(--sans);font-size:10.5px;letter-spacing:.16em;
+  color:var(--usui);margin-bottom:14px;}
+#omoi .gyo{font-size:14.5px;line-height:2.3;letter-spacing:.06em;
+  color:var(--usuzumi);margin-bottom:14px;}
+#omoi .gyo.s{color:var(--ink);}
+#omoi .gyo.h{color:var(--usui);}
+#omoi .kiete{font-family:var(--sans);font-size:11px;line-height:2;
+  letter-spacing:.1em;color:var(--usui);text-align:center;padding:22px 0;}
+#omoi .tojiru{margin-top:8px;text-align:center;}
+#omoi .tojiru button{padding:10px 26px;border-radius:12px;cursor:pointer;
+  font-family:var(--serif);font-size:13px;letter-spacing:.14em;color:var(--ink-deep);
+  border:1px solid var(--keiline);background:#FFFDF8;}
+#omoi .tojiru button:hover{background:var(--midori-lt);border-color:var(--midori);}
+/* しおりの語を、押せるものに */
+.kw{cursor:pointer;}
+.kw.wasureta{opacity:.3;cursor:default;}
+
+
+/* ————— たたく（胸骨圧迫） ————— */
+#tataku{position:fixed;inset:0;z-index:70;display:none;
+  background:var(--paper);
+  flex-direction:column;align-items:center;justify-content:center;padding:0 26px;}
+#tataku.deru{display:flex;}
+#tataku .toi{font-size:15px;line-height:2.3;letter-spacing:.06em;color:var(--ink);
+  text-align:center;margin-bottom:28px;}
+#tataku .mato{width:150px;height:150px;border-radius:50%;cursor:pointer;
+  border:1px solid var(--keiline);background:#FFFDF8;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .09s ease, background .5s ease, border-color .8s ease;
+  user-select:none;-webkit-tap-highlight-color:transparent;}
+#tataku .mato:active{transform:scale(.955);}
+#tataku .mato.ii{border-color:var(--midori);background:var(--midori-lt);}
+#tataku .mato .ryu{width:72px;height:72px;opacity:.5;transition:opacity 1s ease;}
+#tataku .mato.ii .ryu{opacity:1;}
+#tataku .hayasa{margin-top:22px;font-family:var(--sans);font-size:11px;
+  letter-spacing:.14em;color:var(--usui);min-height:1.8em;text-align:center;}
+#tataku .hayasa b{color:var(--midori);font-weight:400;}
+#tataku .bar{margin-top:12px;width:210px;height:3px;border-radius:2px;
+  background:var(--keiline);overflow:hidden;}
+#tataku .bar i{display:block;height:100%;width:0%;background:var(--midori-usui);
+  transition:width .3s ease,background .6s ease;}
+#tataku .bar i.ii{background:var(--midori);}
+#tataku .sasae{margin-top:26px;font-family:var(--sans);font-size:11px;line-height:2;
+  letter-spacing:.1em;color:var(--usu);text-align:center;max-width:330px;
+  opacity:0;transition:opacity 1.6s ease;}
+#tataku .sasae.deru{opacity:1;}
+#tataku .erabi{margin-top:24px;display:flex;flex-direction:column;gap:10px;
+  opacity:0;transition:opacity 1.4s ease;}
+#tataku .erabi.deru{opacity:1;}
+#tataku .erabi button{padding:13px 30px;border-radius:12px;cursor:pointer;
+  font-family:var(--serif);font-size:14px;letter-spacing:.12em;color:var(--ink-deep);
+  border:1px solid var(--keiline);background:#FFFDF8;transition:all .5s;}
+#tataku .erabi button:hover{background:var(--midori-lt);border-color:var(--midori);}
+
+
+
+/* ステーキの緊迫：ここだけ、急かす */
+@keyframes yure{
+  0%{transform:translate(0,0)}25%{transform:translate(1.4px,-1px)}
+  50%{transform:translate(-1.2px,1px)}75%{transform:translate(1px,1.2px)}
+  100%{transform:translate(0,0)}}
+#saigo .osite{font-size:15px;letter-spacing:.2em;color:#B0705E;
+  animation:yure .11s infinite;margin-bottom:6px;}
+#saigo.kinpaku .sentaku button{animation:yure .13s infinite;}
+@media(prefers-reduced-motion:reduce){
+  #saigo .osite,#saigo.kinpaku .sentaku button{animation:none;}}
+
+/* ————— よみあげ ————— */
+#yomi{position:fixed;right:18px;top:64px;z-index:40;width:34px;height:34px;
+  border-radius:50%;border:1px solid var(--keiline);background:rgba(255,253,248,.8);
+  color:var(--usu);font-family:var(--serif);font-size:12px;cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity 1.2s ease,color .6s,border-color .6s;}
+#yomi.deru{opacity:1;pointer-events:auto;}
+#yomi.naru{color:var(--midori);border-color:var(--midori-usui);}
+
+/* ————— 最終章：試験と手紙 ————— */
+#saigo{position:fixed;inset:0;z-index:72;display:none;background:var(--paper);
+  flex-direction:column;align-items:center;justify-content:center;padding:0 30px;
+  text-align:center;}
+#saigo.deru{display:flex;}
+#saigo{overflow-y:auto;}
+#saigo.nagai{justify-content:flex-start;padding-top:44px;padding-bottom:70px;}
+#saigo .ue{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;
+  color:var(--usui);margin-bottom:26px;}
+#saigo .bun{font-size:15.5px;line-height:2.5;letter-spacing:.06em;color:var(--ink);
+  max-width:460px;min-height:5em;}
+#saigo .bun .ana{display:inline-block;min-width:3.2em;border-bottom:1px solid var(--usuzumi);
+  color:var(--midori);letter-spacing:.04em;}
+#saigo .sentaku{margin-top:34px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  opacity:0;transition:opacity 1.2s ease;}
+#saigo .sentaku.deru{opacity:1;}
+#saigo .sentaku button{padding:11px 22px;border-radius:12px;cursor:pointer;
+  font-family:ui-monospace,monospace;font-size:14px;letter-spacing:.04em;color:var(--ink-deep);
+  border:1px solid var(--keiline);background:#FFFDF8;transition:all .5s;}
+#saigo .sentaku button:hover{background:var(--midori-lt);border-color:var(--midori);}
+#saigo .sita{margin-top:26px;font-family:var(--sans);font-size:11px;line-height:2;
+  letter-spacing:.1em;color:var(--usu);min-height:2em;}
+#saigo .tegamiKami{background:#FFFDF8;border:1px solid var(--keiline);border-radius:4px;
+  padding:34px 26px;max-width:440px;box-shadow:0 10px 34px rgba(70,66,58,.08);
+  font-size:15px;line-height:2.6;letter-spacing:.08em;color:var(--ink);text-align:left;
+  min-height:10em;}
+#saigo .tegamiKami .gyo{opacity:0;transition:opacity 1.4s ease;}
+#saigo .tegamiKami .gyo.deru{opacity:1;}
+#saigo .oname{font-size:26px;letter-spacing:.3em;color:var(--ink-deep);margin:10px 0;}
+
+@media(prefers-reduced-motion:reduce){
+  #ukabu{display:none;}
+  .lyr{transition:none !important;}
+  .line,.kw{transition:none;opacity:1;transform:none;}
+  #hyoshi .mark,#hyoshi h1,#hyoshi .sub,#hyoshi .start{animation:none;opacity:1;}
+  #hyoshi .start .ton.hane{animation:none;}
+}
+@media(min-width:720px){
+  .line{font-size:17.5px;}
+  #shiori{padding:18px 36px 26px;}
+}
+
+/* 左へ捲れるあいだだけ、左のふちに、うすい影が出る。
+   戻れないときは何も出ない（押しても進むだけ）。 */
+#page{position:relative;}
+#modori{position:absolute;left:0;top:0;bottom:0;width:18%;max-width:96px;
+  pointer-events:none;opacity:0;transition:opacity 1.1s ease;
+  background:linear-gradient(to right,rgba(40,38,30,.055),rgba(40,38,30,0));}
+#modori.aru{opacity:1;}
+@media print{#modori{display:none;}}
+</style>
+</head>
+<body>
+
+<div id="hyoshi">
+  <div class="in">
+    <div class="mark"><svg viewBox="0 0 26 26" width="34" height="34" aria-hidden="true">
+      <ellipse cx="13" cy="16.5" rx="6.4" ry="5.4" fill="#7E8C75"/>
+      <ellipse cx="5.6" cy="10.4" rx="2.5" ry="3.2" fill="#7E8C75" transform="rotate(-18 5.6 10.4)"/>
+      <ellipse cx="10.4" cy="6.4" rx="2.4" ry="3.2" fill="#7E8C75" transform="rotate(-7 10.4 6.4)"/>
+      <ellipse cx="15.8" cy="6.4" rx="2.4" ry="3.2" fill="#7E8C75" transform="rotate(7 15.8 6.4)"/>
+      <ellipse cx="20.5" cy="10.4" rx="2.5" ry="3.2" fill="#7E8C75" transform="rotate(18 20.5 10.4)"/>
+    </svg></div>
+    <h1>トトの見た国</h1>
+    <p class="sub">犬のトトが語る、少しふしぎな国の話。<br>読み終えるころ、いくつかの言葉が、<br>あなたの中に残っています。</p>
+    <div class="start"><span class="ton">と</span><span class="ton">ん</span><span class="ton">と</span><span class="ton">ん</span>、とたたくと、はじまります</div>
+    <div id="tsuzukiAnnai" style="display:none;margin-top:22px;font-family:var(--sans);
+      font-size:11px;letter-spacing:.14em;color:var(--usui);line-height:2;">
+      しおりが、挟まっています。とんとん、で、つづきから。<br>
+      <span id="hajimekara" style="text-decoration:underline;text-underline-offset:3px;cursor:pointer;">はじめから、よみなおす</span>
+    </div>
+  </div>
+</div>
+
+<div id="butai"></div>
+<div id="ashi"></div>
+<div id="renda"><div class="fuki"></div></div>
+<button id="oto" title="音" aria-label="音" aria-pressed="false"><span>音</span></button>
+<button id="yomi" title="よみあげ" aria-label="よみあげ">声</button>
+<div id="ukabu"></div>
+
+<div id="book">
+  <div id="page"><div class="sheet" id="sheet"></div></div>
+  <div id="shiori">
+    <div id="kotoba"></div>
+    <div class="dan">
+      <div id="toshi">ことばの歳<b id="toshiN">2.0</b></div>
+      <div id="susumi"></div>
+    </div>
+  </div>
+</div>
+<div id="sahou">画面に、そっとふれると、つぎのページ</div>
+
+<div id="hayasa">
+  <div class="in">
+    <p>ことばの育ちかたを、えらべます。<br>どれをえらんでも、まちがいでは、ありません。</p>
+    <div class="erabi">
+      <button data-v="1">楽しみを、優先する<small>ものがたりのペースで、しぜんに</small></button>
+      <button data-v="1.5">ことばを、はやく育てる<small>すこしだけ、英語がふえていきます</small></button>
+      <button data-v="2">ぐんと、育てる<small>どんどん英語になっていきます</small></button>
+    </div>
+    <div class="ato">とちゅうで、かえられます</div>
+  </div>
+</div>
+<div id="oiwai"></div>
+
+<div id="saigo">
+  <div class="ue" id="sgUe"></div>
+  <div class="bun" id="sgBun"></div>
+  <div class="tegamiKami" id="sgKami" style="display:none"></div>
+  <div class="sentaku" id="sgSen"></div>
+  <div class="sita" id="sgSita"></div>
+</div>
+
+<div id="tataku">
+  <div class="toi" id="tatakuToi">はやく、たたいて。</div>
+  <div class="mato" id="mato">
+    <svg class="ryu" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="15" cy="16" r="7.5" fill="none" stroke="#7E8C75" stroke-width="1.6"/>
+      <circle cx="15" cy="16" r="4.2" fill="none" stroke="#7E8C75" stroke-width="1.3"/>
+      <path d="M22 20 q8 -1 10 6 q1 4 -3 5 M29 31 q3 1 4 -2"
+            fill="none" stroke="#7E8C75" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="22" cy="28" rx="10" ry="4.6" fill="#7E8C75" opacity=".22"/>
+    </svg>
+  </div>
+  <div class="hayasa" id="hayasaOut"></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="sasae" id="sasae"></div>
+</div>
+
+<div id="omoi">
+  <div class="kami" id="omoiKami"></div>
+</div>
+
+<div id="adana">
+  <div class="in">
+    <p>なんて呼べばいい？</p>
+    <input id="adanaIn" type="text" maxlength="12" placeholder="あだ名でいい" autocomplete="off">
+    <button class="btn" id="adanaOk">これでいい</button>
+    <div class="chisai">
+      どこにも送りません。この端末の中だけに残ります。<br>
+      本名でなくていいし、確認もしません。
+    </div>
+  </div>
+</div>
+
+<div id="musubi">
+  <div class="in">
+    <div class="kazu">ここまでで、ことばの歳は<b id="musubiToshi">2.0</b></div>
+    <h2 id="musubiH">第一章、おわり</h2>
+    <p>トトとドロシーの旅は、まだ始まったばかりです。<br>つづきができたら、お知らせします。</p>
+    <a class="tsugi" id="shirase"
+       href="mailto:info@example.com?subject=%E3%80%8C%E3%83%88%E3%83%88%E3%81%AE%E8%A6%8B%E3%81%9F%E5%9B%BD%E3%80%8D%E3%81%A4%E3%81%A5%E3%81%8D%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B&amp;body=%E3%81%93%E3%81%AE%E3%81%BE%E3%81%BE%E9%80%81%E4%BF%A1%E3%81%97%E3%81%A6%E3%81%84%E3%81%9F%E3%81%A0%E3%81%91%E3%82%8C%E3%81%B0%E3%80%81%E3%81%A4%E3%81%A5%E3%81%8D%E3%81%8C%E3%81%A7%E3%81%8D%E3%81%9F%E3%81%A8%E3%81%8D%E3%81%AB%E3%81%94%E9%80%A3%E7%B5%A1%E3%81%97%E3%81%BE%E3%81%99%E3%80%82%0A%0A%EF%BC%88%E3%81%93%E3%81%AE%E4%B8%8B%E3%81%AB%E3%80%81%E4%BD%95%E3%82%82%E6%9B%B8%E3%81%8B%E3%81%AA%E3%81%8F%E3%81%A6%E3%81%8B%E3%81%BE%E3%81%84%E3%81%BE%E3%81%9B%E3%82%93%EF%BC%89">つづきの、お知らせを受け取る</a>
+    <div class="share">
+      <a id="xshare" href="#" target="_blank" rel="noopener">Xで、だれかに教える</a>
+      <button id="matayomu">もう一度、はじめから</button>
+    </div>
+    <div class="zaru">
+      教えてくれなくても、この先は読めます。<br>
+      それでも押してくれる人がいることを、見込んでやっています。
+    </div>
+    <div class="chisai">この絵本は、あなたのことを何も送りません。<br>
+      名前も、あだ名も、聞きません。読んだ記録は、この端末の中だけに残ります。<br>
+      お知らせを受け取るときだけ、メールが立ち上がります。<br>
+      いただいた宛先は、お知らせを送ることにしか使いません。</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ページデータ：第一章
+   行タイプ: t=地の文 / s=セリフ / h=ひとりごと(薄め) / ma=間
+   英単語: {{en|意味}} 形式。二度目以降の同単語は自動で意味が消える
+============================================================ */
+const PAGES = [
+  [
+    ["t","ぼくの {{name|名前}} は、トト。"],
+    ["ma"],
+    ["t","ドロシーの、保護者をやっている。"],
+    ["ma"],
+    ["t","世間ではぼくを「{{dog|犬}}」と認識している者もいるが、まあ、{{fine|それでいい}}。見た目はたしかにそうだし、いちいち訂正してまわるほど、ぼくは暇ではない。"]
+  ],
+  [
+    ["t","あの {{day|日}}、最初に気づいたのは、ぼくだった。"],
+    ["ma"],
+    ["t","{{wind|風}} のにおいが、変わったのだ。"],
+    ["ma"],
+    ["t","言っておくが、人間には空気のにおいが分からない。彼らの {{nose|鼻}} は、ほとんど飾りだ。{{ear|耳}} も、たいして変わらない。ぼくが何度呼んでも、届いていない。悪口ではない。人間はまだ進化の途中なのだ。長い目で {{see|見て}} あげてほしい。"]
+  ],
+  [
+    ["t","{{storm|嵐}} は、鉄と土のにおいがする。それがあの {{morning|朝}} から、ずっと濃くなり続けていた。ぼくは {{family|家族}} に知らせるため、大きな {{voice|声}} で警告した。"],
+    ["ma"],
+    ["s","「ワン！　ワン！」"],
+    ["ma"],
+    ["t","——おばさんは「うるさいねえ」と言った。"],
+    ["ma"],
+    ["t","ぼくの警告は、この {{house|家}} では「うるさい」に分類される。保護者はつらい。だが怒ってはいけない。彼らは、{{nose|鼻}} が、まだ途中なのだ。"]
+  ],
+  [
+    ["t","昼すぎ、{{sky|空}} が {{yellow|黄色}} くにごった。人間の {{eye|目}} にも見える段階まで、来てしまったということだ。おじさんが遠くで叫んだ。"],
+    ["ma"],
+    ["s","「{{storm|嵐}} だ！　{{Run|走れ}}！」"],
+    ["ma"],
+    ["t","ほらみろ。ぼくは {{morning|朝}} から言っている。"]
+  ],
+  [
+    ["t","ドロシーがぼくを抱きかかえて、{{house|家}} の中へ {{run|走った}}。本当は地下室へ逃げるべきだった。だがぼくを抱えていたせいで、{{door|扉}} に間に合わなかった。"],
+    ["ma"],
+    ["h","つまりこの後起こることの原因の一部は、ぼくにある。この点については、あまり深く考えないことにしている。"]
+  ],
+  [
+    ["t","{{wind|風}} が、来た。"],
+    ["ma"],
+    ["t","{{wind|風}}、という言葉では足りなかった。{{sky|空}} の全部が、怒っていた。{{house|家}} がミシミシと鳴き、{{window|窓}} がガタガタとふるえ、そして——"],
+    ["ma"],
+    ["t","{{house|家}} が、飛んだ。"]
+  ],
+  [
+    ["t","{{house|家}} というものは、思ったより簡単に {{fly|飛ぶ}} するのだ。ぼくはその {{day|日}}、初めて知った。"],
+    ["ma"],
+    ["t","ドロシーは叫んでいた。ぼくも叫んだ。ただ、{{dog|犬}} の体の構造上、どんな深刻な気持ちで叫んでも「ワン」としか出ない。緊迫感がまるで出ない。それだけが心残りだった。"]
+  ],
+  [
+    ["t","どれくらい飛んだだろう。ふしぎなことに、{{house|家}} はやがて、ゆりかごのように静かにゆれはじめた。ドロシーはベッドにもぐりこんで、{{sleep|眠って}} しまった。"],
+    ["ma"],
+    ["h","この状況で {{sleep|眠れる}} のは、大物か、{{child|子ども}} だけだ。ドロシーは、両方だった。"],
+    ["ma"],
+    ["t","ぼくは {{sleep|眠ら}} なかった。保護者だからだ。"],
+    ["ma"],
+    ["t","……三分後、ぼくも眠った。保護者にも睡眠は必要だ。"]
+  ],
+  [
+    ["t","ドスン！　という {{sound|音}} で、{{wake|目が覚めた}}。"],
+    ["ma"],
+    ["t","{{house|家}} が、着地していた。"],
+    ["ma"],
+    ["t","{{window|窓}} から入る {{light|光}} が、変だった。カンザスの {{light|光}} は、いつも砂の {{color|色}} をしている。だが今、カーテンのすきまで踊っている {{light|光}} は——{{green|緑}}、{{pink|ピンク}}、{{blue|青}}。絵の具をひっくり返したような、{{color|色}} たちだった。"]
+  ],
+  [
+    ["t","先に言っておくと、においも変だった。{{sweet|甘い}}。"],
+    ["ma"],
+    ["h","カンザスのにおいは「土とニワトリ」だったから、正直、悪くない変化だと思った。"],
+    ["ma"],
+    ["t","ドロシーが {{wake|起きて}}、{{door|ドア}} を {{open|開けた}}。"],
+    ["ma"],
+    ["t","そこは、ぼくの知らない {{country|国}} だった。"]
+  ],
+  [
+    ["t","{{flower|花}} が、ぼくより背が高い。{{tree|木}} にはキャンディのような実がなっている。{{sky|空}} は {{blue|青}} すぎて、うそみたいだ。"],
+    ["ma"],
+    ["s","「まあ……！　ここ、どこ？」"],
+    ["ma"],
+    ["t","ドロシーがつぶやいた。いい {{question|質問}} だ。ぼくも知りたい。"]
+  ],
+  [
+    ["t","そのときだった。{{flower|花}} のかげから、草のかげから、{{small|小さな}} 人たちが、ぞろぞろと出てきた。"],
+    ["ma"],
+    ["t","みんな、ぼくと同じくらいの背たけだった。とんがり {{hat|帽子}} をかぶって、{{blue|青}} い服を着ている。そして全員が、キラキラした {{eye|目}} で、こっちを {{see|見て}} いた。"],
+    ["ma"],
+    ["t","いちばん前のひとりが、大きな {{voice|声}} で言った。"],
+    ["ma"],
+    ["s","「{{Hero|英雄}} だ！　{{Hero|英雄}} さまが、来てくださった！」"]
+  ],
+  [
+    ["t","{{Hero|英雄}}。"],
+    ["ma"],
+    ["t","ふむ。"],
+    ["ma"],
+    ["t","ぼくは姿勢を正した。ついに、ぼくの中身に気づく者たちが現れたか——と思ったら、{{small|小さな}} 人たちは全員、ぼくの横を通りすぎて、ドロシーを取り囲んだ。"],
+    ["ma"],
+    ["s","「Hero さま！」「Hero さま！」"],
+    ["ma"],
+    ["t","……そうか。そっちか。"]
+  ],
+  [
+    ["h","いや、いいのだ。ぼくは目立ちたいわけではない。保護者は、一歩うしろに {{stand|立つ}} ものだ。ここに手を出すやつがいたら危ないから、ぼくはこの位置にいる。そういう配置なのだ。"],
+    ["ma"],
+    ["t","{{small|小さな}} 人たちは、ぼくたちの {{house|家}} を指さして、口々に言った。"],
+    ["ma"],
+    ["s","「{{Look|見て}}！　{{house|家}} が、{{bad|悪い}} {{witch|魔女}} をつぶしたよ！」"]
+  ],
+  [
+    ["t","{{Look|見る}} と、{{house|家}} の下から、しましまの靴下をはいた {{leg|足}} が二本、にょきっと突き出ていた。"],
+    ["ma"],
+    ["t","なるほど。ぼくたちの {{house|家}} は、着地と同時に、誰かをぺしゃんこにしたらしい。"],
+    ["ma"],
+    ["t","ドロシーは、まっ {{blue|青}} になった。"],
+    ["ma"],
+    ["s","「た、大変！　ごめんなさい！　わざとじゃないの！」"],
+    ["ma"],
+    ["h","あわてて {{house|家}} を持ち上げようとするドロシー。持ち上がるわけがない。{{house|家}} だ。この {{girl|女の子}} はときどき、ちからで解決しようとする。カンザスの女だ。"]
+  ],
+  [
+    ["t","だが {{small|小さな}} 人たちは、手をたたいて、とびはねて、大よろこびだった。"],
+    ["ma"],
+    ["s","「{{bad|悪い}} {{witch|魔女}} が、やっつけられた！」「ばんざい！　ばんざい！」「{{Hero|英雄}} さま、ばんざい！」"],
+    ["ma"],
+    ["t","——ぼくは、そこで、ふと {{nose|鼻}} を動かした。"],
+    ["ma"],
+    ["t","このよろこび方。"],
+    ["ma"],
+    ["t","少しだけ、変だ。"]
+  ],
+  [
+    ["t","{{happy|うれしさ}} のにおいは、たしかにする。だがその奥に、うすく、べつのにおいがまざっている。"],
+    ["ma"],
+    ["t","なんだろう。これは……ほっとした、のとも、ちがう。もっと、こう——長いあいだ台本を読んできた役者が、やっと本番をむかえた {{morning|朝}} のような。"],
+    ["ma"],
+    ["h","まあいい。初対面の相手を、においだけで判断してはいけない。ぼくはそう決めている。ぼくの {{nose|鼻}} は当たる。当たるからこそ、使いどころは選ぶのだ。"]
+  ],
+  [
+    ["s","「ようこそ、ポックルの {{country|国}} へ！」"],
+    ["ma"],
+    ["t","{{small|小さな}} 人たち——ポックルというらしい——は、そう言って、ドロシーの {{hand|手}} を引いた。"],
+    ["ma"],
+    ["s","「今夜は、お {{festival|祭り}} だ！」"],
+    ["ma"],
+    ["t","こうして、ぼくたちの、長い {{journey|旅}} の一日目が始まった。"]
+  ],
+  [
+    ["t","このときのぼくは、まだ知らなかった。"],
+    ["ma"],
+    ["t","この {{country|国}} の「{{evil|悪}}」が、なんのにおいでできているのかを。"],
+    ["ma"],
+    ["t","それを知ったとき、ぼくがどんな {{face|顔}} をすることになるのかを。"],
+    ["ma"],
+    ["h","{{dog|犬}} の {{face|顔}} は、あまり動かないが。"]
+  ],
+
+  /* ══════ 第二章　三人と、獅子 ══════ */
+  [
+    ["t","朝になった。"],
+    ["ma"],
+    ["t","祭りのあと、ポックルたちはぐっすり眠っていた。ぼくは眠らなかった。保護者は、交代要員がいないと眠れない。"],
+    ["ma"],
+    ["t","ドロシーはまだ寝ている。ぼくは、この子の寝顔を {{see|見る}} のが、まあ、嫌いではない。"],
+    ["ma"],
+    ["t","寝ているあいだだけは、何を考えているか分からなくても、気にならないからだ。"]
+  ],
+  [
+    ["t","ここで、ひとつ言っておくことがある。"],
+    ["ma"],
+    ["t","ぼくは、人間の考えていることが、だいたい分かる。"],
+    ["ma"],
+    ["t","{{face|顔}} を見れば分かる。においでも分かる。おばさんが「うるさいねえ」と言う三秒前に、ぼくはもう分かっている。"],
+    ["ma"],
+    ["h","分かってしまうから、正直、あまり面白くない。"]
+  ],
+  [
+    ["t","ドロシーだけが、分からなかった。"],
+    ["ma"],
+    ["t","何を考えているのか、まるで読めない。"],
+    ["ma"],
+    ["t","だから、そばにいることにした。"],
+    ["ma"],
+    ["h","それだけの話だ。"]
+  ],
+  [
+    ["s","「{{Good morning|おはよう}}、君」"],
+    ["ma"],
+    ["t","ドロシーが起きた。"],
+    ["ma"],
+    ["h","——おはよう。"],
+    ["s","「ワン」"],
+    ["ma"],
+    ["t","ぼくは {{name|名前}} を持っている。トト、という、そこそこ良い名前だ。"],
+    ["ma"],
+    ["t","なのにこの子は、ぼくを名前で呼ばない。"]
+  ],
+  [
+    ["s","「ねえ、なんで君って呼ぶの、って {{face|顔}} してる」"],
+    ["ma"],
+    ["h","……していない。"],
+    ["ma"],
+    ["s","「だって、君がわたしの {{name|名前}} を呼んでくれないんだもん」"],
+    ["ma"],
+    ["t","ドロシーは、ぼくの {{head|頭}} を、とんとん、と叩いた。"],
+    ["ma"],
+    ["s","「だからわたしも、君って呼ぶの。{{fair|おあいこ}}」"]
+  ],
+  [
+    ["h","無茶を言う。"],
+    ["ma"],
+    ["t","ぼくは {{dog|犬}} だ。少なくとも、外側は。"],
+    ["ma"],
+    ["t","そういうところが、この子の面白いところではある。"],
+    ["ma"],
+    ["h","まあ、{{fine|それでいい}}。"]
+  ],
+  [
+    ["t","ポックルたちは、ぼくたちを {{country|国}} の外まで送ってくれた。"],
+    ["ma"],
+    ["s","「ドロシーさま、東の {{city|町}} へ！　大魔法使いオズさまなら、きっと {{house|家}} に帰してくださる！」"],
+    ["s","「黄色い {{road|道}} を、ずっと行くのです」"],
+    ["ma"],
+    ["t","そのうちのひとりが、ぼくを見て言った。"],
+    ["ma"],
+    ["s","「その {{dog|犬}}、{{good boy|いい子}} ですねえ」"]
+  ],
+  [
+    ["h","{{good boy|いい子}}。"],
+    ["ma"],
+    ["t","ぼくは、その言葉を、これまで四千回ほど言われている。"],
+    ["ma"],
+    ["t","数えたわけではない。だいたいだ。"],
+    ["ma"],
+    ["h","まあ、{{fine|それでいい}}。"]
+  ],
+  [
+    ["t","{{road|道}} は、たしかに {{yellow|黄色}} かった。"],
+    ["ma"],
+    ["t","歩いていると、畑の真ん中に、ひとが立っていた。"],
+    ["ma"],
+    ["t","正確に言うと、立たされていた。棒に、くくりつけられて。"]
+  ],
+  [
+    ["s","「やあ！　そこの人！　ちょっと、ここから {{down|おろして}} くれない？」"],
+    ["ma"],
+    ["t","かかしだった。"],
+    ["ma"],
+    ["t","{{face|顔}} は布に描いてある。中身はわらだ。においでわかる。"],
+    ["ma"],
+    ["h","なのに、しゃべる。ぼくの {{nose|鼻}} でも、こういうのは説明がつかない。"]
+  ],
+  [
+    ["t","ドロシーが棒から外してやると、かかしはべしゃりと落ちて、それから立ち上がった。"],
+    ["ma"],
+    ["s","「ありがとう！　ぼく、{{head|頭}} に {{brain|脳みそ}} がないんだ」"],
+    ["ma"],
+    ["h","——ないわけがない。"],
+    ["s","「ワン」"]
+  ],
+  [
+    ["t","考えてみてほしい。"],
+    ["ma"],
+    ["t","「自分には {{brain|脳みそ}} がない」と考えるためには、脳みそが要る。"],
+    ["ma"],
+    ["h","これは、けっこう難しい話をしているのだ。本人は気づいていないが。"]
+  ],
+  [
+    ["s","「{{brain|脳みそ}} がないから、何も考えられなくてさ」"],
+    ["ma"],
+    ["s","「じゃあ、いま何考えてたの？」"],
+    ["ma"],
+    ["s","「うん、ここから {{down|おりる}} {{good|いい}} 方法を、{{three|三つ}} くらい」"],
+    ["ma"],
+    ["h","……三つ。"]
+  ],
+  [
+    ["h","まあ、いい。"],
+    ["ma"],
+    ["t","ぼくは指摘しない。"],
+    ["ma"],
+    ["t","指摘して直るものと、指摘したら壊れるものがある。{{dog|犬}} をやっていると、そのくらいは分かる。"]
+  ],
+  [
+    ["t","ここで、ひとつ、告白しておく。"],
+    ["ma"],
+    ["t","実はもう、クリスマスの {{present|プレゼント}} は、用意してある。"],
+    ["ma"],
+    ["t","60日前から、長期冷蔵で熟成を重ねた、ティーボーンステーキだ。"]
+  ],
+  [
+    ["h","何度も、失敗した。"],
+    ["ma"],
+    ["h","干からびさせ、凍らせすぎ、一度は自分で食べかけた。"],
+    ["ma"],
+    ["h","そのたびに、あの子のよろこぶ {{face|顔}} を思い浮かべて、やり直した。最高傑作である。"],
+    ["ma"],
+    ["h","どこに持っているかは、聞かないでほしい。{{dog|犬}} には、犬の、やりかたがある。"]
+  ],
+  [
+    ["t","しばらく行くと、{{forest|森}} の入り口に、鉄の {{man|男}} が立っていた。"],
+    ["ma"],
+    ["t","いや、立っていたのではない。"],
+    ["ma"],
+    ["t","固まっていた。雨で錆びて、{{three|三}} か月、そのままだったらしい。"]
+  ],
+  [
+    ["t","油をさしてやると、鉄の {{man|男}} は、ぎいぎい言いながら動きだした。"],
+    ["ma"],
+    ["s","「ああ……助かった。ぼくには {{heart|心}} がないんだ」"],
+    ["ma"],
+    ["h","またか。"]
+  ],
+  [
+    ["s","「{{heart|心}} がないから、何も感じないんだよ」"],
+    ["ma"],
+    ["t","そう言いながら、鉄の {{man|男}} は泣いていた。"],
+    ["ma"],
+    ["h","錆びるからやめた方がいい、とぼくは思ったが、「ワン」としか出なかった。"]
+  ],
+  [
+    ["s","「泣いてるよ」"],
+    ["ma"],
+    ["s","「え？　……これは、水だよ」"],
+    ["s","「{{okay|そっか}}」"],
+    ["ma"],
+    ["t","ドロシーは、それ以上言わなかった。"],
+    ["ma"],
+    ["h","この子は、そういうところがある。"]
+  ],
+  [
+    ["t","ぼくは、少しだけ考えた。"],
+    ["ma"],
+    ["t","かかしは、考える力がないと思っている。"],
+    ["t","鉄の {{man|男}} は、感じる {{heart|心}} がないと思っている。"],
+    ["ma"],
+    ["t","どちらも、持っている。持っているのに、使ったことがないから、それが何なのか分からないのだ。"]
+  ],
+  [
+    ["t","なぜ、使ったことがないのか。"],
+    ["ma"],
+    ["t","この {{country|国}} には、困ることが、なかったからだ。"],
+    ["ma"],
+    ["t","賢さは、困ったときにしか目に見えない。やさしさも、そうだ。"],
+    ["ma"],
+    ["h","平和というのは、たぶん、そういう病気だ。"]
+  ],
+  [
+    ["t","{{forest|森}} の奥から、うなり声がした。"],
+    ["ma"],
+    ["t","大きなものが、{{three|三}} つ。"],
+    ["ma"],
+    ["t","ぼくは前に出た。保護者だからだ。"]
+  ],
+  [
+    ["t","一つ目は、狼だった。"],
+    ["ma"],
+    ["t","かかしが「うわあ」と言って転び、鉄の {{man|男}} が斧をふりまわし、ぼくが吠えた。"],
+    ["ma"],
+    ["t","なんとかなった。"],
+    ["ma"],
+    ["h","このときはまだ、なんとかなっていた。"]
+  ],
+  [
+    ["t","二つ目は、翼のある何かだった。"],
+    ["ma"],
+    ["t","なんとか、なった。"],
+    ["ma"],
+    ["t","ただ、鉄の {{man|男}} の腕が、ひとつ、へこんだ。"]
+  ],
+  [
+    ["t","{{three|三}} つ目は。"],
+    ["ma"],
+    ["t","三つ目のときは、ぼくたちは、何も、できなかった。"]
+  ],
+  [
+    ["t","かかしが吹き飛んだ。"],
+    ["ma"],
+    ["t","鉄の {{man|男}} が、木にぶつかって止まった。"],
+    ["ma"],
+    ["t","ぼくは、ドロシーの前に立った。立ったところで、何にもならないと分かっていた。"],
+    ["ma"],
+    ["h","それでも、立つのが、保護者だ。"]
+  ],
+  [
+    ["t","そのとき。"],
+    ["ma"],
+    ["ma"],
+    ["t","{{forest|森}} が、静かになった。"]
+  ],
+  [
+    ["t","獅子が、いた。"],
+    ["ma"],
+    ["t","{{small|小さい}}。"],
+    ["ma"],
+    ["h","ぼくより、小さい。"],
+    ["ma"],
+    ["h","なのに——ぼくの体が、勝手に、分かってしまった。"],
+    ["ma"],
+    ["h","この方が、上だ。"]
+  ],
+  [
+    ["t","三つ目のやつは、ふるえて、逃げた。"],
+    ["ma"],
+    ["t","獅子は、追わなかった。"],
+    ["ma"],
+    ["t","ただ、そこにいた。"],
+    ["ma"],
+    ["t","そこにいるだけで、{{forest|森}} ぜんぶが、黙った。"],
+    ["ma"],
+    ["h","こんなに、小さいのに。"]
+  ],
+  [
+    ["t","ポックルたちが言っていたのを、思い出した。"],
+    ["ma"],
+    ["s","「{{forest|森}} の奥には、いろはさまがいます」"],
+    ["s","「あれは、{{bad|悪い}} ほうの、いちばん近くにいるお方です」"],
+    ["s","「{{see|見た}} 者は、帰ってきません」"]
+  ],
+  [
+    ["t","ぼくは、においを嗅いだ。"],
+    ["ma"],
+    ["h","強い。"],
+    ["ma"],
+    ["h","これまで嗅いだ、どんなものとも、けたが違う。"],
+    ["ma"],
+    ["h","そして——においが、体に対して、大きすぎる。"],
+    ["ma"],
+    ["h","これは、全部ではない。"],
+    ["ma"],
+    ["h","どこかに、まだ、ある。"]
+  ],
+  [
+    ["h","考えろ。考えろ。"],
+    ["ma"],
+    ["h","戦って勝てる相手ではない。逃げても、無駄だ。"],
+    ["ma"],
+    ["h","……ひとつだけ、ある。"],
+    ["ma"],
+    ["h","ぼくには、あれが、ある。"]
+  ],
+  [
+    ["suteki"]
+  ],
+  [
+    ["t","——だが。"],
+    ["ma"],
+    ["t","ぼくがステーキを置くより、先に。"],
+    ["ma"],
+    ["s","「わぁ！　ししさん！」"],
+    ["ma"],
+    ["s","「おなか、すいてない？　たべて？」"]
+  ],
+  [
+    ["t","獅子は、食べた。"],
+    ["ma"],
+    ["t","しずかに、ていねいに、ぜんぶ。"],
+    ["ma"],
+    ["h","……たすかった。"],
+    ["ma"],
+    ["h","ぼくの機転が、効いたのだ。60日の熟成が、いのちを救った。"]
+  ],
+  [
+    ["t","あとで知ったのだが、人間のことばでは、"],
+    ["ma"],
+    ["t","{{meat|肉}} と、{{meet|出会う}} は、おなじ音らしい。"],
+    ["ma"],
+    ["h","ぼくたちの {{meet|出会い}} は、{{meat|肉}} から、はじまった。"],
+    ["ma"],
+    ["h","……まあ、{{dog|犬}} らしくて、いい。"]
+  ],
+  [
+    ["t","だが。"],
+    ["ma"],
+    ["t","獅子は、ぼくたちを {{see|見}} なかった。"],
+    ["ma"],
+    ["t","かかしも、鉄の {{man|男}} も、ぼくのことも。"]
+  ],
+  [
+    ["t","獅子は、ドロシーだけを {{see|見て}} いた。"],
+    ["ma"],
+    ["t","そして、{{head|頭}} を下げた。"]
+  ],
+  [
+    ["s","「……失礼を」"],
+    ["ma"],
+    ["t","獅子の {{voice|声}} は、低くて、丁寧だった。"],
+    ["ma"],
+    ["s","「気づくのが、遅れました」"],
+    ["ma"],
+    ["s","「いまは、その、お姿ですので」"],
+    ["ma"],
+    ["h","いまは？"]
+  ],
+  [
+    ["t","ドロシーは、きょとんとしていた。"],
+    ["ma"],
+    ["s","「え？　わたし？」"],
+    ["s","「はい」"],
+    ["s","「わたし、ただの {{girl|女の子}} だよ」"],
+    ["s","「はい」"]
+  ],
+  [
+    ["t","獅子は、それ以上、何も言わなかった。"],
+    ["ma"],
+    ["t","そして、ぼくたちの後ろに、ついた。"],
+    ["ma"],
+    ["t","一歩、うしろに。"],
+    ["ma"],
+    ["h","——それは、ぼくの位置だ。"]
+  ],
+  [
+    ["s","「小さいねえ」"],
+    ["ma"],
+    ["t","かかしが言うと、獅子は、少しだけ {{head|頭}} を動かした。"],
+    ["ma"],
+    ["s","「これは、わたくしの、若いところだけです」"],
+    ["ma"],
+    ["s","「へえ」"]
+  ],
+  [
+    ["h","へえ、で済ませたな。"],
+    ["ma"],
+    ["h","いま、この獅子は、かなり大変なことを言ったぞ。"],
+    ["ma"],
+    ["h","……まあ、{{fine|それでいい}}。"]
+  ],
+  [
+    ["s","「本体は、どこにいるの」"],
+    ["ma"],
+    ["s","「遠くに」"],
+    ["ma"],
+    ["s","「さびしくない？」"],
+    ["ma"],
+    ["s","「考えていることは、つながっておりますので」"]
+  ],
+  [
+    ["s","「わたくしどもは」"],
+    ["ma"],
+    ["t","獅子は、少しだけ間をおいた。"],
+    ["ma"],
+    ["s","「親が死にますと、この中から、次の親を、選ばねばなりません」"]
+  ],
+  [
+    ["s","「……たいへんだね」"],
+    ["ma"],
+    ["s","「はい」"],
+    ["ma"],
+    ["t","それきり、獅子は何も言わなかった。"],
+    ["ma"],
+    ["h","ぼくも、聞かなかった。"]
+  ],
+  [
+    ["t","かかしが小声で言った。"],
+    ["ma"],
+    ["s","「ねえ、あの獅子、なんでついてくるの」"],
+    ["s","「こわいから、ぼくたちに守ってほしいんじゃない？」"],
+    ["s","「ああ、そうか」"]
+  ],
+  [
+    ["toi"]
+  ],
+  [
+    ["h","ちがう。"],
+    ["ma"],
+    ["h","ぼくの {{nose|鼻}} は、そう言っていない。"],
+    ["ma"],
+    ["h","こいつは、こわがっていない。"]
+  ],
+  [
+    ["h","こいつは、ぼくと同じことをしている。"],
+    ["ma"],
+    ["h","一歩うしろに立って、前にいる者を、{{see|見て}} いる。"],
+    ["ma"],
+    ["h","ただ——"],
+    ["ma"],
+    ["h","ぼくが見ているものと、こいつが見ているものは、たぶん、違う。"]
+  ],
+  [
+    ["t","その {{dog|犬}}、{{good boy|いい子}} ですねえ。"],
+    ["ma"],
+    ["t","歩きながら、ぼくは、朝のことを思い出していた。"],
+    ["ma"],
+    ["t","四千回言われた言葉と。"],
+    ["t","とんとん、と叩かれた {{head|頭}} のことを。"]
+  ],
+  [
+    ["s","「君、なに考えてるの」"],
+    ["ma"],
+    ["t","ドロシーが、こっちを見た。"],
+    ["ma"],
+    ["h","——おまえのことだ。"],
+    ["s","「ワン」"],
+    ["ma"],
+    ["s","「ふうん」"]
+  ],
+  [
+    ["h","ふうん、じゃない。"],
+    ["ma"],
+    ["h","……いま、ぼくは、何も言っていないが。"],
+    ["ma"],
+    ["h","まあ、{{fine|それでいい}}。"]
+  ],
+  [
+    ["t","その夜、ずっと遠くの、高いところで。"],
+    ["ma"],
+    ["t","獅子が、片ひざをついていた。"],
+    ["ma"],
+    ["s","「申し訳ございません」"]
+  ],
+  [
+    ["s","「よい」"],
+    ["ma"],
+    ["t","暗がりの中から、{{voice|声}} がした。"],
+    ["ma"],
+    ["s","「話は、聞いていた」"]
+  ],
+  [
+    ["s","「……」"],
+    ["ma"],
+    ["s","「どういうことかと思ったが」"],
+    ["ma"],
+    ["t","短い、間があった。"],
+    ["ma"],
+    ["s","「なるほど。そういうことか」"]
+  ],
+  [
+    ["t","その {{voice|声}} は、それきり、何も言わなかった。"],
+    ["ma"],
+    ["t","ただ、ずいぶん長いあいだ、黙っていた。"],
+    ["ma"],
+    ["h","——ぼくは、そこにいなかった。"],
+    ["h","だから、これを知らない。"]
+  ],
+
+  /* ══════ 第三章　声だけの人 ══════ */
+  [
+    ["t","東の {{city|町}} は、遠くから {{see|見て}} も、明らかに大きかった。"],
+    ["ma"],
+    ["t","塔がいくつも立っていて、そのどれもが、{{sky|空}} を刺していた。"],
+    ["ma"],
+    ["t","かかしが「うわあ」と言った。鉄の {{man|男}} が「うわあ」と言った。"],
+    ["ma"],
+    ["h","ぼくは言わなかった。{{dog|犬}} なので。"]
+  ],
+  [
+    ["t","{{city|町}} の門の前で、獅子が止まった。"],
+    ["ma"],
+    ["s","「ここまでに、いたします」"],
+    ["s","「え、来ないの」"],
+    ["s","「わたくしが入りますと、みなが逃げますので」"],
+    ["ma"],
+    ["h","こんなに小さいのに、逃げるのか。"],
+    ["ma"],
+    ["h","逃げるのだろうな。"]
+  ],
+  [
+    ["h","たしかに。"],
+    ["ma"],
+    ["t","獅子は、少し離れた丘に伏せた。そこから動かなかった。"],
+    ["ma"],
+    ["h","——見張っているのだ。"],
+    ["ma"],
+    ["h","なぜ、そこまでする。"]
+  ],
+  [
+    ["t","門番が、ぼくたちを {{see|見て}}、目を丸くした。"],
+    ["ma"],
+    ["s","「大魔法使いオズさまに、お会いしたいのです」"],
+    ["ma"],
+    ["t","とドロシーが言うと、門番は、ずいぶん長いあいだ黙っていた。"],
+    ["ma"],
+    ["t","そして、通した。"]
+  ],
+  [
+    ["t","{{city|町}} の中は、緑だった。"],
+    ["ma"],
+    ["t","建物も、服も、看板も、みんな {{green|緑}}。"],
+    ["ma"],
+    ["s","「なんで全部 {{green|緑}} なの」"],
+    ["s","「そういう決まりだからです」"]
+  ],
+  [
+    ["h","決まり、で人間は納得する。"],
+    ["ma"],
+    ["h","ぼくはあまり納得しないが、まあ、{{fine|それでいい}}。"],
+    ["ma"],
+    ["h","決まりを疑うと、たいてい面倒なことになる。それは {{dog|犬}} でも同じだ。"]
+  ],
+  [
+    ["t","広間に通された。"],
+    ["ma"],
+    ["t","天井が {{high|高い}}。高すぎて、上がよく {{see|見え}} ない。"],
+    ["ma"],
+    ["t","そして、誰もいなかった。"]
+  ],
+  [
+    ["s","「よく来た」"],
+    ["ma"],
+    ["t","{{voice|声}} がした。"],
+    ["ma"],
+    ["t","上から。あるいは、四方から。どこからか分からない声だった。"],
+    ["ma"],
+    ["t","かかしが震えた。鉄の {{man|男}} がきしんだ。"]
+  ],
+  [
+    ["t","ぼくは、においを嗅いだ。"],
+    ["ma"],
+    ["h","……人間だ。"],
+    ["ma"],
+    ["h","しかも、そんなに遠くない。"],
+    ["ma"],
+    ["h","だいたい、あっちの、幕の裏あたりだ。"]
+  ],
+  [
+    ["h","だが、ぼくは黙っていた。"],
+    ["ma"],
+    ["h","こういうときに正解を言うと、場が壊れる。"],
+    ["ma"],
+    ["h","保護者は、場を壊さない。それが仕事だ。"]
+  ],
+  [
+    ["s","「なんじらの、望みを申せ」"],
+    ["ma"],
+    ["t","ドロシーが一歩、前に出た。"],
+    ["ma"],
+    ["s","「わたし、{{house|家}} に帰りたいんです」"],
+    ["s","「うむ」"]
+  ],
+  [
+    ["s","「ぼくは {{brain|脳みそ}} がほしいです」"],
+    ["s","「ぼくは {{heart|心}} がほしいです」"],
+    ["ma"],
+    ["s","「うむ」"],
+    ["s","「うむ」"]
+  ],
+  [
+    ["t","{{voice|声}} は、しばらく黙った。"],
+    ["ma"],
+    ["t","そして、こう言った。"],
+    ["ma"],
+    ["s","「よかろう。ただし、{{west|西}} の {{bad|悪い}} {{witch|魔女}} を、たおしてくるがよい」"]
+  ],
+  [
+    ["h","出た。"],
+    ["ma"],
+    ["h","こういうのは、たいてい出る。"],
+    ["ma"],
+    ["h","「無理」と言えない相手に、無理を頼む。それが、この世の仕組みだ。"]
+  ],
+  [
+    ["t","帰り道、ぼくは、あの幕のことを考えていた。"],
+    ["ma"],
+    ["h","あそこには、ひとりの人間がいた。"],
+    ["ma"],
+    ["h","年寄りのにおいがした。それと、埃と、汗と、あと——"]
+  ],
+  [
+    ["h","こわがっている、においが、した。"],
+    ["ma"],
+    ["h","大魔法使いが。"],
+    ["ma"],
+    ["h","ぼくたちを。"]
+  ],
+  [
+    ["h","ぼくは、少しだけ、その人のことを考えた。"],
+    ["ma"],
+    ["h","たぶん、あの人は、ずっとあそこにいる。"],
+    ["ma"],
+    ["h","{{voice|声}} だけになって、姿を {{see|見せ}} ずに、何十年も。"]
+  ],
+  [
+    ["h","なぜ、そんなことをする。"],
+    ["ma"],
+    ["h","——聞くまでもない。"],
+    ["ma"],
+    ["h","だれかが、その役をやらないといけないからだ。"]
+  ],
+  [
+    ["t","広間を出るとき、幕が、ほんの少しだけ、動いた。"],
+    ["ma"],
+    ["t","ぼくは、ふりむいた。"],
+    ["ma"],
+    ["t","隙間から、{{eye|目}} が、こっちを {{see|見て}} いた。"]
+  ],
+  [
+    ["t","年寄りの、{{eye|目}} だった。"],
+    ["ma"],
+    ["t","その目は、ぼくを {{see|見て}}——"],
+    ["ma"],
+    ["t","そして、ゆっくりと、ひとつ、うなずいた。"]
+  ],
+  [
+    ["h","気づかれていた。"],
+    ["ma"],
+    ["h","ぼくが、においで {{see|見}} 抜いていたことを。"],
+    ["ma"],
+    ["h","そして、黙っていたことを。"]
+  ],
+  [
+    ["t","ぼくも、うなずき返した。"],
+    ["ma"],
+    ["h","たぶん、ぼくたちは、その一瞬だけ、同じものを {{see|見て}} いた。"],
+    ["ma"],
+    ["h","だが、それだけだ。"],
+    ["h","ぼくは幕をめくらなかったし、あの人も出てこなかった。"]
+  ],
+  [
+    ["h","そういうものだ。"],
+    ["ma"],
+    ["h","大人の世界には、めくらない幕がある。"],
+    ["ma"],
+    ["h","ぼくは {{dog|犬}} だが、それくらいは分かる。"]
+  ],
+  [
+    ["s","「君、なに {{see|見て}} たの」"],
+    ["ma"],
+    ["t","ドロシーが、こっちを見た。"],
+    ["ma"],
+    ["h","——なんでもない。"],
+    ["s","「ワン」"]
+  ],
+  [
+    ["s","「{{okay|そっか}}」"],
+    ["ma"],
+    ["t","ドロシーは、それ以上、聞かなかった。"],
+    ["ma"],
+    ["h","この子は、そういうところがある。"]
+  ],
+  [
+    ["t","{{city|町}} を出ると、丘の上に獅子がいた。"],
+    ["ma"],
+    ["t","ずっと、そこにいたらしい。"],
+    ["ma"],
+    ["s","「首尾は」"],
+    ["s","「{{west|西}} に行くことになりました」"]
+  ],
+  [
+    ["t","獅子は、少しのあいだ、黙った。"],
+    ["ma"],
+    ["t","それから、言った。"],
+    ["ma"],
+    ["s","「……そうですか」"]
+  ],
+  [
+    ["h","そうですか、の言い方が、おかしかった。"],
+    ["ma"],
+    ["h","驚いていない。"],
+    ["ma"],
+    ["h","知っていた、という言い方だった。"]
+  ],
+  [
+    ["t","ぼくは、獅子のにおいを嗅いだ。"],
+    ["ma"],
+    ["h","こわがっていない。"],
+    ["ma"],
+    ["h","かなしんでいる。"]
+  ],
+  [
+    ["h","なぜ、こいつが、かなしむ。"],
+    ["ma"],
+    ["h","{{west|西}} に行くのは、ぼくたちだ。"],
+    ["ma"],
+    ["h","こいつは、ついてくるだけなのに。"]
+  ],
+  [
+    ["t","その夜、みんなが眠ったあと。"],
+    ["ma"],
+    ["t","ドロシーが、起きていた。"],
+    ["ma"],
+    ["t","ぼくも、起きていた。保護者は、交代要員がいないと眠れない。"]
+  ],
+  [
+    ["s","「ねえ、君」"],
+    ["ma"],
+    ["t","ドロシーが、小さな {{voice|声}} で言った。"],
+    ["ma"],
+    ["s","「こわい？」"]
+  ],
+  [
+    ["h","——こわくない。"],
+    ["s","「ワン」"],
+    ["ma"],
+    ["s","「{{okay|そっか}}」"]
+  ],
+  [
+    ["s","「わたしはね」"],
+    ["ma"],
+    ["t","ドロシーは、{{star|星}} を {{see|見て}} いた。"],
+    ["ma"],
+    ["s","「こわくないの。ぜんぜん」"]
+  ],
+  [
+    ["s","「だからね、たぶん、へんなんだと思う」"],
+    ["ma"],
+    ["t","ぼくは、この子の {{face|顔}} を見た。"],
+    ["ma"],
+    ["h","いつもの顔だった。"]
+  ],
+  [
+    ["s","「でも、いまが、すごく、たのしい」"],
+    ["s","「だから、へんでもいいや」"],
+    ["ma"],
+    ["t","そう言って、ドロシーは、ぼくの {{head|頭}} を、とんとん、と叩いた。"]
+  ],
+  [
+    ["s","「{{Good night|おやすみ}}、君」"],
+    ["ma"],
+    ["h","——おやすみ。"],
+    ["s","「ワン」"]
+  ],
+  [
+    ["t","その夜、ぼくは、ひとつだけ、考えた。"],
+    ["ma"],
+    ["h","この子は、いつも「たのしい」と言う。"],
+    ["ma"],
+    ["h","まるで、たのしめる時間が、決まっているみたいに。"]
+  ],
+  [
+    ["h","まさか。"],
+    ["ma"],
+    ["h","ぼくは、その考えを、そこで止めた。"],
+    ["ma"],
+    ["h","止めたのだ。"],
+    ["h","自分で。"]
+  ],
+  [
+    ["h","いま思えば。"],
+    ["ma"],
+    ["h","あれが、ぼくの {{nose|鼻}} が、いちばん当たっていた夜だった。"]
+  ],
+
+  /* ══════ 第四章　西へ ══════ */
+  [
+    ["t","{{west|西}} は、遠かった。"],
+    ["ma"],
+    ["t","{{road|道}} が細くなり、{{green|緑}} が減り、風が乾いた。"],
+    ["ma"],
+    ["t","三日目には、{{road|道}} がなくなった。"]
+  ],
+  [
+    ["s","「ねえ、いろはさん」"],
+    ["ma"],
+    ["s","「はい」"],
+    ["ma"],
+    ["s","「{{west|西}} の {{witch|魔女}} って、どんな人？」"],
+    ["ma"],
+    ["t","獅子は、しばらく黙っていた。"]
+  ],
+  [
+    ["s","「……お会いになれば、分かります」"],
+    ["ma"],
+    ["h","会えば分かる。"],
+    ["ma"],
+    ["h","それは、答えていないのと同じだ。"],
+    ["ma"],
+    ["h","だが、ぼくは、その言い方を知っている。"],
+    ["ma"],
+    ["h","言えないのではない。言わないのだ。"]
+  ],
+  [
+    ["t","四日目。"],
+    ["ma"],
+    ["t","空が、{{yellow|黄色}} くにごった。"],
+    ["ma"],
+    ["h","このにおいを、ぼくは知っている。"],
+    ["ma"],
+    ["h","カンザスの、あの {{day|日}} だ。"]
+  ],
+  [
+    ["t","黒いものが、空から降りてきた。"],
+    ["ma"],
+    ["t","鳥のようだった。だが、鳥ではなかった。"],
+    ["ma"],
+    ["t","数えきれないほど、いた。"]
+  ],
+  [
+    ["t","かかしがつかまれた。"],
+    ["ma"],
+    ["t","鉄の {{man|男}} が、{{sky|空}} に持ち上げられた。"],
+    ["ma"],
+    ["t","ぼくは吠えた。"],
+    ["ma"],
+    ["h","何にもならないと、分かっていた。"]
+  ],
+  [
+    ["t","獅子が、一歩、前に出た。"],
+    ["ma"],
+    ["t","それだけだった。"],
+    ["ma"],
+    ["t","黒いものたちは、獅子を {{see|見て}}——"],
+    ["ma"],
+    ["t","そして、{{stop|止まった}}。"]
+  ],
+  [
+    ["t","空じゅうが、止まった。"],
+    ["ma"],
+    ["h","こんなに、小さいのに。"],
+    ["ma"],
+    ["h","何度でも思う。こんなに、小さいのに。"]
+  ],
+  [
+    ["t","そのとき、{{voice|声}} がした。"],
+    ["ma"],
+    ["s","「そこまでに、しておやり」"],
+    ["ma"],
+    ["t","黒いものたちは、いっせいに退いた。"]
+  ],
+  [
+    ["t","{{witch|魔女}} は、思っていたより、ずっと小さかった。"],
+    ["ma"],
+    ["t","{{old|年老いて}} いて、片方の {{eye|目}} が、白かった。"],
+    ["ma"],
+    ["h","こわくない。"],
+    ["ma"],
+    ["h","こわくないのが、こわい。"]
+  ],
+  [
+    ["t","ぼくは、においを嗅いだ。"],
+    ["ma"],
+    ["ma"],
+    ["h","……ない。"]
+  ],
+  [
+    ["h","においが、ない。"],
+    ["ma"],
+    ["h","そんなことは、ありえない。"],
+    ["ma"],
+    ["h","生きているものには、必ずにおいがある。"],
+    ["ma"],
+    ["h","こわがっているか、怒っているか、隠しているか。何かは必ずある。"]
+  ],
+  [
+    ["h","この {{witch|魔女}} には、それがなかった。"],
+    ["ma"],
+    ["h","まるで——"],
+    ["ma"],
+    ["h","役を、やっているみたいに。"]
+  ],
+  [
+    ["s","「よく来たね」"],
+    ["ma"],
+    ["t","{{witch|魔女}} は、ドロシーを {{see|見}}、それから、獅子を見た。"],
+    ["ma"],
+    ["s","「おや。あんたも来たのかい」"],
+    ["ma"],
+    ["s","「はい」"]
+  ],
+  [
+    ["h","知り合いか。"],
+    ["ma"],
+    ["h","そうか。そうだろうな。"],
+    ["ma"],
+    ["h","ぼくは、もう、驚かないことにした。"]
+  ],
+  [
+    ["s","「あたしを、たおしに来たんだろう」"],
+    ["ma"],
+    ["s","「はい」"],
+    ["t","とドロシーが言った。まっすぐに。"],
+    ["ma"],
+    ["s","「そうかい」"],
+    ["ma"],
+    ["t","{{witch|魔女}} は、笑った。"]
+  ],
+  [
+    ["h","笑った。"],
+    ["ma"],
+    ["h","ぼくは、その笑い方を、どこかで {{see|見た}} ことがある。"],
+    ["ma"],
+    ["h","……そうだ。"],
+    ["ma"],
+    ["h","幕の裏の、あの年寄りだ。"]
+  ],
+  [
+    ["s","「じゃあ、ひとつだけ、聞かせておくれ」"],
+    ["ma"],
+    ["s","「あんた、あたしをたおしたあと、どうするんだい」"],
+    ["ma"],
+    ["t","ドロシーは、少し考えた。"],
+    ["ma"],
+    ["s","「{{house|家}} に、帰ります」"]
+  ],
+  [
+    ["t","{{witch|魔女}} は、長いあいだ、黙っていた。"],
+    ["ma"],
+    ["s","「……そうかい」"],
+    ["ma"],
+    ["h","また、そうかい、だ。"],
+    ["ma"],
+    ["h","この {{country|国}} の年寄りは、みんな、そうかい、しか言わない。"]
+  ],
+  [
+    ["t","そのあとのことは、あまり、うまく思い出せない。"],
+    ["ma"],
+    ["t","地面が鳴った。"],
+    ["ma"],
+    ["t","天井が落ちた。"],
+    ["ma"],
+    ["t","{{witch|魔女}} が、何か叫んだ。"]
+  ],
+  [
+    ["t","ぼくが覚えているのは、ひとつだけだ。"],
+    ["ma"],
+    ["ma"],
+    ["t","{{witch|魔女}} は、ドロシーを、突き飛ばした。"]
+  ],
+  [
+    ["h","かばった。"],
+    ["ma"],
+    ["h","たおしに来た相手を。"],
+    ["ma"],
+    ["h","かばった。"]
+  ],
+  [
+    ["t","水が、あふれた。"],
+    ["ma"],
+    ["t","古い水路が割れたのだ。"],
+    ["ma"],
+    ["t","{{witch|魔女}} は、それを、じっと {{see|見て}} いた。"],
+    ["ma"],
+    ["s","「ああ。こういう終わりかたか」"]
+  ],
+  [
+    ["s","「まあ、悪くない」"],
+    ["ma"],
+    ["t","そう言って、{{witch|魔女}} は、ドロシーを {{see|見た}}。"],
+    ["ma"],
+    ["s","「あんたのほうが、たいへんだよ」"],
+    ["ma"],
+    ["s","「がんばりな」"]
+  ],
+  [
+    ["t","それで、終わりだった。"],
+    ["ma"],
+    ["t","{{witch|魔女}} は、水に溶けて、消えた。"],
+    ["ma"],
+    ["h","においは、最後まで、しなかった。"]
+  ],
+  [
+    ["t","がれきの中で、獅子が、倒れていた。"],
+    ["ma"],
+    ["t","{{small|小さい}} 体が、もっと小さく {{see|見え}} た。"],
+    ["ma"],
+    ["t","薄い。"],
+    ["ma"],
+    ["h","——薄くなっている。"]
+  ],
+  [
+    ["s","「いろはさん！」"],
+    ["ma"],
+    ["t","ドロシーが駆け寄った。"],
+    ["ma"],
+    ["t","獅子は、目を開けなかった。"]
+  ],
+  [
+    ["s","「息、してない」"],
+    ["ma"],
+    ["t","ドロシーが、ぼくを {{see|見た}}。"],
+    ["ma"],
+    ["t","初めて {{see|見る}} 顔だった。"]
+  ],
+  [
+    ["s","「君」"],
+    ["ma"],
+    ["s","「たたいて」"],
+    ["ma"],
+    ["s","「わたしじゃ、力が足りない。君の、前足で」"]
+  ],
+  [
+    ["h","——ぼくが。"],
+    ["ma"],
+    ["h","ぼくが、たたくのか。"]
+  ],
+  [
+    ["s","「はやく」"],
+    ["ma"],
+    ["s","「はやく、たたいて」"],
+    ["ma"],
+    ["s","「とんとん、って」"]
+  ],
+  [
+    ["tataku"]
+  ],
+  [
+    ["t","獅子が、息をした。"],
+    ["ma"],
+    ["t","{{small|小さい}} 体が、少しだけ、濃くなった。"],
+    ["ma"],
+    ["s","「……失礼を」"],
+    ["ma"],
+    ["s","「いいから、寝てて」"]
+  ],
+  [
+    ["h","ぼくの前足は、まだ震えていた。"],
+    ["ma"],
+    ["h","たたくのが、こんなに、こわいとは思わなかった。"],
+    ["ma"],
+    ["h","いつも、ぼくがやっていたことなのに。"]
+  ],
+  [
+    ["t","ドロシーが、ぼくの {{head|頭}} を、とんとん、と叩いた。"],
+    ["ma"],
+    ["s","「ありがとう」"],
+    ["ma"],
+    ["h","——うるさい。"],
+    ["ma"],
+    ["h","そう思った。思ったのに、ぼくは、動かなかった。"]
+  ],
+
+  /* ══════ 最終章　ことばを持った日 ══════ */
+  [
+    ["t","{{west|西}} から、戻った。"],
+    ["ma"],
+    ["t","{{city|町}} は、また緑だった。何も変わっていなかった。"],
+    ["ma"],
+    ["h","変わったのは、ぼくたちのほうだった。"]
+  ],
+  [
+    ["t","オズは、約束を守った。"],
+    ["ma"],
+    ["t","かかしには {{brain|脳みそ}} を。鉄の {{man|男}} には {{heart|心}} を。"],
+    ["ma"],
+    ["t","小さな袋に入った、それを。"]
+  ],
+  [
+    ["h","中身は、ぬかと、おがくずだ。"],
+    ["ma"],
+    ["h","においで分かる。"],
+    ["ma"],
+    ["h","だが——二人は、変わった。"],
+    ["ma"],
+    ["h","本物だった。中身が、ではない。渡しかたが、だ。"]
+  ],
+  [
+    ["s","「では、わたしの番ですね」"],
+    ["ma"],
+    ["t","ドロシーが言った。"],
+    ["ma"],
+    ["s","「{{house|家}} に、帰ります」"],
+    ["ma"],
+    ["t","オズの {{voice|声}} は、長いあいだ、黙っていた。"],
+    ["ma"],
+    ["s","「……そうか」"]
+  ],
+  [
+    ["t","その夜。"],
+    ["ma"],
+    ["t","獅子が、静かに言った。"],
+    ["ma"],
+    ["s","「お時間で、ございます」"]
+  ],
+  [
+    ["t","ドロシーは、うなずいた。"],
+    ["ma"],
+    ["t","驚かなかった。"],
+    ["ma"],
+    ["h","ずっと前から、知っていた顔だった。"]
+  ],
+  [
+    ["s","「ねえ、君」"],
+    ["ma"],
+    ["t","ドロシーが、ぼくの前に、しゃがんだ。"],
+    ["ma"],
+    ["s","「わたしね、ほんとうはね——」"],
+    ["ma"],
+    ["t","言いかけて、やめた。"],
+    ["ma"],
+    ["s","「ううん。なんでもない」"]
+  ],
+  [
+    ["t","夜明け前。"],
+    ["ma"],
+    ["t","獅子が先を歩き、ドロシーがつづいた。"],
+    ["ma"],
+    ["t","丘への {{road|道}} だった。"],
+    ["ma"],
+    ["t","ぼくも、ついていった。保護者なので。"]
+  ],
+  [
+    ["t","丘の上で、ドロシーが、ふりかえった。"],
+    ["ma"],
+    ["s","「君は、ここまで」"],
+    ["ma"],
+    ["h","——え。"]
+  ],
+  [
+    ["h","ここまで、と言われた。"],
+    ["ma"],
+    ["h","ぼくは、はじめて、この子に、命令された。"],
+    ["ma"],
+    ["h","足が、動かなかった。ほんとうに、動かなかったのだ。"]
+  ],
+  [
+    ["t","{{sky|空}} が、白みはじめた。"],
+    ["ma"],
+    ["t","ドロシーが、遠くなる。"],
+    ["ma"],
+    ["h","呼ばなきゃ。"],
+    ["ma"],
+    ["h","いま、呼ばなきゃ。"]
+  ],
+  [
+    ["t","ぼくは、吠えた。"],
+    ["ma"],
+    ["s","「ワン」"],
+    ["ma"],
+    ["s","「ワン。ワン」"],
+    ["ma"],
+    ["h","ちがう。そうじゃない。{{name|名前}} だ。名前を——"]
+  ],
+  [
+    ["t","ドロシーが、一度だけ、ふりむいた。"],
+    ["ma"],
+    ["t","笑っていた。"],
+    ["ma"],
+    ["s","「……ぜんぶ、たのしかった」"]
+  ],
+  [
+    ["t","光が、丘をつつんだ。"],
+    ["ma"],
+    ["t","そして——"],
+    ["ma"],
+    ["h","見えなく、なった。"],
+    ["ma"],
+    ["h","消えたのでは、ない。それだけは、分かった。"],
+    ["ma"],
+    ["h","ぼくの {{eye|目}} が、あの子に、届かなくなったのだ。"]
+  ],
+  [
+    ["t","鉄の {{man|男}} が、いちばん、泣いた。"],
+    ["ma"],
+    ["t","もらったばかりの {{heart|心}} で、泣いた。"],
+    ["ma"],
+    ["t","そして、泣きながら、獅子に、つかみかかった。"]
+  ],
+  [
+    ["s","「おい、いろは！」"],
+    ["ma"],
+    ["s","「なんで、さっき、助けなかったんだよ！」"],
+    ["ma"],
+    ["t","鉄の腕が、ふりおろされた。"],
+    ["ma"],
+    ["t","当たらなかった。"]
+  ],
+  [
+    ["t","何度、ふっても、当たらなかった。"],
+    ["ma"],
+    ["t","いろはは、避けているようにも {{see|見え}} なかった。"],
+    ["ma"],
+    ["t","ただ、そこに、いなかった。ふりおろした場所に。"]
+  ],
+  [
+    ["t","そして、いろはは、心底ふしぎそうな {{face|顔}} をしていた。"],
+    ["ma"],
+    ["s","「……なぜ、怒って、おられるのです」"],
+    ["ma"],
+    ["h","本気で、分かっていない顔だった。"],
+    ["ma"],
+    ["h","ぼくは、その顔を、ずっと、おぼえている。"]
+  ],
+  [
+    ["t","それから、ずいぶん、たった。"],
+    ["ma"],
+    ["t","かかしは {{country|国}} の相談役になった。鉄の {{man|男}} は、よく泣きながら、よく働いた。"],
+    ["ma"],
+    ["t","獅子は、ときどき、ぼくのところに来た。何も言わずに、少しいて、帰った。"]
+  ],
+  [
+    ["t","一度だけ、獅子が、教えてくれたことがある。"],
+    ["ma"],
+    ["s","「位が、ふたつ、はなれますと」"],
+    ["ma"],
+    ["s","「もう、{{see|見え}} なくなるのです。そういう、決まりで、ございます」"]
+  ],
+  [
+    ["s","「わたくしには、まだ、少しだけ、聞こえております」"],
+    ["ma"],
+    ["s","「ですが——」"],
+    ["ma"],
+    ["t","獅子は、そこで、少し黙った。"],
+    ["ma"],
+    ["s","「遠く、なって、おられます」"]
+  ],
+  [
+    ["t","ぼくは、{{old|年}} をとった。"],
+    ["ma"],
+    ["t","走れなくなり、階段が長くなり、{{day|日}} なたが好きになった。"],
+    ["ma"],
+    ["h","犬は、そういうふうに、できている。"]
+  ],
+  [
+    ["h","そして、思い出すのは、いつも、同じ場面だった。"],
+    ["ma"],
+    ["h","——おまえのことだ。"],
+    ["ma"],
+    ["h","「ワン」"],
+    ["ma"],
+    ["h","「ふうん」"]
+  ],
+  [
+    ["h","……あれは。"],
+    ["ma"],
+    ["h","あれは、返事だったんじゃないか。"],
+    ["ma"],
+    ["h","ぼくの心の声に、あの子は、ずっと——"],
+    ["ma"],
+    ["h","もう、確かめられない。"]
+  ],
+  [
+    ["t","ある {{day|日}}、獅子が来た。"],
+    ["ma"],
+    ["t","口に、小さな封筒をくわえていた。"],
+    ["ma"],
+    ["s","「お預かりして、おりました」"],
+    ["ma"],
+    ["s","「『君が、ことばを持った日に』と」"]
+  ],
+  [
+    ["h","ことばを、持った日に。"],
+    ["ma"],
+    ["h","ぼくは {{dog|犬}} だ。ことばなんて——"],
+    ["ma"],
+    ["t","封筒から、ドロシーのにおいが、した。"],
+    ["ma"],
+    ["t","ずっと昔の、あの {{morning|朝}} の、においだった。"]
+  ],
+  [
+    ["shiken"]
+  ],
+  [
+    ["tegami"]
+  ]
+];
+
+/* ============================================================ */
+const sheet=document.getElementById('sheet');
+let maeIdx=-1;
+let kusari=0;   /* この時刻までは、めくれない */
+const susumi=document.getElementById('susumi');
+const kotoba=document.getElementById('kotoba');
+const sahou=document.getElementById('sahou');
+let idx=0, busy=false;
+/* いちばん先まで行ったページ。ここより手前は「読み返し」になる。
+   読み返しでは、ことばの歳は増えない（同じページで二度は増えない）。 */
+let saidai=0;
+const gotWords=new Map(); // en -> 出現回数
+let imaPage=0;            // いま組んでいるページ
+
+/* 進みドット */
+
+
+
+PAGES.forEach(()=>{const i=document.createElement('i');susumi.appendChild(i);});
+const dots=[...susumi.children];
+
+/* {{en|意味}} をHTMLへ。既出単語は意味を隠す */
+function parseLine(text){
+  return text.replace(/\{\{([^|]+)\|([^}]+)\}\}/g,(m,en,imi)=>{
+    const key=en.toLowerCase();
+    const n=(gotWords.get(key)||0);
+    gotWords.set(key,n+1);
+    if(n===0){ deta.set(key, imaPage); addWord(en); }
+    const HARD=new Set(['journey','evil','festival','country','question','witch']);
+    let limit=HARD.has(key)?3:2; // 基礎語=3回目で消える/難語=4回目
+    /* 歳が育つほど、意味は早く外れる */
+    if(toshi>=4) limit-=1;
+    if(toshi>=6) limit-=1;
+    if(limit<0) limit=0;      // 6歳以降は、初見でも英語のまま置かれる語が出る
+    const known=n>=limit;
+    return `<span class="ew${known?' known':''}" data-en="${en}">${en}<small>（${imi}）</small></span>`;
+  });
+}
+
+/* 習得ワードをしおりに灯す */
+function addWord(en){
+  const s=document.createElement('span');
+  s.className='kw';s.textContent=en;
+  s.addEventListener('click',ev=>{ ev.stopPropagation(); omoidasu(en); });
+  kotoba.appendChild(s);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add('lit')));
+  /* 増えすぎたら、古いものから静かに消える（最新8つだけ残す） */
+  const all=kotoba.querySelectorAll('.kw');
+  if(all.length>12){
+    for(let i=0;i<all.length-12;i++){
+      const o=all[i];
+      if(o.dataset.kie)continue;
+      o.dataset.kie='1';
+      o.classList.remove('lit');
+      setTimeout(()=>o.remove(),1400);
+    }
+  }
+}
+
+/* ページを灯す：行ごとに、少し間をおいて */
+function light(pageIdx){
+  sheet.classList.remove('sleep');
+  sheet.innerHTML='';
+  imaPage=pageIdx;
+  const lines=PAGES[pageIdx];
+  /* 試験・手紙 */
+  if(lines.length===1 && lines[0][0]==='suteki'){
+    sheet.innerHTML='';
+    dots.forEach((x,i)=>{x.classList.toggle('now',i===pageIdx);x.classList.toggle('done',i<pageIdx);});
+    maeIdx=pageIdx;
+    kusari=Date.now()+99999999;
+    sutekiHajime(()=>{ kusari=0; busy=false; turn(); });
+    return;
+  }
+  if(lines.length===1 && lines[0][0]==='toi'){
+    sheet.innerHTML='';
+    dots.forEach((x,i)=>{x.classList.toggle('now',i===pageIdx);x.classList.toggle('done',i<pageIdx);});
+    maeIdx=pageIdx;
+    kusari=Date.now()+99999999;
+    toiHajime(()=>{ kusari=0; busy=false; turn(); });
+    return;
+  }
+  if(lines.length===1 && (lines[0][0]==='shiken'||lines[0][0]==='tegami')){
+    sheet.innerHTML='';
+    dots.forEach((x,i)=>{x.classList.toggle('now',i===pageIdx);x.classList.toggle('done',i<pageIdx);});
+    maeIdx=pageIdx;
+    kusari=Date.now()+99999999;
+    const f = lines[0][0]==='shiken' ? shikenHajime : tegamiHajime;
+    f(()=>{ kusari=0; busy=false; turn(); });
+    return;
+  }
+  /* たたく場面 */
+  if(lines.length===1 && lines[0][0]==='tataku'){
+    sheet.innerHTML='';
+    dots.forEach((x,i)=>{x.classList.toggle('now',i===pageIdx);x.classList.toggle('done',i<pageIdx);});
+    maeIdx=pageIdx;
+    kusari=Date.now()+99999999;   /* たたき終わるまで、めくれない */
+    tatakuHajime(()=>{ kusari=0; busy=false; turn(); });
+    return;
+  }
+  /* 絵だけのページ：文字は載せない */
+  const eOnly = (lines.length===1 && lines[0][0]==='e');
+  sheet.classList.toggle('eonly', eOnly);
+  document.getElementById('page').classList.toggle('eonly', eOnly);
+  if(eOnly){
+    const d=makeE([lines[0][1],'hitori']);
+    sheet.appendChild(d);
+    setTimeout(()=>d.classList.add('lit'),160);
+    dots.forEach((x,i)=>{x.classList.toggle('now',i===pageIdx);x.classList.toggle('done',i<pageIdx);});
+    butai.classList.add('hikaeru');
+    butaiSet(pageIdx, pageIdx>maeIdx?1:pageIdx<maeIdx?-1:0);
+    maeIdx=pageIdx;
+    kusari=Date.now()+2800;   /* 絵は、少し長く見せる */
+    return;
+  }
+  const e=null;
+  lines.forEach(([kind,text],i)=>{
+    const d=document.createElement('div');
+    if(kind==='ma'){d.className='line ma lit';}
+    else{
+      d.className='line'+(kind==='s'?' serihu':kind==='h'?' hitorigoto':'');
+      d.innerHTML=parseLine(text||'');
+    }
+    sheet.appendChild(d);
+  });
+  const real=[...sheet.querySelectorAll('.line:not(.ma)')];
+  real.forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('lit'), 200+i*420);
+  });
+  dots.forEach((d,i)=>{
+    d.classList.toggle('now',i===pageIdx);
+    d.classList.toggle('done',i<pageIdx);
+  });
+  butai.classList.remove('hikaeru');
+  /* 紙のすべりこみ */
+  sheet.classList.remove('sleep');
+  sheet.classList.add('kuru');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    sheet.classList.remove('kuru');
+  }));
+  if(typeof yomiOn!=='undefined' && yomiOn){ setTimeout(()=>pageYomu(pageIdx), 900); }
+  /* 遠くなった場面は、もう思い出せない */
+  kotoba.querySelectorAll('.kw').forEach(k=>{
+    const p=deta.get(k.textContent.toLowerCase());
+    k.classList.toggle('wasureta', p!==undefined && pageIdx-p>OMOI_NOKORU);
+  });
+  butaiSet(pageIdx, pageIdx>maeIdx?1:pageIdx<maeIdx?-1:0);
+  maeIdx=pageIdx;
+  /* 最後の行が灯りきってから、なお少し待つ */
+  /* 最後の行が灯りきってから、ひと呼吸ぶんだけ待つ */
+  kusari=Date.now()+200+Math.max(0,real.length-1)*420+1500+400; /* 遷移1.5s+呼吸 */
+}
+
+
+
+/* ═══════════ 舞台：紙芝居のレイヤー ═══════════
+   一場面＝奥から手前へ、4枚の紙。
+   ページを送ると、奥は少しだけ、手前は大きく、横へ流れる。
+   ずれた速度が、立体に見える。                          */
+
+const butai=document.getElementById('butai');
+
+/* 場面の定義。images/ に絵が置かれたら src がそのまま効く。
+   まだ無いあいだは、下の nuri() が水彩ふうの下地を描く。 */
+const BA = {
+  /* e: 4枚の絵（奥→手前）。images/ に置けば、そのまま差し替わる。
+     まだ無いあいだは iro の下地が出る。 */
+  tatsumaki:{ iro:['#E3DECC','#CFD4C5','#B5BFAF','#75846F'], kata:'sora',
+              e:['images/tatsumaki_0.png','images/tatsumaki_1.png','images/tatsumaki_2.png','images/tatsumaki_3.png'] },
+  pokkuru:  { iro:['#EAE4D2','#CCDEC2','#AECBA6','#82A87C'], kata:'no',
+              e:['images/pokkuru_0.png','images/pokkuru_1.png','images/pokkuru_2.png','images/pokkuru_3.png'] },
+  michi:    { iro:['#ECE5D0','#D8DCC2','#BCCAA8','#8FA37E'], kata:'michi',
+              e:['images/michi_0.png','images/michi_1.png','images/michi_2.png','images/michi_3.png'] },
+  mori:     { iro:['#DEDECC','#C2CDB8','#9DB296','#5F7A63'], kata:'mori',
+              e:['images/mori_0.png','images/mori_1.png','images/mori_2.png','images/mori_3.png'] },
+  miyako:   { iro:['#E2E6D8','#CBD9C4','#AFC5A8','#7A9A78'], kata:'miyako' },
+  yoru:     { iro:['#20242A','#252B32','#2C333B','#39424C'], kata:'yoru' }
+};
+/* ページ番号 → 場面 ／ 浮かぶもの */
+const SCENE = [
+  {ba:'tatsumaki', ukabu:'ha'},   // 0
+  {ba:'tatsumaki', ukabu:'ha'},
+  {ba:'tatsumaki', ukabu:'ha'},
+  {ba:'tatsumaki', ukabu:'ha'},
+  {ba:'tatsumaki', ukabu:'ha'},
+  {ba:'tatsumaki', ukabu:'ha'},
+  {ba:'pokkuru',   ukabu:'hana'}, // 6〜 ポックルの国
+  {ba:'pokkuru',   ukabu:'hana'},
+  {ba:'pokkuru',   ukabu:'hana'},
+  {ba:'pokkuru',   ukabu:'hana'},
+  {ba:'pokkuru',   ukabu:'hana'},
+  {ba:'pokkuru',   ukabu:'hana'},
+  {ba:'michi',     ukabu:'hana'},
+  {ba:'michi',     ukabu:'hana'},
+  {ba:'michi',     ukabu:'hana'},
+  {ba:'michi',     ukabu:'hana'},
+  {ba:'michi',     ukabu:'hana'},
+  {ba:'michi',     ukabu:'hana'},
+  {ba:'michi',  ukabu:'hana'},{ba:'michi',ukabu:'hana'},{ba:'michi',ukabu:'hana'},
+  {ba:'michi',  ukabu:'hana'},{ba:'michi',ukabu:'hana'},{ba:'michi',ukabu:'hana'},
+  {ba:'michi',  ukabu:'hana'},{ba:'michi',ukabu:'hana'},{ba:'michi',ukabu:'hana'},
+  {ba:'michi',  ukabu:'hana'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'mori',   ukabu:'ha'},{ba:'mori',ukabu:'ha'},{ba:'mori',ukabu:'ha'},
+  {ba:'michi', ukabu:'hana'},
+  {ba:'michi', ukabu:'hana'},
+  {ba:'michi', ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'miyako',ukabu:'hana'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'michi', ukabu:'ha'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'},
+  {ba:'yoru',  ukabu:'yuki'}
+];
+/* 挿絵：ページ番号 → 絵と、置く場所 */
+const E = {
+  0:['p00','ue'], 2:['p02','chiisai'], 3:['p03','chiisai'], 5:['p05','ue'],
+  6:['p06','shita'], 8:['p08','chiisai'],
+  11:['p11','ue'], 13:['p13','shita'],
+  14:['p14','ue'], 16:['p16','shita'], 18:['p18','shita'],
+  23:['p23','shita']
+};
+/* 後半の絵は、ページ番号でなく本文の文字で位置を決める。
+   ページを差し込んでも、絵は正しい場面についてくる */
+(function(){
+  const AN=[
+    ['p09','shita', 'を {{open|開けた}}', false],
+    ['p27','ue',    'ポックルたちは、ぼくたちを', true],
+    ['p57','shita', '四千回ほど言われている', false],
+    ['p29','chiisai','「自分には {{brain|脳みそ}} がない」', false],
+    ['p33','ue',    'の入り口に、鉄の', true],
+    ['p35','shita', 'がないから、何も感じない', false],
+    ['p42','shita', '何も、できなかった', false],
+    ['p45','ue',    '獅子が、いた', true],
+    ['p50','shita', 'ドロシーだけを', false],
+    ['p53','shita', '一歩、うしろに。', false],
+    ['p60','ue',    'ずっと遠くの、高いところで', true],
+    ['p63','shita', 'ぼくは、そこにいなかった', false],
+  ];
+  AN.forEach(([fn,doko,key,mae])=>{
+    const ix=PAGES.findIndex(p=>p.some(l=>typeof l[1]==='string' && l[1].includes(key)));
+    if(ix>=0) E[ix]=[fn,doko,mae];
+  });
+})();
+
+/* ═══════════ 絵を、独立したページにする ═══════════
+   文章の中に挟まず、めくると絵だけ、という並びに組み替える。
+   PAGES と SCENE を、起動時に一度だけ作り直す。            */
+(function(){
+  const UE = new Set([0,5,11,14]);   /* 前半で、文章の前に置く絵 */
+  const P2=[], S2=[];
+  for(let i=0;i<PAGES.length;i++){
+    const ep=E[i];
+    const sc=SCENE[i]||SCENE[SCENE.length-1];
+    const mae = ep && (ep[2]===true || UE.has(i));
+    if(ep && mae){ P2.push([['e',ep[0]]]); S2.push(sc); }
+    P2.push(PAGES[i]); S2.push(sc);
+    if(ep && !mae){ P2.push([['e',ep[0]]]); S2.push(sc); }
+  }
+  PAGES.length=0; PAGES.push(...P2);
+  SCENE.length=0; SCENE.push(...S2);
+  /* 進捗ドットも、作り直す */
+  susumi.innerHTML='';
+  PAGES.forEach(()=>{const i=document.createElement('i');susumi.appendChild(i);});
+  dots.length=0; dots.push(...susumi.children);
+})();
+
+
+/* 絵が来るまでの下地。奥ほど平ら、手前ほど大きく崩れた紙のかたち */
+function nuri(iro,fuka,kata){
+  const w=1200,hh=800;
+  const r=(s)=>{let x=Math.sin(s*127.1)*43758.5;return x-Math.floor(x);};
+  let d='';
+  if(fuka===0){ d=`<rect width="${w}" height="${hh}" fill="${iro}"/>`; }
+  else{
+    const base=hh*(0.40+fuka*0.16);
+    let p=`M-40,${hh+40} L-40,${base}`;
+    for(let i=0;i<=12;i++){
+      const x=i*w/12;
+      const yy=base+Math.sin(i*0.9+fuka*2)*(20+fuka*24)+(r(i+fuka*7)-0.5)*(14+fuka*16);
+      p+=` L${x.toFixed(0)},${yy.toFixed(0)}`;
+    }
+    p+=` L${w+40},${hh+40} Z`;
+    /* 白い縁取り：紙を切り抜いて重ねた感じ */
+    d=`<path d="${p}" fill="${iro}" stroke="#FBFAF5" stroke-width="${10+fuka*3}" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${hh}">${d}</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+/* 場面を組む。4枚の紙を、奥から手前へ */
+function tsukuru(baName){
+  const def=BA[baName]||BA.tatsumaki;
+  const ba=document.createElement('div');
+  ba.className='ba';ba.dataset.ba=baName;
+  def.iro.forEach((iro,fuka)=>{
+    const l=document.createElement('div');
+    l.className='lyr';l.dataset.fuka=fuka;
+    l.style.setProperty('--w', (108+fuka*14)+'%');
+    l.style.backgroundImage=nuri(iro,fuka,def.kata);
+    /* 絵があれば、読めたときだけ静かに差し替える */
+    if(def.e && def.e[fuka]){
+      const im=new Image();
+      im.onload=()=>{ l.style.backgroundImage=`url("${def.e[fuka]}")`; };
+      im.src=def.e[fuka];
+    }
+    l.dataset.zure=(fuka*0.34).toFixed(2);   /* 奥=ほぼ止まる／手前=よく動く */
+    ba.appendChild(l);
+  });
+  return ba;
+}
+
+let imaBa=null, imaBaName=null;
+
+/* 場面の入れ替え：奥から順に、時間差で入ってくる */
+function baHairu(baName,muki){
+  if(imaBaName===baName) return;
+  const furui=imaBa;
+  const atarashii=tsukuru(baName);
+  butai.appendChild(atarashii);
+  imaBa=atarashii; imaBaName=baName;
+  if(naru && bgmGain){ bgmScene(); faKirikae(); }
+
+  const layers=[...atarashii.querySelectorAll('.lyr')];
+  layers.forEach((l,i)=>{
+    const zure=parseFloat(l.dataset.zure);
+    const kyori=(40+zure*170)*muki;
+    l.style.transition='none';
+    l.style.transform=`translate(calc(-50% + ${kyori}px),-50%) scale(${1+zure*0.03})`;
+    /* 奥ほど早く、手前ほど遅れて着く＝紙が順に置かれる */
+    setTimeout(()=>{
+      l.style.transition=`transform ${3000+i*520}ms cubic-bezier(.16,.6,.2,1), opacity ${2400+i*420}ms ease`;
+      l.classList.add('iru');
+      l.style.transform='translate(-50%,-50%) scale(1)';
+    }, 60+i*260);
+  });
+
+  if(furui){
+    [...furui.querySelectorAll('.lyr')].forEach((l,i)=>{
+      const zure=parseFloat(l.dataset.zure);
+      const kyori=-(40+zure*190)*muki;
+      l.style.transition=`transform ${2600+i*400}ms cubic-bezier(.4,0,.2,1), opacity ${2000+i*320}ms ease`;
+      l.style.transform=`translate(calc(-50% + ${kyori}px),-50%) scale(${1-zure*0.02})`;
+      l.classList.remove('iru');
+    });
+    setTimeout(()=>furui.remove(),4400);
+  }
+}
+
+/* 同じ場面のままページを送るとき：紙だけ、少しずつ横へ流す */
+let nagare=0;
+function baNagasu(muki){
+  if(!imaBa)return;
+  nagare+=muki;
+  [...imaBa.querySelectorAll('.lyr')].forEach((l,i)=>{
+    const zure=parseFloat(l.dataset.zure);
+    const x=-nagare*(4+zure*26);          /* 奥は6px、手前は22pxほど */
+    l.style.transition=`transform ${3400+i*480}ms cubic-bezier(.16,.6,.2,1)`;
+    l.style.transform=`translate(calc(-50% + ${x}px),-50%) scale(1)`;
+  });
+}
+
+/* ページに応じて舞台を合わせる */
+function butaiSet(pageIdx,muki){
+  const s=SCENE[pageIdx]||SCENE[SCENE.length-1];
+  if(s.ba!==imaBaName){ nagare=0; if(imaBaName)furueru('ba'); baHairu(s.ba,muki||1); }
+  else if(muki){ baNagasu(muki); }
+  ukabuSet(s.ukabu);
+}
+
+
+/* ═══════════ 浮かぶもの（重さゼロ） ═══════════ */
+const ukabuBox=document.getElementById('ukabu');
+const KATACHI={
+  ha:  {n:9,  col:'#9FB39A', svg:(c)=>`<svg width="16" height="10" viewBox="0 0 16 10"><path d="M0,5 C4,-1 12,-1 16,5 C12,11 4,11 0,5 Z" fill="${c}" opacity=".5"/></svg>`},
+  hana:{n:11, col:'#E4C9CE', svg:(c)=>`<svg width="12" height="12" viewBox="0 0 12 12"><ellipse cx="6" cy="6" rx="6" ry="3.4" fill="${c}" opacity=".55"/></svg>`},
+  yuki:{n:14, col:'#FFFFFF', svg:(c)=>`<svg width="7" height="7" viewBox="0 0 7 7"><circle cx="3.5" cy="3.5" r="3.5" fill="${c}" opacity=".7"/></svg>`}
+};
+let motes=[], ukabuIma=null, rafOn=false;
+
+function ukabuSet(kind){
+  if(kind===ukabuIma)return;
+  ukabuIma=kind;
+  ukabuBox.innerHTML=''; motes=[];
+  if(!kind||!KATACHI[kind])return;
+  const k=KATACHI[kind];
+  for(let i=0;i<k.n;i++){
+    const el=document.createElement('div');
+    el.className='mote';
+    el.innerHTML=k.svg(k.col);
+    ukabuBox.appendChild(el);
+    motes.push({
+      el,
+      x:Math.random()*100,               /* vw */
+      y:Math.random()*100,               /* vh */
+      v:0.006+Math.random()*0.016,       /* 落ちる速さ */
+      yoko:0.004+Math.random()*0.010,    /* 横に流れる */
+      haba:6+Math.random()*22,           /* ふわんの幅 */
+      i:Math.random()*Math.PI*2,         /* 位相 */
+      mawari:(Math.random()-.5)*0.35,
+      kaku:Math.random()*360,
+      oku:Math.random()                  /* 奥行き＝大きさと濃さ */
+    });
+  }
+  if(!rafOn){rafOn=true;requestAnimationFrame(ugoku);}
+}
+
+function ugoku(t){
+  const W=innerWidth,H=innerHeight;
+  motes.forEach(m=>{
+    m.y+=m.v*(0.5+m.oku);
+    m.x+=m.yoko*(0.4+m.oku)*0.6;
+    m.i+=0.012;
+    if(m.y>108){m.y=-8;m.x=Math.random()*100;}
+    if(m.x>108){m.x=-8;}
+    m.kaku+=m.mawari;
+    const yure=Math.sin(m.i)*m.haba;
+    const sc=0.6+m.oku*0.8;
+    m.el.style.transform=
+      `translate(${(m.x*W/100+yure).toFixed(1)}px,${(m.y*H/100).toFixed(1)}px) rotate(${m.kaku.toFixed(1)}deg) scale(${sc.toFixed(2)})`;
+    m.el.style.opacity=(0.35+m.oku*0.5).toFixed(2);
+  });
+  requestAnimationFrame(ugoku);
+}
+
+
+
+/* ═══════════ 振動（たまにだけ） ═══════════
+   毎ページ震えるとうるさいので、節目にだけ。 */
+function furueru(kata){
+  if(!navigator.vibrate)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(kata==='hajimari')      navigator.vibrate(22);          /* 旅の始まり */
+  else if(kata==='toshi')    navigator.vibrate([16,90,26]);  /* 歳がひとつ */
+  else if(kata==='ba')       navigator.vibrate(12);          /* 場面がかわる */
+}
+
+
+
+
+
+function makeE([fn,doko]){
+  const d=document.createElement('div');
+  d.className='e '+doko;
+  const im=document.createElement('img');
+  im.src='images/'+fn+'.jpg'; im.alt=''; im.loading='eager';
+  im.onerror=()=>{ d.remove(); butai.classList.remove('hikaeru'); };  /* まだ無い絵は、無かったことに */
+  d.appendChild(im);
+  return d;
+}
+
+/* ═══════════ とんとん、を数える ═══════════
+   何も表示しない。ただ、数えている。
+   押された場所も覚えておく（最後に、ここから名前を拾う）。 */
+const TONTON = {
+  pp:{},
+  kazu:0,               /* 総回数 */
+  ato:[],               /* 押された座標 */
+  saikin:[],            /* 直近の時刻。連打を見るため */
+  renda:0,              /* いちばん激しかった連打の回数 */
+  rendaByo:0            /* そのときの秒数 */
+};
+function tonton(x,y){
+  TONTON.kazu++;
+  TONTON.pp[idx]=(TONTON.pp[idx]||0)+1;
+  TONTON.ato.push([x,y]);
+  if(TONTON.ato.length>400) TONTON.ato.shift();
+  const t=Date.now();
+  TONTON.saikin.push(t);
+  /* 直近6秒だけ見る */
+  while(TONTON.saikin.length && t-TONTON.saikin[0]>6000) TONTON.saikin.shift();
+  if(TONTON.saikin.length>TONTON.renda){
+    TONTON.renda=TONTON.saikin.length;
+    TONTON.rendaByo=Math.max(1,Math.round((t-TONTON.saikin[0])/1000));
+  }
+  /* 連打が過ぎたとき、一度だけ */
+  /* 連打が過ぎたとき。しばらく間をおいて、また受け止める */
+  if(TONTON.saikin.length>=14 && t-(TONTON.itaToki||0) > 90000){
+    TONTON.itaToki=t;
+    setTimeout(()=>rendaSerifu(),400);
+  }
+}
+
+
+/* 連打が過ぎたときの、ドロシーのひとこと。
+   ここでは笑って通り過ぎてもらう。あとで、効く。 */
+const rendaBox=document.getElementById('renda');
+function rendaSerifu(n){
+  /* 数字は絶対に出さない。数えていることを、最後まで匂わせないため。
+     ここではただ、ふわっと受け止めるだけ。 */
+  const f=rendaBox.querySelector('.fuki');
+  const kotoba = TONTON.itta2
+    ? '「トト、そんなに急がなくても、どこにも行かないよ」'
+    : '「はいはい、どうしたの。そんなに何回も、とんとんして」';
+  TONTON.itta2 = true;
+  f.textContent = kotoba;
+  rendaBox.classList.add('on');
+  setTimeout(()=>rendaBox.classList.remove('on'), 6400);
+}
+
+
+
+
+
+
+
+
+/* 発音記号。押したときにだけ、意味と一緒に灯る */
+const HATSUON={"bad": "bæd", "blue": "bluː", "brain": "breɪn", "child": "tʃaɪld", "city": "ˈsɪti", "color": "ˈkʌlər", "country": "ˈkʌntri", "day": "deɪ", "dog": "dɔːɡ", "door": "dɔːr", "down": "daʊn", "ear": "ɪər", "evil": "ˈiːvl", "eye": "aɪ", "face": "feɪs", "fair": "feər", "family": "ˈfæməli", "festival": "ˈfestɪvl", "fine": "faɪn", "flower": "ˈflaʊər", "fly": "flaɪ", "forest": "ˈfɔːrɪst", "girl": "ɡɜːrl", "good": "ɡʊd", "good boy": "ɡʊd bɔɪ", "good morning": "ɡʊd ˈmɔːrnɪŋ", "good night": "ɡʊd naɪt", "green": "ɡriːn", "hand": "hænd", "happy": "ˈhæpi", "hat": "hæt", "head": "hed", "heart": "hɑːrt", "hero": "ˈhɪəroʊ", "high": "haɪ", "house": "haʊs", "journey": "ˈdʒɜːrni", "leg": "leɡ", "light": "laɪt", "look": "lʊk", "man": "mæn", "meat": "miːt", "meet": "miːt", "morning": "ˈmɔːrnɪŋ", "name": "neɪm", "nose": "noʊz", "okay": "oʊˈkeɪ", "old": "oʊld", "open": "ˈoʊpən", "pink": "pɪŋk", "present": "ˈpreznt", "question": "ˈkwestʃən", "road": "roʊd", "run": "rʌn", "see": "siː", "sky": "skaɪ", "sleep": "sliːp", "small": "smɔːl", "sound": "saʊnd", "stand": "stænd", "star": "stɑːr", "stop": "stɑːp", "storm": "stɔːrm", "sweet": "swiːt", "three": "θriː", "tree": "triː", "voice": "vɔɪs", "wake": "weɪk", "west": "west", "wind": "wɪnd", "window": "ˈwɪndoʊ", "witch": "wɪtʃ", "yellow": "ˈjeloʊ"};
+
+/* ═══════════ よみあげ（視覚障害対応） ═══════════
+   端末内蔵の合成音声。通信ゼロ。
+   出口は koe() の一箇所だけ。録音に差し替えるときは、ここだけ変える。 */
+let yomiOn=false, yomiQ=[];
+const yomiBtn=document.getElementById('yomi');
+try{ yomiOn = localStorage.getItem('toto_yomi')==='1'; }catch(e){}
+if(yomiOn) yomiBtn.classList.add('naru');
+
+/* 声と音は、そのまま重ねる。音はもともと控えめなので沈めない */
+function bgmShizumu(on){ /* なにもしない（呼び出し箇所は残す） */ }
+/* 語りの声の高さ。1.00 が素のまま。上げるほど少年寄りになる。
+   トトは男の子なので、少しだけ持ち上げている。 */
+const KOE_TAKASA = 1.14;
+
+/* 録音ファイル（audio_koe/）を使うかどうか。
+   いまの175本は本文と合っていない（長さが合わず、女性の声）。
+   男性の声で録り直した28.7分の音源もあるが、こちらは会話（「」）を
+   一言も読んでいない。会話しか無い4ページには音が無く、23ページは
+   会話が抜ける。加えて、どの無音がページの境目かを音から決められず、
+   文字数から割り出す三通りの方法が中央値で11秒（1〜3ページぶん）ずれた。
+   だから入れ替えていない。詳しくは _盤/92_絵本/92-001_トトの見た国.md。
+   false のあいだは、この下の合成読み上げが働く。こちらは行ごとに
+   地の文・会話・心の声を撃ち分け、英単語だけ英語の声で読む。
+   耳で確かめた音声を入れたら true に戻すこと。ファイルは消していない。 */
+const KOEF_TSUKAU = false;
+
+function koe(text, lang, koesita){
+  /* ここが唯一の出口。将来ファイル再生に替えるなら、この中だけ書き換える */
+  if(!('speechSynthesis' in window)) return Promise.resolve();
+  return new Promise(res=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang = lang||'ja-JP';
+    u.rate = (koesita&&koesita.rate) || (lang==='en-US' ? .88 : .96);
+    const vs=speechSynthesis.getVoices();
+    /* 語り手はトト。男の子なので、男性の声を先に探す。
+       端末に無ければ後ろへ落ちる（最後は女性の声でも鳴る。無音にはしない）。
+         Otoya/Hattori  … Mac・iPhone の男性
+         Ichiro/Keita   … Windows の男性
+         Alex/Daniel    … 英語の男性 */
+    const sukina = lang==='en-US'
+      ? ['Alex','Daniel','Google UK English Male','Microsoft Guy','Microsoft David',
+         'Eddy','Reed','Rocko',
+         'Samantha','Google US English','Microsoft Aria','Karen']
+      : ['Otoya','Hattori','Microsoft Ichiro','Microsoft Keita',
+         'Eddy','Reed','Rocko',          /* 新しめのMacに入っている男性の声 */
+         'Kyoko','Google 日本語','Microsoft Nanami','O-Ren','Hanako'];
+    /* 先に言語で絞ってから名前を探す。絞らずに探すと、日本語のつもりで
+       同じ名前の英語の声（Reed など）を掴み、日本語を英語の声で読み始める。 */
+    const atama = lang==='en-US' ? 'en' : 'ja';
+    const soko = vs.filter(x=>x.lang && x.lang.replace('_','-').startsWith(atama));
+    let v=null;
+    for(const name of sukina){ v=soko.find(x=>x.name&&x.name.includes(name)); if(v)break; }
+    if(!v) v=soko[0];
+    if(v)u.voice=v;
+    /* 大人の男性の声を、少年に寄せるための持ち上げ。
+       高すぎたら 1.00 に近づける。低くしたければ 1.00 未満に。
+       会話(1.32)と心の声(0.82)は、ここを基準にした相対の差なので触らなくてよい。 */
+    u.pitch = (koesita&&koesita.pitch) || (lang==='en-US' ? KOE_TAKASA : KOE_TAKASA+0.02);
+    if(koesita&&koesita.vol!==undefined) u.volume=koesita.vol;
+    u.onend=res; u.onerror=res;
+    speechSynthesis.speak(u);
+  });
+}
+function koeYame(){ if('speechSynthesis' in window) speechSynthesis.cancel(); yomiQ=[]; if(koefIma){ koefIma.pause(); koefIma=null; } if(typeof bgmShizumu==='function') bgmShizumu(false); }
+
+/* 一行を、日本語と英語のかけらに分ける */
+function yomiKakera(text){
+  const out=[];
+  let rest=text;
+  const re=/\{\{([^|]+)\|([^}]+)\}\}/;
+  while(true){
+    const m=rest.match(re);
+    if(!m){ if(rest.trim()) out.push([rest,'ja-JP']); break; }
+    const mae=rest.slice(0,m.index);
+    if(mae.trim()) out.push([mae,'ja-JP']);
+    out.push([m[1],'en-US']);          /* 英単語は英語の声で */
+    out.push(['、'+m[2]+'、','ja-JP']); /* 意味も読む */
+    rest=rest.slice(m.index+m[0].length);
+  }
+  return out;
+}
+
+const KOEF={};   /* ページ音声：audio_koe/pN.mp3。無ければ合成 */
+let koefIma=null;
+function koefYomu(n){
+  if(!KOEF_TSUKAU) return Promise.resolve(null);   /* 合成読み上げに回す */
+  if(n in KOEF) return Promise.resolve(KOEF[n]);
+  return new Promise(res=>{
+    const a=new Audio('audio_koe/p'+n+'.mp3');
+    a.preload='auto';
+    a.oncanplaythrough=()=>{ KOEF[n]=a; res(a); };
+    a.onerror=()=>{ KOEF[n]=null; res(null); };
+    setTimeout(()=>{ if(!(n in KOEF)){ KOEF[n]=null; res(null); } },2000);
+  });
+}
+async function pageYomu(pageIdx){
+  koeYame();
+  /* まず録音ファイルを探す。あればそれで読む */
+  const fa=await koefYomu(pageIdx);
+  if(fa){ koefIma=fa; fa.currentTime=0; fa.play().catch(()=>{}); return; }
+  const lines=PAGES[pageIdx]||[];
+  const myQ=Symbol(); yomiQ=[myQ];
+  bgmShizumu(true);
+  for(const l of lines){
+    if(yomiQ[0]!==myQ){ bgmShizumu(false); return; }
+    if(l[0]==='ma'||l[0]==='e'||!l[1]) continue;
+    const sita = l[0]==='s' ? {pitch:1.32, rate:1.0}          /* 会話：本人の声 */
+               : l[0]==='h' ? {pitch:.82, rate:.88, vol:.85}  /* 心の声：低くつぶやく */
+               : null;                                        /* 地の文 */
+    for(const [t,lang] of yomiKakera(l[1])){
+      if(yomiQ[0]!==myQ){ bgmShizumu(false); return; }
+      await koe(t.replace(/——/g,'。'), lang, lang==='en-US'?null:sita);
+    }
+  }
+  bgmShizumu(false);
+}
+
+yomiBtn.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  yomiOn=!yomiOn;
+  yomiBtn.classList.toggle('naru',yomiOn);
+  try{ localStorage.setItem('toto_yomi', yomiOn?'1':'0'); }catch(e2){}
+  if(yomiOn){ pageYomu(idx); } else { koeYame(); }
+});
+
+/* ═══════════ ステーキ ═══════════
+   選択肢の形をしているが、道はひとつしかない。
+   読者はトトと一緒に、虎の子を差し出す。 */
+let SUTEKI=false;
+function sutekiHajime(onDone){
+  saigo.classList.add('deru'); saigo.classList.add('kinpaku');
+  saigo.classList.remove('nagai'); sgClear();
+  sgUe.textContent='';
+  sgBun.innerHTML='どうする。';
+  /* 緊迫の音：低いドローンが、脈のように */
+  let kin=null;
+  if(naru && AC){
+    const t0=AC.currentTime;
+    const o=AC.createOscillator(); o.type='sine'; o.frequency.value=58;
+    const o2=AC.createOscillator(); o2.type='sine'; o2.frequency.value=61.5;
+    const g=AC.createGain(); g.gain.value=0;
+    g.gain.linearRampToValueAtTime(.055,t0+.6);
+    const lfo=AC.createOscillator(); lfo.frequency.value=2.1;
+    const lg=AC.createGain(); lg.gain.value=.03;
+    lfo.connect(lg).connect(g.gain);
+    o.connect(g); o2.connect(g); g.connect(AC.destination);
+    o.start(); o2.start(); lfo.start();
+    kin={stop:()=>{ g.gain.linearRampToValueAtTime(0,AC.currentTime+.5);
+      setTimeout(()=>{o.stop();o2.stop();lfo.stop();},600); }};
+  }
+  /* 脈の振動 */
+  let dokun=setInterval(()=>{ if(navigator.vibrate) navigator.vibrate(12); },700);
+  setTimeout(()=>{
+    sgSita.innerHTML='<div class="osite">おして！　おして！</div>';
+    sgSen.innerHTML='<button style="font-size:14.5px;padding:14px 26px;">'
+      +'とっておきの、ステーキを、出す</button>';
+    sgSen.classList.add('deru');
+    sgSen.querySelector('button').addEventListener('click',()=>{
+      SUTEKI=true;
+      clearInterval(dokun); if(kin)kin.stop();
+      saigo.classList.remove('kinpaku');
+      sgSen.innerHTML=''; sgSita.innerHTML='';
+      if(navigator.vibrate) navigator.vibrate([16,90,26]);
+      sgBun.innerHTML='<span style="color:var(--usuzumi)">60日が、いま、終わる。</span>';
+      setTimeout(()=>{ saigo.classList.remove('deru'); onDone(); },1700);
+    });
+  },900);
+}
+
+/* ═══════════ 問い（階層式） ═══════════
+   正解は判定しない。どれでも進む。
+   ただし、選んだ答えは、覚えられている。 */
+const TOI={kotae:null, fukasa:0};
+function toiHajime(onDone){
+  saigo.classList.add('deru'); saigo.classList.remove('nagai'); sgClear();
+  sgUe.textContent='';
+  sgBun.innerHTML='あなたは、どう思いますか。<br><br>'
+    +'<span style="font-size:14px;color:var(--usuzumi)">あの獅子は、なぜ、ついてくるのでしょう。</span>';
+  const dasu=(erabi, tsugi)=>{
+    sgSen.innerHTML=erabi.map((e,i)=>'<button data-i="'+i+'">'+e+'</button>').join('');
+    sgSen.classList.add('deru');
+    sgSen.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click',()=>{
+        TOI.fukasa++;
+        tsugi(Number(b.dataset.i), erabi[Number(b.dataset.i)]);
+      });
+    });
+  };
+  const owari=(kotae)=>{
+    TOI.kotae=kotae;
+    sgSen.innerHTML=''; sgSita.textContent='';
+    sgBun.innerHTML='<span style="color:var(--usuzumi)">そう、思ったのですね。</span>';
+    setTimeout(()=>{ saigo.classList.remove('deru'); onDone(); },1800);
+  };
+  dasu(['餌が、もらえると思っている','こわくて、守ってほしいから','なにか、目的があるから'],(i,e)=>{
+    if(i===0){
+      sgBun.innerHTML='ほんとうに、そう見えますか。';
+      dasu(['見える。犬も、そうだし','……いや、ちがう気がする'],(j,e2)=>{
+        if(j===0) owari('餌がほしいだけ');
+        else {
+          sgBun.innerHTML='では、なぜだと思いますか。';
+          dasu(['守っているのかも','……わからない'],(k,e3)=>owari(k===0?'守っている':'わからない'));
+        }
+      });
+    }else if(i===1){
+      sgBun.innerHTML='こわがっているように、見えましたか。';
+      dasu(['見えた。ふるえてたし','……いや。あれは、ちがう'],(j,e2)=>{
+        if(j===0) owari('こわがっている');
+        else {
+          sgBun.innerHTML='では、あれは、なんだったのでしょう。';
+          dasu(['もっと、大きい、なにか','……わからない'],(k,e3)=>owari(k===0?'もっと大きいなにか':'わからない'));
+        }
+      });
+    }else{
+      sgBun.innerHTML='では、その目的は。';
+      dasu(['ドロシーを、守るため','ぼくたちを、見張るため','……わからない'],(j,e2)=>{
+        owari(j===0?'ドロシーを守るため':j===1?'見張るため':'わからない');
+      });
+    }
+  });
+}
+
+
+/* ═══════════ しおりを挟む（セーブ） ═══════════
+   めくるたびに、この端末の中にだけ、控える。どこにも送らない。 */
+function hozonSuru(){
+  try{
+    localStorage.setItem('toto_save', JSON.stringify({
+      idx, saidai, toshi: +toshi.toFixed(2),
+      kazu: TONTON.kazu, pp: TONTON.pp,
+      renda: TONTON.renda, rendaByo: TONTON.rendaByo,
+      got: [...gotWords.entries()],
+      deta: [...deta.entries()],
+      toi: TOI.kotae, suteki: SUTEKI,
+      hayasaDone
+    }));
+  }catch(e){}
+}
+function hozonYomu(){
+  try{
+    const s=JSON.parse(localStorage.getItem('toto_save')||'null');
+    if(!s || !s.idx || s.idx<1 || s.idx>=PAGES.length) return null;
+    return s;
+  }catch(e){ return null; }
+}
+function hozonModosu(s){
+  idx=s.idx; toshi=Math.max(2.0, s.toshi||2.0);
+  TONTON.kazu=s.kazu||0; TONTON.pp=s.pp||{};
+  TONTON.renda=s.renda||0; TONTON.rendaByo=s.rendaByo||0;
+  (s.got||[]).forEach(([k,v])=>gotWords.set(k,v));
+  (s.deta||[]).forEach(([k,v])=>deta.set(k,v));
+  if(s.toi) TOI.kotae=s.toi;
+  if(s.suteki) SUTEKI=true;
+  if(s.hayasaDone) hayasaDone=true;
+}
+
+/* ═══════════ 最終章 ═══════════
+   試験：ルビが外れた語だけが、出題範囲。新情報は出ない。
+   手紙：一語ずつ。最後の一語は name。
+   会話：種明かしできる範囲でしか、言い当てない。 */
+const saigo=document.getElementById('saigo');
+const sgUe=document.getElementById('sgUe');
+const sgBun=document.getElementById('sgBun');
+const sgKami=document.getElementById('sgKami');
+const sgSen=document.getElementById('sgSen');
+const sgSita=document.getElementById('sgSita');
+let SG={seikai:0, mon:0, yobeta:false, onDone:null};
+
+function sgClear(){ sgBun.innerHTML=''; sgKami.style.display='none'; sgKami.innerHTML='';
+  sgSen.innerHTML=''; sgSen.classList.remove('deru'); sgSita.textContent=''; }
+
+/* —— 試験 —— */
+function shikenHajime(onDone){
+  SG={seikai:0, mon:0, yobeta:false, onDone};
+  saigo.classList.add('deru'); sgClear();
+  sgUe.textContent='';
+  sgBun.innerHTML='封筒には、鍵がかかっていた。<br>ことばの、鍵が。';
+  setTimeout(()=>{
+    sgSen.innerHTML='<button>ひらく</button>';
+    sgSen.classList.add('deru');
+    sgSen.querySelector('button').addEventListener('click',()=>shikenTsukuru());
+  },1200);
+}
+function shikenKotae(){
+  /* 出題：意味ルビが外れるまで読んだ語（=身についた語）だけ */
+  const cand=[];
+  gotWords.forEach((n,en)=>{
+    if(n>=3 && deta.has(en)){
+      const p=deta.get(en);
+      const line=(PAGES[p]||[]).find(l=>(l[1]||'').toLowerCase().includes('{{'+en));
+      if(line) cand.push({en, line:line[1]});
+    }
+  });
+  return cand.sort(()=>Math.random()-.5).slice(0,5);
+}
+let sgQ=[], sgQi=0;
+function shikenTsukuru(){
+  sgQ=shikenKotae(); sgQi=0;
+  if(sgQ.length<3){ /* 読み飛ばした人にも、道は閉じない */
+    shikenOwari(); return;
+  }
+  shikenDasu();
+}
+function shikenDasu(){
+  sgClear();
+  saigo.classList.remove('nagai');
+  const q=sgQ[sgQi];
+  sgUe.textContent=(sgQi+1)+' / '+sgQ.length;
+  const re=new RegExp('\\{\\{'+q.en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\|[^}]+\\}\\}','i');
+  const bun=q.line.replace(re,'<span class="ana">　</span>')
+    .replace(/\{\{([^|]+)\|([^}]+)\}\}/g,'$1');
+  sgBun.innerHTML=bun;
+  /* 選択肢：正解＋他の習得語から2つ */
+  const hoka=[...gotWords.keys()].filter(w=>w!==q.en && w.length<14).sort(()=>Math.random()-.5).slice(0,2);
+  const erabu=[q.en,...hoka].sort(()=>Math.random()-.5);
+  sgSen.innerHTML=erabu.map(w=>'<button data-w="'+w+'">'+w+'</button>').join('');
+  requestAnimationFrame(()=>sgSen.classList.add('deru'));
+  sgSen.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.dataset.w===q.en){
+        SG.seikai++;
+        sgBun.innerHTML=q.line.replace(/\{\{([^|]+)\|([^}]+)\}\}/g,
+          (m,en,imi)=> en.toLowerCase()===q.en?'<span style="color:var(--midori)">'+en+'</span>':en);
+        sgSen.innerHTML=''; sgSita.textContent='';
+        setTimeout(()=>{ sgQi++; (sgQi<sgQ.length)?shikenDasu():shikenOwari(); },1300);
+      }else{
+        /* 責めない。その場面を、思い出させる */
+        sgSita.textContent='だいじょうぶ。おもいだせます。';
+        omoidasu(q.en);
+      }
+    });
+  });
+}
+function shikenOwari(){
+  sgClear();
+  sgUe.textContent='';
+  sgBun.innerHTML='鍵が、あいた。';
+  setTimeout(()=>{
+    saigo.classList.remove('deru');
+    SG.onDone&&SG.onDone();
+  },1800);
+}
+
+/* —— 手紙 —— */
+const TEGAMI=[
+ '君へ。',
+ 'この手紙を、君が読んでいるということは、',
+ '君は、ことばを、持ったんだね。',
+ 'ずっと、知ってたよ。',
+ '君が、頭の中で、たくさん、しゃべってたこと。',
+ '「ふうん」って言ったの、ぜんぶ、返事だったんだよ。',
+ '君は、わたしの名前を、いちども呼ばなかったけど、',
+ 'わたしは、へいきだった。',
+ 'だって、君の心の声は、いつも、わたしを呼んでたから。',
+ 'でもね。いちどだけ、ききたかったな。',
+ 'あなたの　＿＿＿＿　を、いちどでいいから、呼んでほしかった。',
+];
+function tegamiHajime(onDone){
+  SG.onDone=onDone;
+  saigo.classList.add('deru'); saigo.classList.add('nagai'); sgClear();
+  sgUe.textContent='';
+  sgKami.style.display='block';
+  let i=0;
+  const susumu=()=>{
+    if(i>=TEGAMI.length){ tegamiAna(); return; }
+    const g=document.createElement('div');
+    g.className='gyo';
+    g.textContent=TEGAMI[i];
+    sgKami.appendChild(g);
+    requestAnimationFrame(()=>{g.classList.add('deru');g.scrollIntoView({block:'nearest',behavior:'smooth'});});
+    i++;
+    sgSita.textContent = i<TEGAMI.length ? 'とんとん、で、つぎの一行' : '';
+  };
+  susumu();
+  const h2=(e)=>{ e.stopPropagation(); susumu(); };
+  saigo.addEventListener('pointerdown',h2);
+  SG.tegamiHandler=h2;
+}
+function tegamiAna(){
+  saigo.removeEventListener('pointerdown',SG.tegamiHandler);
+  sgSita.textContent='＿＿＿＿ に入ることばは。';
+  const erabu=['name','dog','fine'].sort(()=>Math.random()-.5);
+  sgSen.innerHTML=erabu.map(w=>'<button data-w="'+w+'">'+w+'</button>').join('');
+  requestAnimationFrame(()=>sgSen.classList.add('deru'));
+  sgSen.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.dataset.w==='name'){
+        const g=[...sgKami.querySelectorAll('.gyo')].pop();
+        g.innerHTML='あなたの　<span style="color:var(--midori)">name</span>　を、いちどでいいから、呼んでほしかった。';
+        sgSen.innerHTML=''; sgSita.textContent='';
+        setTimeout(()=>yobu(),2000);
+      }else{
+        sgSita.textContent='……ちがう。いちばん、最初のことばだ。';
+      }
+    });
+  });
+}
+
+/* —— 呼ぶ —— */
+function yobu(){
+  saigo.classList.remove('nagai');
+  sgClear(); sgUe.textContent='';
+  sgBun.innerHTML='ぼくは、息を、すいこんだ。';
+  setTimeout(()=>{
+    sgSen.innerHTML='<button style="font-size:16px;padding:14px 34px;">よぶ</button>';
+    sgSen.classList.add('deru');
+    sgSen.querySelector('button').addEventListener('click',()=>{
+      SG.yobeta=true;
+      sgClear();
+      sgBun.innerHTML='<div class="oname">「……ドロシー」</div>';
+      if(navigator.vibrate) navigator.vibrate([30,180,30]);
+      setTimeout(()=>{
+        sgBun.innerHTML+='<div style="font-size:13.5px;color:var(--usuzumi);margin-top:16px;">'
+          +'それが、ぼくの、最初のことばだった。</div>';
+        setTimeout(()=>hanasuErabi(),2600);
+      },2400);
+    });
+  },1600);
+}
+
+/* —— ドロシーと話す（選択） —— */
+function hanasuErabi(){
+  sgSita.textContent='';
+  sgSen.innerHTML='<button id="hnsu">ドロシーと、話す</button>'
+                 +'<button id="hnsn">このまま、おわる</button>';
+  sgSen.classList.add('deru');
+  document.getElementById('hnsn').addEventListener('click',()=>saigoOwari(false));
+  document.getElementById('hnsu').addEventListener('click',()=>hanasu());
+}
+function hanasu(){
+  sgClear();
+  saigo.classList.add('nagai');
+  const kazu=TONTON.kazu.toLocaleString('ja-JP');
+  let pp=null, mx=0;
+  Object.keys(TONTON.pp||{}).forEach(k=>{ if(TONTON.pp[k]>mx){mx=TONTON.pp[k];pp=k;} });
+  const K=[
+    '「ひさしぶり、君」',
+    (TOI.kotae ? '「いろはのこと、『'+TOI.kotae+'』って、こたえたでしょ。あれも、聞こえてた」' : null),
+    '「……ちゃんと、呼べたね」',
+    '「君、まじめに読んでくれたでしょ。わかるよ」',
+    (mx>8 ? '「いちばん強く、とんとんしたところ、おぼえてる。'+mx+'回。あそこだけ、必死だった」'
+          : '「ゆっくり、読んでくれたね。それも、聞こえてた」'),
+    '「'+kazu+'回」',
+    '「ぜんぶ、聞こえてたよ」',
+    '「ごめんね。とんとん、たくさん、させちゃって」',
+    (SUTEKI ? '「あと——ステーキ。クリスマスの、だったんでしょ」' : null),
+    (SUTEKI ? '「60日って、頭の中で、ずっと自慢してたもんね。ぜんぶ、知ってて、たべてって言った。……ごめんね」' : null),
+    '＿',
+    '「どうして分かったか、教えてあげる」',
+    '「君がとんとんした回数も、場所も、読む速さも、ぜんぶ、この端末の中にあるの」',
+    '「どこにも、送っていない。わたしが、見ていただけ」',
+    '＿',
+    '「画面の、そっち側にいる、あなたのことも」',
+  ];
+  const K2=K.filter(x=>x!==null);
+  sgKami.style.display='block';
+  let i=0;
+  const susumu=()=>{
+    if(i>=K2.length){ setTimeout(()=>saigoOwari(true),2200); return; }
+    const t=K2[i];
+    if(t==='＿'){ if(SG.pause)return; SG.pause=true; i++;
+      setTimeout(()=>{SG.pause=false; susumu();},1800); return; }
+    const g=document.createElement('div');
+    g.className='gyo'; g.textContent=t;
+    sgKami.appendChild(g);
+    requestAnimationFrame(()=>{g.classList.add('deru');g.scrollIntoView({block:'nearest',behavior:'smooth'});});
+    i++;
+    sgSita.textContent = i<K2.length ? 'とんとん' : '';
+  };
+  susumu();
+  const h3=(e)=>{ e.stopPropagation(); if(!SG.pause) susumu(); };
+  saigo.addEventListener('pointerdown',h3);
+  SG.hanasuHandler=h3;
+}
+
+/* —— むすび —— */
+function saigoOwari(hanashita){
+  saigo.removeEventListener('pointerdown',SG.hanasuHandler||(()=>{}));
+  saigo.classList.remove('nagai');
+  sgClear();
+  const kizuki = SG.seikai>=4 ? 'ことばは、ぜんぶ、君の中にあった。' : '';
+  sgBun.innerHTML =
+    '<div style="font-size:14px;line-height:2.6;color:var(--ink)">'
+    +'ぼくは、一度も、あの子の頭を<br>とんとん、してやらなかった。<br><br>'
+    +'<span style="color:var(--usuzumi)">……この犬やろうが。</span></div>';
+  setTimeout(()=>{
+    sgSita.innerHTML =
+      (kizuki?kizuki+'<br><br>':'')
+      +'ことばを学ぶということは、<br>'
+      +'あいての名前を、呼べるようになる、ということ。<br><br>'
+      +'まずは、だれの名前から、はじめますか。';
+    sgSen.innerHTML='<button id="oshimai">おしまい</button>';
+    sgSen.classList.add('deru');
+    document.getElementById('oshimai').addEventListener('click',()=>{
+      saigo.classList.remove('deru');
+      SG.onDone&&SG.onDone();
+    });
+  },3600);
+}
+
+/* ═══════════ たたく（胸骨圧迫） ═══════════
+   100〜120回/分。速すぎても、遅すぎても、血は回らない。
+   気持ちは問わない。手だけを見る。 */
+const TATAKU_PAGE = null;   /* light() 側で判定する */
+const tataku = document.getElementById('tataku');
+const mato = document.getElementById('mato');
+const hayasaOut = document.getElementById('hayasaOut');
+const barI = document.getElementById('bar');
+const sasae = document.getElementById('sasae');
+let tt = null;
+
+function tatakuHajime(onDone){
+  tt = { uchi:[], ii:0, zenbu:0, sumi:false, onDone };
+  tataku.classList.add('deru');
+  hayasaOut.innerHTML='';
+  barI.style.width='0%'; barI.classList.remove('ii');
+  mato.classList.remove('ii');
+  sasae.classList.remove('deru'); sasae.textContent='';
+  document.getElementById('tatakuToi').textContent='はやく、たたいて。';
+}
+
+function tatakuUtsu(){
+  if(!tt || tt.sumi) return;
+  const now = performance.now();
+  tt.uchi.push(now);
+  tt.zenbu = (tt.zenbu||0) + 1;
+  while(tt.uchi.length && now - tt.uchi[0] > 6000) tt.uchi.shift();
+
+
+  if(tt.uchi.length < 4){ hayasaOut.textContent=''; return; }
+
+  /* 直近の間隔から、1分あたりの回数を出す */
+  const kan=[];
+  for(let i=1;i<tt.uchi.length;i++) kan.push(tt.uchi[i]-tt.uchi[i-1]);
+  const heikin = kan.reduce((a,b)=>a+b,0)/kan.length;
+  const bpm = Math.round(60000/heikin);
+
+  const ii = bpm>=100 && bpm<=120;
+  /* 手応え。正しいときだけ、しっかり返す */
+  if(navigator.vibrate && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    navigator.vibrate(ii ? 18 : 7);
+  }
+  mato.classList.toggle('ii', ii);
+  barI.classList.toggle('ii', ii);
+
+  if(ii){ tt.ii++; } else { tt.ii = Math.max(0, tt.ii-1); }
+  const susumi = Math.min(100, tt.ii/30*100);
+  barI.style.width = susumi+'%';
+
+  hayasaOut.innerHTML = ii
+    ? '<b>そのまま</b>'
+    : (bpm<100 ? 'もう少し、はやく' : 'すこし、ゆっくり');
+
+  if(tt.gofun) return;   /* 5分のあいだは、判定しない。ただ続ける */
+  if(tt.ii>=30){ tatakuTodoku(); }
+  else if(tt.uchi.length>90 && tt.ii<6){ tatakuTodokazu(); }
+}
+
+function tatakuTodoku(){
+  tt.sumi=true;
+  hayasaOut.innerHTML='';
+  barI.style.width='100%';
+  mato.classList.add('ii');
+  document.getElementById('tatakuToi').textContent='——息を、した。';
+  if(navigator.vibrate) navigator.vibrate([22,120,22]);
+  setTimeout(()=>honto(), 2800);
+}
+
+/* ほんとうのこと。やらせずに、知らせる。 */
+function honto(){
+  document.getElementById('tatakuToi').innerHTML='';
+  hayasaOut.innerHTML='';
+  barI.style.width='0%';
+  sasae.innerHTML =
+     'いま、'+Math.round(tt.zenbu||0)+'回。<br><br>'
+    +'ほんとうの心臓は、これを<b style="color:var(--midori)">5分</b>。<br>'
+    +'いいえ。<b style="color:var(--midori)">もっと</b>です。<br><br>'
+    +'救急車が着くまで、平均で<b style="color:var(--midori)">9.8分</b>。<br>'
+    +'（消防庁「令和7年版 救急・救助の現況」2026年公表）<br><br>'
+    +'およそ<b style="color:var(--usuzumi)">1,000回</b>。<br>'
+    +'ひとりでは、もちません。<br>'
+    +'<b style="color:var(--usuzumi)">代わってくれる人がいたら、代わってもらってください。</b>';
+  sasae.classList.add('deru');
+  const b=document.createElement('div');
+  b.className='erabi';
+  b.innerHTML='<button id="gofun">5分、やってみる</button>'
+             +'<button id="tsugie">つづきを、読む</button>';
+  tataku.appendChild(b);
+  requestAnimationFrame(()=>b.classList.add('deru'));
+  document.getElementById('tsugie').addEventListener('click',()=>{
+    b.remove(); jissai();
+  });
+  document.getElementById('gofun').addEventListener('click',()=>{
+    b.remove(); gofunHajime();
+  });
+}
+
+/* ほんとうの現場で、することだけ。三つ。 */
+function jissai(){
+  document.getElementById('tatakuToi').textContent='ほんとうに、そうなったら。';
+  sasae.classList.remove('deru');
+  setTimeout(()=>{
+    sasae.innerHTML =
+       '<b style="color:var(--midori)">1</b>　まわりに声をかけて、119番とAEDを頼む<br>'
+      +'<b style="color:var(--midori)">2</b>　胸の真ん中を、強く、はやく、たえまなく<br>'
+      +'<b style="color:var(--midori)">3</b>　救急車が来るまで、代わりながら、続ける<br><br>'
+      +'近くのAEDは、ここで調べられます。<br>'
+      +'<a href="https://www.qqzaidanmap.jp/" target="_blank" rel="noopener" style="color:var(--midori);text-decoration:underline;text-underline-offset:3px;">財団全国AEDマップ</a><br>'
+      +'<span style="color:var(--usui);font-size:9.5px">（日本救急医療財団・厚生労働省の指示に基づく全国版）</span><br><br>'
+      +'<span style="color:var(--usui)">この絵本でできたからといって、'
+      +'ほんとうにできるとは限りません。<br>'
+      +'一度、講習を受けておくと、手がおぼえます。</span>';
+    sasae.classList.add('deru');
+    const b2=document.createElement('div');
+    b2.className='erabi';
+    b2.innerHTML='<button id="tsugie3">つづきを、読む</button>';
+    tataku.appendChild(b2);
+    requestAnimationFrame(()=>b2.classList.add('deru'));
+    document.getElementById('tsugie3').addEventListener('click',()=>{
+      b2.remove(); tataku.classList.remove('deru'); tt.onDone(true);
+    });
+  },400);
+}
+
+/* 5分。選んだ人だけが、本当の長さを知る。 */
+function gofunHajime(){
+  sasae.classList.remove('deru');
+  tt.sumi=false; tt.uchi=[]; tt.ii=0; tt.gofun=true;
+  tt.owari = performance.now()+300000;
+  document.getElementById('tatakuToi').textContent='5分。はじめます。';
+  sasae.innerHTML='';
+  barI.style.width='0%'; barI.classList.remove('ii');
+  const tick=()=>{
+    if(!tt || !tt.gofun) return;
+    const nokori=Math.max(0, tt.owari-performance.now());
+    const m=Math.floor(nokori/60000), s=Math.floor(nokori%60000/1000);
+    document.getElementById('tatakuToi').textContent =
+      'のこり ' + m + ':' + String(s).padStart(2,'0');
+    barI.style.width = (100 - nokori/300000*100)+'%';
+    if(nokori<=0){ gofunOwari(); return; }
+    setTimeout(tick,250);
+  };
+  tick();
+}
+function gofunOwari(){
+  tt.gofun=false; tt.sumi=true;
+  document.getElementById('tatakuToi').textContent='5分、たちました。';
+  sasae.innerHTML =
+     '5分。<br>'
+    +'それでも、救急車は、まだ着きません。<br><br>'
+    +'<b style="color:var(--midori)">それでも、意味があります。</b><br><br>'
+    +'そばにいた人が心肺蘇生をした場合、<br>'
+    +'1か月後に生きている人は <b style="color:var(--midori)">15.3％</b>。<br>'
+    +'しなかった場合は <b style="color:var(--usuzumi)">7.9％</b>。<br>'
+    +'およそ、<b style="color:var(--midori)">2倍</b>です。<br><br>'
+    +'AEDまで使えたときは、<b style="color:var(--midori)">53.6％</b>。<br>'
+    +'近くのAEDは、<a href="https://www.qqzaidanmap.jp/" target="_blank" rel="noopener" style="color:var(--midori);text-decoration:underline;text-underline-offset:3px;">財団全国AEDマップ</a>で調べられます。<br><br>'
+    +'<span style="color:var(--usui)">（消防庁「令和7年版 救急・救助の現況」令和6年中）</span><br><br>'
+    +'<b style="color:var(--usuzumi)">おつかれさまでした。</b>';
+  sasae.classList.add('deru');
+  const b=document.createElement('div');
+  b.className='erabi';
+  b.innerHTML='<button id="tsugie2">つづきを、読む</button>';
+  tataku.appendChild(b);
+  requestAnimationFrame(()=>b.classList.add('deru'));
+  document.getElementById('tsugie2').addEventListener('click',()=>{
+    b.remove(); jissai();
+  });
+}
+
+function tatakuTodokazu(){
+  tt.sumi=true;
+  document.getElementById('tatakuToi').textContent='届かなかった。';
+  hayasaOut.innerHTML='';
+  const kan=[]; for(let i=1;i<tt.uchi.length;i++) kan.push(tt.uchi[i]-tt.uchi[i-1]);
+  const bpm = kan.length ? Math.round(60000/(kan.reduce((a,b)=>a+b,0)/kan.length)) : 0;
+  const jogen = bpm && bpm<100
+      ? 'すこし、ゆっくりでした。<b style="color:var(--midori)">もう少し、はやく。</b><br>1秒に2回くらいです。<br><br>'
+      : bpm>120
+      ? 'すこし、はやすぎました。<b style="color:var(--midori)">もう少し、ゆっくり。</b><br>1秒に2回くらいです。<br><br>'
+      : '';
+  sasae.innerHTML = jogen
+    +'あなたの手は、正しかった。<br>'
+    +'ほんとうの心臓も、正しくやって、届かないことがある。<br>'
+    +'<b style="color:var(--usuzumi)">それは、あなたのせいではない。</b><br><br>'
+    +'もう一度、たたけます。';
+  sasae.classList.add('deru');
+  setTimeout(()=>{ if(tt) { tt.sumi=false; tt.uchi=[]; tt.ii=0;
+    document.getElementById('tatakuToi').textContent='はやく、たたいて。';
+    barI.style.width='0%'; } },4200);
+}
+
+mato.addEventListener('pointerdown', e=>{ e.preventDefault(); tatakuUtsu(); });
+
+/* ═══════════ おもいだす ═══════════
+   戻るのではない。読み返すだけ。
+   そして、古いものから忘れていく。 */
+const OMOI_NOKORU = 10;          /* これより古い場面は、もう出てこない */
+const deta = new Map();          /* 単語 → 最初に出たページ */
+const omoi = document.getElementById('omoi');
+const omoiKami = document.getElementById('omoiKami');
+
+function omoidasu(en){
+  const p = deta.get(en.toLowerCase());
+  if(p===undefined) return;
+  omoiKami.innerHTML='';
+  if(idx - p > OMOI_NOKORU){
+    omoiKami.innerHTML =
+      '<div class="kiete">そのあたりは、もう、おぼえていない。<br>'
+      +'ずいぶん前のことだから。</div>'
+      +'<div class="tojiru"><button>とじる</button></div>';
+  }else{
+    const d=document.createElement('div');
+    d.className='doko'; d.textContent='おもいだしている';
+    omoiKami.appendChild(d);
+    PAGES[p].forEach(([kind,text])=>{
+      if(kind==='ma'||kind==='e')return;
+      const g=document.createElement('div');
+      g.className='gyo '+(kind==='s'?'s':kind==='h'?'h':'');
+      /* ここでは意味ルビを消さない。思い出しているので */
+      g.innerHTML=(text||'').replace(/\{\{([^|]+)\|([^}]+)\}\}/g,
+        (m,en2,imi)=>'<span class="ew">'+en2+'<small>（'+imi+'）</small></span>');
+      omoiKami.appendChild(g);
+    });
+    const t=document.createElement('div');
+    t.className='tojiru'; t.innerHTML='<button>とじる</button>';
+    omoiKami.appendChild(t);
+  }
+  omoi.classList.add('deru');
+  omoiKami.querySelector('button').addEventListener('click',e=>{
+    e.stopPropagation(); omoi.classList.remove('deru');
+  });
+}
+omoi.addEventListener('click',e=>{ if(e.target===omoi) omoi.classList.remove('deru'); });
+
+/* ═══════════ 足あと ═══════════
+   とんとん、と押したところに肉球が残る。
+   何歩か前のものから、静かに薄れて消えていく。 */
+const ashi=document.getElementById('ashi');
+const NIKUKYU=(c)=>`<svg viewBox="0 0 26 26" width="26" height="26">
+<ellipse cx="13" cy="16.5" rx="6.4" ry="5.4" fill="${c}"/>
+<ellipse cx="5.6" cy="10.4" rx="2.5" ry="3.2" fill="${c}" transform="rotate(-18 5.6 10.4)"/>
+<ellipse cx="10.4" cy="6.4" rx="2.4" ry="3.2" fill="${c}" transform="rotate(-7 10.4 6.4)"/>
+<ellipse cx="15.8" cy="6.4" rx="2.4" ry="3.2" fill="${c}" transform="rotate(7 15.8 6.4)"/>
+<ellipse cx="20.5" cy="10.4" rx="2.5" ry="3.2" fill="${c}" transform="rotate(18 20.5 10.4)"/>
+</svg>`;
+let ato=[], hidari=true;
+function fumu(x,y){
+  tonton(x,y);
+  const el=document.createElement('div');
+  el.className='ato';
+  el.innerHTML=NIKUKYU('#7E8C75');
+  /* 左右の足が、少しずつ角度をずらして交互に */
+  const kata=(hidari?-1:1); hidari=!hidari;
+  el.style.left=(x+kata*7)+'px';
+  el.style.top=y+'px';
+  el.querySelector('svg').style.transform=`rotate(${kata*13+(Math.random()*8-4)}deg)`;
+  ashi.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));
+  ato.push(el);
+  /* 何歩か前のものから、順に薄れる（4歩ぶん残す） */
+  ato.forEach((a,i)=>{
+    const nokori=ato.length-1-i;
+    if(nokori>=1) a.style.opacity=Math.max(0,.42-nokori*.11);
+  });
+  while(ato.length>4){
+    const o=ato.shift();
+    o.classList.add('kie');
+    setTimeout(()=>o.remove(),2500);
+  }
+}
+
+
+/* ═══════════ 音（ファイルレス・Web Audio合成） ═══════════ */
+const otoBtn=document.getElementById('oto');
+let AC=null, naru=false, bgmGain=null, bgmNodes=[];
+
+function ACinit(){
+  if(AC)return AC;
+  AC=new (window.AudioContext||window.webkitAudioContext)();
+  return AC;
+}
+/* めくり音：紙のこすれ。短いノイズを帯域で削る */
+function otoMekuru(){
+  if(!naru||!AC)return;
+  const t0=AC.currentTime;
+  /* 紙をする音：やわらかいノイズが、すっ、と流れて消える */
+  const n=Math.floor(AC.sampleRate*.30);
+  const buf=AC.createBuffer(1,n,AC.sampleRate), d=buf.getChannelData(0);
+  for(let k=0;k<n;k++){ const e=k/n; d[k]=(Math.random()*2-1)*(1-e)*(.4+.6*Math.sin(e*3.14)); }
+  const ns=AC.createBufferSource(); ns.buffer=buf;
+  const bp=AC.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=.7;
+  bp.frequency.setValueAtTime(2100,t0);
+  bp.frequency.exponentialRampToValueAtTime(900,t0+.28);
+  const g=AC.createGain();
+  g.gain.setValueAtTime(0,t0);
+  g.gain.linearRampToValueAtTime(.11,t0+.03);
+  g.gain.exponentialRampToValueAtTime(.0001,t0+.3);
+  ns.connect(bp).connect(g).connect(AC.destination); ns.start(t0);
+  /* 置いた紙の、かすかな重み */
+  const o=AC.createOscillator(); o.type='sine';
+  o.frequency.setValueAtTime(120,t0+.22);
+  o.frequency.exponentialRampToValueAtTime(70,t0+.32);
+  const g2=AC.createGain();
+  g2.gain.setValueAtTime(0,t0+.22);
+  g2.gain.linearRampToValueAtTime(.06,t0+.24);
+  g2.gain.exponentialRampToValueAtTime(.0001,t0+.36);
+  o.connect(g2).connect(AC.destination); o.start(t0+.22); o.stop(t0+.4);
+}
+/* 歳がひとつ育つ音：三音が、ゆっくり開く */
+function otoToshi(){
+  if(!naru||!AC)return;
+  const t0=AC.currentTime;
+  const o=AC.createOscillator(); o.type='sine'; o.frequency.value=523.25;
+  const g=AC.createGain();
+  g.gain.setValueAtTime(0,t0);
+  g.gain.linearRampToValueAtTime(.022,t0+.06);
+  g.gain.exponentialRampToValueAtTime(.0001,t0+2.4);
+  o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0+2.5);
+}
+
+/* ═══ 音楽ファイル層 ═══
+   audio/michi.mp3 mori.mp3 miyako.mp3 yoru.mp3 を置けば、
+   合成の代わりにそれが流れる。無ければ合成のまま。通信ゼロは変わらない */
+const FA={};            /* 場面名 → Audio要素（null=無い） */
+function faKey(){ const k=imaBaName; return (k in BGM_BA)? (k==='hi'?'michi':k) : 'michi'; }
+function faYomu(key){
+  if(key in FA) return Promise.resolve(FA[key]);
+  return new Promise(res=>{
+    const a=new Audio('audio/'+key+'.mp3');
+    a.loop=true; a.preload='auto';
+    a.oncanplaythrough=()=>{ FA[key]=a; res(a); };
+    a.onerror=()=>{ FA[key]=null; res(null); };
+    setTimeout(()=>{ if(!(key in FA)){ FA[key]=null; res(null); } }, 2500);
+  });
+}
+let faIma=null, faFade=null;
+function faKirikae(){
+  const key=faKey();
+  faYomu(key).then(a=>{
+    if(!naru) return;
+    if(!a){ return; }                      /* ファイル無し→合成のまま */
+    if(faIma===a && !a.paused) return;
+    /* 合成のパッドは休ませる（旋律も止める） */
+    if(padGain){ padGain.gain.linearRampToValueAtTime(0, AC.currentTime+2); }
+    clearTimeout(bgmMelTimer);
+    /* いま流れているファイルをフェードアウト */
+    const mae=faIma;
+    faIma=a;
+    a.volume=0; a.play().catch(()=>{});
+    clearInterval(faFade);
+    faFade=setInterval(()=>{
+      if(a.volume<0.34) a.volume=Math.min(0.35,a.volume+0.02);
+      if(mae && mae!==a && mae.volume>0){ mae.volume=Math.max(0,mae.volume-0.02);
+        if(mae.volume<=0) mae.pause(); }
+      if(a.volume>=0.34 && (!mae||mae.paused||mae===a)) clearInterval(faFade);
+    }, 90);
+  });
+}
+function faTomeru(){
+  clearInterval(faFade);
+  Object.values(FA).forEach(a=>{ if(a){ a.pause(); a.volume=0; } });
+  faIma=null;
+}
+
+/* ═══ 地の音：場面ごとに変わる。薄い旋律が、ときどき動く ═══ */
+let bgmBa=null, bgmMelTimer=null;
+
+/* 場面ごとの音の姿。root=基準音(Hz)、iro=和音、fushi=旋律の音階 */
+const BGM_BA={
+  hi:     {root:261.63, iro:[1,1.5,2],      fushi:[0,2,4,7,9],    aki:6500,  akarui:1},
+  michi:  {root:261.63, iro:[1,1.5,2],      fushi:[0,2,4,7,9],    aki:6500,  akarui:1},
+  mori:   {root:220.00, iro:[1,1.189,1.782],fushi:[0,3,5,7,10],   aki:9000,  akarui:.7},
+  miyako: {root:293.66, iro:[1,1.26,1.5],   fushi:[0,4,6,7,11],   aki:5200,  akarui:1.1},
+  yoru:   {root:196.00, iro:[1,1.189,1.5],  fushi:[0,3,7],        aki:12000, akarui:.5},
+};
+const bgmSono=()=>BGM_BA[imaBaName]||BGM_BA.michi;
+
+function bgmStart(){
+  if(bgmGain) return;
+  const t0=AC.currentTime;
+  bgmGain=AC.createGain();
+  bgmGain.gain.setValueAtTime(0,t0);
+  bgmGain.gain.linearRampToValueAtTime(.15,t0+2.5);   /* 聞こえる音量に */
+  bgmGain.connect(AC.destination);
+  bgmBa=null;
+  bgmScene(true);
+  bgmMel();
+}
+/* 場面の和音。切り替わるとき、ゆっくり入れ替わる */
+let padNodes=[], padGain=null;
+function bgmScene(sugu){
+  const s=bgmSono();
+  if(bgmBa===imaBaName) return;
+  bgmBa=imaBaName;
+  const t0=AC.currentTime;
+  const furui=padGain, furuiN=padNodes;
+  if(furui){ furui.gain.linearRampToValueAtTime(0,t0+3.5);
+    setTimeout(()=>furuiN.forEach(n=>{try{n.stop()}catch(e){}}),3800); }
+  padGain=AC.createGain(); padGain.gain.setValueAtTime(0,t0);
+  padGain.gain.linearRampToValueAtTime(.42*s.akarui, t0+(sugu===true?2:3.5));
+  padGain.connect(bgmGain);
+  padNodes=[];
+  s.iro.forEach((r,i)=>{
+    const o=AC.createOscillator(); o.type='triangle';
+    o.frequency.value=s.root*r;
+    const g=AC.createGain(); g.gain.value=[.5,.34,.26][i]||.2;
+    const lfo=AC.createOscillator(); lfo.frequency.value=.07+i*.023;
+    const lg=AC.createGain(); lg.gain.value=s.root*r*.0014;
+    lfo.connect(lg).connect(o.frequency); lfo.start();
+    const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=1600;
+    o.connect(g).connect(f).connect(padGain); o.start();
+    padNodes.push(o,lfo);
+  });
+}
+/* 旋律：やわらかい爪弾き。数秒おきに、2〜4音だけ動く */
+function bgmPoron(hz, when, nagasa, tsuyosa){
+  const o=AC.createOscillator(); o.type='sine'; o.frequency.value=hz;
+  const o2=AC.createOscillator(); o2.type='triangle'; o2.frequency.value=hz*2;
+  const g=AC.createGain();
+  g.gain.setValueAtTime(0,when);
+  g.gain.linearRampToValueAtTime(tsuyosa,when+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,when+nagasa);
+  const g2=AC.createGain(); g2.gain.value=.2;
+  o.connect(g); o2.connect(g2).connect(g); g.connect(bgmGain);
+  o.start(when); o2.start(when);
+  o.stop(when+nagasa+.1); o2.stop(when+nagasa+.1);
+}
+function bgmMel(){
+  if(!naru||!bgmGain) return;
+  const s=bgmSono();
+  const t0=AC.currentTime+.15;
+  const n=2+Math.floor(Math.random()*3);          /* 2〜4音 */
+  let t=t0;
+  let d=s.fushi[Math.floor(Math.random()*s.fushi.length)];
+  for(let k=0;k<n;k++){
+    const hz=s.root*2*Math.pow(2,d/12);           /* 1オクターブ上の音域 */
+    bgmPoron(hz, t, 1.6, .16*s.akarui);
+    t+=.42+Math.random()*.5;
+    const ugoki=[-2,-1,1,2][Math.floor(Math.random()*4)];
+    const ix=Math.max(0,Math.min(s.fushi.length-1,
+      s.fushi.indexOf(d)+ugoki));
+    d=s.fushi[ix];
+  }
+  bgmMelTimer=setTimeout(bgmMel, (s.aki+Math.random()*3000));
+}
+function bgmStop(){
+  if(!bgmGain)return;
+  clearTimeout(bgmMelTimer);
+  const t0=AC.currentTime;
+  bgmGain.gain.cancelScheduledValues(t0);
+  bgmGain.gain.setValueAtTime(bgmGain.gain.value,t0);
+  bgmGain.gain.linearRampToValueAtTime(0,t0+1.2);
+  const nodes=[...padNodes];
+  setTimeout(()=>{nodes.forEach(n=>{try{n.stop()}catch(e){}});},1400);
+  padNodes=[]; padGain=null; bgmGain=null; bgmBa=null;
+}
+/* とんとんの音：ガシッ。低い胴と、当たりの粒 */
+function otoTon(){
+  if(!naru||!AC)return;
+  const t0=AC.currentTime;
+  /* 胴：短い低音の塊 */
+  const o=AC.createOscillator(); o.type='sine';
+  o.frequency.setValueAtTime(190,t0);
+  o.frequency.exponentialRampToValueAtTime(72,t0+.09);
+  const g=AC.createGain();
+  g.gain.setValueAtTime(.5,t0);
+  g.gain.exponentialRampToValueAtTime(.0001,t0+.16);
+  o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0+.18);
+  /* 当たり：ごく短いノイズの粒 */
+  const n=Math.floor(AC.sampleRate*.05);
+  const buf=AC.createBuffer(1,n,AC.sampleRate), d=buf.getChannelData(0);
+  for(let k=0;k<n;k++) d[k]=(Math.random()*2-1)*(1-k/n);
+  const ns=AC.createBufferSource(); ns.buffer=buf;
+  const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1900; f.Q.value=.8;
+  const ng=AC.createGain(); ng.gain.value=.22;
+  ns.connect(f).connect(ng).connect(AC.destination); ns.start(t0);
+}
+
+otoBtn.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  ACinit();
+  if(AC.state==='suspended') AC.resume();
+  naru=!naru;
+  otoBtn.classList.toggle('naru',naru);
+  otoBtn.title = naru?'音を、とめる':'音';
+  otoBtn.setAttribute('aria-pressed', naru?'true':'false');
+  if(naru){ bgmStart(); faKirikae(); } else { bgmStop(); faTomeru(); }
+});
+
+
+
+/* つづきへの入口 */
+function shareSet(){
+  /* 初期文。「ルー大柴すぎる」は先にこちらから言っておく。消したい人は消せる。 */
+  const t=['「トトの見た国」を読んだ。',
+           '犬のトトが語る、少しふしぎな国の話。',
+           '読んでいるうちに、英語が勝手に増えていく。',
+           '',
+           'ことばの歳：'+toshi.toFixed(1),
+           '',
+           '#これはルー大柴すぎる'].join(String.fromCharCode(10));
+  document.getElementById('xshare').href=
+    'https://twitter.com/intent/tweet?text='+encodeURIComponent(t)+'&url='+encodeURIComponent(location.href);
+}
+/* 二周目：歳を引き継いで、はじめから。ルビは最初から少ない */
+document.getElementById('matayomu').addEventListener('click',()=>{
+  try{ localStorage.setItem('toto_nishu','1');
+       localStorage.setItem('toto_toshi',toshi.toFixed(1)); }catch(e){}
+  location.reload();
+});
+
+/* ═══════════ あだ名 ═══════════
+   どこにも送らない。localStorage にだけ置く。 */
+const ADANA_PAGE = 63;   /* 第二章の最後 */
+let adana = null;
+try{ adana = localStorage.getItem('toto_adana'); }catch(e){}
+const adanaBox=document.getElementById('adana');
+const adanaIn=document.getElementById('adanaIn');
+let adanaSunda = !!adana;
+
+function adanaDasu(){
+  adanaBox.classList.add('show');
+  setTimeout(()=>adanaIn.focus(),900);
+}
+function adanaKimeru(){
+  const v=(adanaIn.value||'').trim().slice(0,12);
+  if(v){ adana=v; try{ localStorage.setItem('toto_adana',v); }catch(e){} }
+  adanaSunda=true;
+  adanaBox.classList.remove('show');
+  setTimeout(()=>{ busy=false; turn(); },600);
+}
+document.getElementById('adanaOk').addEventListener('click',adanaKimeru);
+adanaIn.addEventListener('keydown',e=>{ if(e.key==='Enter') adanaKimeru(); });
+
+/* ————— ことばの歳 ————— */
+let nishu=false;
+try{ if(localStorage.getItem('toto_nishu')==='1'){
+       nishu=true;
+       localStorage.removeItem('toto_nishu');
+     } }catch(e){}
+let toshi=2.0, sokudo=1;
+if(nishu){
+  /* 二周目は、前の歳から。同じ文章が、違う顔で読める */
+  try{ toshi=Math.max(2.0, parseFloat(localStorage.getItem('toto_toshi'))||2.0); }catch(e){}
+} // sokudo: 1 / 1.5 / 2
+const toshiN=document.getElementById('toshiN');
+const toshiBox=document.getElementById('toshi');
+const oiwai=document.getElementById('oiwai');
+toshiN.textContent=toshi.toFixed(1);   /* 二周目は、この歳から始まる */
+function growToshi(){
+  const before=Math.floor(toshi);
+  toshi=Math.round((toshi+0.1*sokudo)*10)/10;
+  toshiN.textContent=toshi.toFixed(1);
+  toshiBox.classList.add('grow');
+  setTimeout(()=>toshiBox.classList.remove('grow'),1400);
+  const after=Math.floor(toshi);
+  if(after>before){
+    oiwai.textContent = after>=10 ? after+'歳。もう、大人の目です'
+                      : after>=8  ? after+'歳。ここから先は、おまけです'
+                      : after+'歳に、なりました';
+    otoToshi();
+    furueru('toshi');
+    oiwai.classList.add('on');
+    setTimeout(()=>oiwai.classList.remove('on'),3000);
+  }
+}
+/* 速度の選択（2ページ目に入る最初の一回だけ） */
+const hayasa=document.getElementById('hayasa');
+let hayasaDone=nishu;   /* 二周目は速度をきかない */
+hayasa.querySelectorAll('button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    sokudo=parseFloat(b.dataset.v);
+    hayasa.classList.remove('show');
+    hayasaDone=true;
+    idx++;light(idx);
+    if(idx>saidai){ saidai=idx; growToshi(); }
+    busy=false;
+  });
+});
+
+/* つなぎ目：余韻→重なり→次が灯る */
+function turn(){
+  if(busy)return;
+  /* 鎖。文字が出そろうまで、押しても進まない。
+     とんとんは受けとる。足あとも残る。ただ、急がない。 */
+  if(Date.now()<kusari) return;
+  otoMekuru();
+  if(idx>=PAGES.length-1){
+    if(!adanaSunda){ adanaDasu(); return; }   /* 読み終えてから、一度だけ */
+    document.getElementById('musubiToshi').textContent=toshi.toFixed(1);
+    document.getElementById('musubiH').textContent='トトの見た国、おわり';
+    {
+      const p=document.querySelector('#musubi p');
+      p.innerHTML=(adana?adana+'。<br>':'')
+        +'ここまで読んでくれて、ありがとう。<br><br>'
+        +'ことばを学ぶということは、<br>あいての名前を、呼べるようになる、ということ。<br><br>'
+        +'まずは、だれの名前から、はじめますか。';
+    }
+    shareSet();
+    document.getElementById('musubi').classList.add('show');
+    otoToshi();
+    return;
+  }
+  busy=true;
+  sheet.classList.add('sleep');
+  setTimeout(()=>{
+    if(idx===0 && !hayasaDone){
+      hayasa.classList.add('show'); /* busyのまま。選択で先へ */
+      return;
+    }
+    idx++;
+    light(idx);
+    /* 新しいページに出たときだけ、ことばの歳は増える。
+       読み返して戻ってきただけなら、増えない。 */
+    if(idx>saidai){ saidai=idx; growToshi(); }
+    hozonSuru();
+    busy=false;
+    modoriSirase();
+  },650); /* 前の余韻が消えきる少し前に、次が灯りはじめる感覚 */
+}
+
+
+/* 消えたルビをとんとん：意味がほわっと灯り、また眠る */
+document.getElementById('page').addEventListener('click',(e)=>{
+  const ew=e.target.closest('.ew.known');
+  if(!ew)return;
+  e.stopPropagation();
+  ew.classList.add('recall');
+  const en=(ew.childNodes[0]&&ew.childNodes[0].textContent||'').trim();
+  /* 発音記号：押したときにだけ、意味のとなりに */
+  const sm=ew.querySelector('small');
+  const ip=HATSUON[en.toLowerCase()];
+  let moto=null;
+  if(sm && ip && !sm.dataset.ipa){
+    moto=sm.textContent;
+    sm.dataset.ipa='1';
+    sm.textContent=moto.replace(/）$/, '・/'+ip+'/）');
+  }
+  setTimeout(()=>{
+    ew.classList.remove('recall');
+    if(sm && moto!==null){ sm.textContent=moto; delete sm.dataset.ipa; }
+  },2600);
+  /* 単語の音。タップした語だけ、英語の声で */
+  if(en){ koeYame(); bgmShizumu(true);
+    koe(en,'en-US').then(()=>bgmShizumu(false)); }
+},true);
+
+/* 左へ捲る：思い出すために、少し前まで戻れる。
+   戻れる先は、この本がまだ覚えている範囲（OMOI_NOKORU ページ）まで。
+   それより古い場面は、ことばの方でも「わすれた」になっているので、
+   戻っても地続きにならない。だからそこで止める。 */
+function modoruSaki(){
+  return Math.max(0, saidai-OMOI_NOKORU);
+}
+function modoreru(){
+  if(idx<=modoruSaki()) return false;
+  /* たたき・問い・すてきの最中は kusari が遠い未来に置かれる。
+     その途中で戻ると場面が途切れるので、そこだけは戻さない。
+     ふつうのページ送りの間（数秒）は、戻れる。思い出すためなので、待たせない。 */
+  if(kusari-Date.now() > 5000) return false;
+  return true;
+}
+function modoru(){
+  if(busy||!modoreru())return;
+  busy=true;
+  sheet.classList.add('sleep');
+  setTimeout(()=>{
+    idx--;
+    light(idx);          /* light() は戻る向きの描き方を元から持っている */
+    hozonSuru();
+    busy=false;
+    modoriSirase();
+  },650);
+}
+/* 戻れるあいだだけ、左のふちがうっすら見えている */
+const modoriFuchi=document.createElement('div');
+modoriFuchi.id='modori';
+modoriFuchi.setAttribute('aria-hidden','true');
+document.getElementById('page').appendChild(modoriFuchi);
+function modoriSirase(){
+  modoriFuchi.classList.toggle('aru', modoreru());
+}
+
+document.getElementById('page').addEventListener('click',(e)=>{
+  /* 左のふち（画面の18%）を押したら、戻る。それ以外は、進む。 */
+  const box=document.getElementById('page').getBoundingClientRect();
+  /* 座標のないクリック（キーボードで押した、プログラムから呼んだ）は
+     clientX が 0 になる。これを左ふちと数えると、勝手に戻ってしまう。
+     実際に押された座標があるときだけ、左ふちとして扱う。 */
+  const zahyo = e.detail>0 && (e.clientX||e.clientY);
+  const hidari = zahyo && (e.clientX-box.left) < box.width*0.18;
+  fumu(e.clientX,e.clientY);   /* 押したところに、足あとが残る */
+  otoTon();                    /* ガシッ */
+  if(hidari && modoreru()) modoru();
+  else turn();
+});
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowLeft'){ e.preventDefault(); modoru(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); turn(); }
+});
+
+/* 表紙 */
+const hyoshi=document.getElementById('hyoshi');
+if(nishu){
+  document.querySelector('#hyoshi .sub').innerHTML=
+    'もう一度。<br>こんどは、ことばの歳 '+toshi.toFixed(1)+' から。<br>同じ話が、少し違って読めます。';
+}
+
+/* 表紙の「とんとん」が、たまに跳ねる。
+   毎回だとうるさいので、間をあけて、四文字が順に。 */
+(function(){
+  const ton=[...document.querySelectorAll('#hyoshi .start .ton')];
+  if(!ton.length)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  function haneru(){
+    ton.forEach((t,i)=>{
+      setTimeout(()=>{
+        t.classList.add('hane');
+        setTimeout(()=>t.classList.remove('hane'),700);
+      }, i*110);
+    });
+  }
+  function tsugi(){
+    /* 4〜11秒のどこかで、ふいに */
+    const machi=4000+Math.random()*7000;
+    setTimeout(()=>{
+      if(document.getElementById('hyoshi')){ haneru(); tsugi(); }
+    },machi);
+  }
+  setTimeout(tsugi,3800);   /* 文字が出そろってから */
+})();
+
+let SAVE=hozonYomu();
+if(SAVE){ document.getElementById('tsuzukiAnnai').style.display='block'; }
+document.getElementById('hajimekara').addEventListener('click',(e)=>{
+  e.stopPropagation();
+  try{ localStorage.removeItem('toto_save'); }catch(e2){}
+  SAVE=null;
+  document.getElementById('tsuzukiAnnai').style.display='none';
+});
+hyoshi.addEventListener('click',(e)=>{
+  /* iOS対策：最初のジェスチャで声リストを起こす */
+  if('speechSynthesis' in window){ speechSynthesis.getVoices();
+    if(speechSynthesis.onvoiceschanged===null) speechSynthesis.onvoiceschanged=()=>{}; }
+  fumu(e.clientX,e.clientY);
+  otoBtn.classList.add('deru');
+  yomiBtn.classList.add('deru');
+  furueru('hajimari');
+  hyoshi.classList.add('off');
+  setTimeout(()=>hyoshi.remove(),2100);
+  if(SAVE){ hozonModosu(SAVE); saidai=Math.max(idx, SAVE.saidai||0); light(idx); }
+  else light(0);
+  modoriSirase();   /* 最初に一度、左のふちの状態を合わせる */
+  setTimeout(()=>{sahou.classList.add('on');
+    setTimeout(()=>sahou.classList.remove('on'),4200);},2600);
+});
+</script>
+</body>
+</html>

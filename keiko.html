@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>面談の稽古｜Good Luck</title>
+<meta name="description" content="人材紹介の初回面談を、会話の間（ま）ごと稽古する道具。終わると四つの軸と、あなたの応答の癖が返ります。送信はしていません。">
+<style>
+:root{color-scheme:light only;
+  --paper:#F7F6F1; --card:#FFF; --ink:#211F1A; --ink2:#4A473F; --usu:#8B887D; --line:#DEDBD0;
+  --midori:#3F6B55; --midori-bg:#EDF3EE; --midori-bd:#B4C4B0;
+  --kane:#9A7B4A; --kane-bg:#F5EFE2;
+  --shu:#B4614E; --shu-bg:#F8EEEA;
+  --serifB:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP','Noto Serif CJK JP',serif;
+  --sans:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+  --latin:'Hoefler Text','Baskerville','Palatino','Times New Roman',serif;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serifB);
+  line-height:2;letter-spacing:.03em;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px 90px;}
+
+header{padding:46px 0 0;}
+.eyebrow{font-size:11.5px;letter-spacing:.22em;color:var(--midori);font-weight:600;}
+h1{font-size:27px;font-weight:600;line-height:1.62;margin:14px 0 0;}
+.lead{font-size:14px;color:var(--ink2);margin:16px 0 0;}
+.dan{margin:20px 0 0;padding:14px 16px;border-radius:10px;background:#EFEDE5;
+  font-family:var(--sans);font-size:11.5px;color:var(--ink2);line-height:1.9;}
+
+/* 札 */
+.fuda{margin:30px 0 0;padding:20px 20px 17px;border-radius:12px;background:var(--card);
+  border:1px solid var(--line);}
+.fuda-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+.maai{font-family:var(--serifB);font-size:12px;font-weight:700;color:var(--kane);
+  background:var(--kane-bg);padding:4px 11px;border-radius:999px;letter-spacing:.1em;}
+.fuda-n{font-size:18px;font-weight:600;}
+.fuda-s{font-family:var(--sans);font-size:12px;color:var(--usu);line-height:1.9;}
+.ura{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+  font-family:var(--sans);font-size:11.5px;color:var(--ink2);line-height:1.95;}
+.ura b{color:var(--usu);font-weight:700;font-size:10.5px;letter-spacing:.1em;display:block;margin-bottom:4px;}
+
+/* 会話。台詞は一文ずつ、間を置いて出る */
+.talk{margin-top:26px;}
+.said{margin-bottom:16px;opacity:0;transform:translateY(4px);
+  transition:opacity .55s ease,transform .55s ease;}
+.said.in{opacity:1;transform:none;}
+.said.cont{margin-top:-9px;}
+.who{font-family:var(--sans);font-size:11px;letter-spacing:.1em;color:var(--usu);margin-bottom:5px;}
+.bubble{padding:13px 16px;border-radius:12px;font-size:14.5px;line-height:1.95;}
+.aite .bubble{background:var(--card);border:1px solid var(--line);border-top-left-radius:3px;}
+.aite.yawa .bubble{background:#F4F7F2;border-color:var(--midori-bd);}
+.jibun{margin-left:auto;max-width:88%;}
+.jibun .who{text-align:right;}
+.jibun .bubble{background:var(--midori-bg);border:1px solid var(--midori-bd);
+  border-top-right-radius:3px;color:var(--midori);}
+.note{margin:12px 0 18px;text-align:center;font-family:var(--sans);
+  font-size:12px;color:var(--usu);letter-spacing:.08em;}
+
+/* 選択肢 */
+.opts{margin-top:20px;display:flex;flex-direction:column;gap:9px;}
+.opts-h{margin:20px 0 -12px;font-family:var(--sans);font-size:11px;letter-spacing:.14em;
+  color:var(--usu);}
+.opt{text-align:left;padding:14px 16px;border-radius:11px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink2);font-family:var(--serifB);font-size:14px;
+  line-height:1.85;cursor:pointer;transition:background .35s,border-color .35s,transform .35s;}
+.opt:hover{background:#F4F3EE;border-color:#CFCCC0;transform:translateX(2px);}
+.opt-n{font-family:var(--latin);font-size:11px;color:var(--usu);margin-right:9px;}
+.opt-k{display:inline-block;min-width:1.4em;text-align:center;font-family:var(--serifB);
+  font-size:11px;color:var(--kane);background:var(--kane-bg);border-radius:6px;
+  padding:1px 5px;margin-right:9px;letter-spacing:.05em;}
+
+/* 結果 */
+.kekka{margin-top:34px;}
+.kekka h2{font-size:20px;font-weight:600;margin:0 0 6px;}
+.kekka .sum{font-size:14px;color:var(--ink2);margin:0 0 22px;line-height:1.95;}
+.kekka .jikan{font-family:var(--sans);font-size:11.5px;color:var(--usu);margin:-14px 0 22px;line-height:1.9;}
+.jiku{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:17px 18px;margin-bottom:11px;}
+.jiku-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px;}
+.jiku-n{font-size:15px;font-weight:600;}
+.bar{height:6px;border-radius:99px;background:#EDEBE4;overflow:hidden;margin:9px 0 11px;}
+.bar i{display:block;height:100%;border-radius:99px;transition:width 1.1s cubic-bezier(.25,.6,.2,1);}
+.jiku-c{font-family:var(--sans);font-size:12.5px;color:var(--ink2);line-height:1.95;}
+.pt{font-family:var(--latin);font-size:13px;color:var(--usu);}
+.kuse{background:var(--kane-bg);border:1px solid #E4D9C2;border-radius:12px;
+  padding:17px 18px;margin-bottom:11px;}
+.kuse .jiku-n{color:var(--kane);}
+.kuse-r{font-family:var(--sans);font-size:12.5px;color:var(--ink2);line-height:2.05;margin:6px 0 8px;}
+.hoka{margin-top:26px;padding:18px 18px 15px;border-radius:12px;background:#F2F1EB;border:1px solid var(--line);}
+.hoka h3{font-size:14px;font-weight:600;margin:0 0 10px;}
+.hoka .h-item{padding:9px 0;border-top:1px solid #E5E3DC;font-family:var(--sans);font-size:12.5px;
+  color:var(--ink2);line-height:1.9;}
+.hoka .h-item:first-of-type{border-top:none;}
+.hoka .h-item b{display:block;color:var(--ink);font-size:13px;font-family:var(--serifB);margin-bottom:2px;}
+
+.acts{display:flex;gap:9px;margin-top:26px;flex-wrap:wrap;}
+.acts button{flex:1;min-width:130px;height:46px;border-radius:999px;cursor:pointer;
+  font-family:var(--serifB);font-size:13.5px;letter-spacing:.08em;border:1px solid var(--line);
+  background:#fff;color:var(--ink2);transition:background .4s;}
+.acts .prim{background:var(--ink);color:#F7F6F1;border-color:var(--ink);}
+.acts button:hover{background:#F4F3EE;}
+.acts .prim:hover{background:#3A3833;}
+
+.tail{margin-top:34px;padding:20px 20px 17px;border-radius:12px;background:#F2F1EB;border:1px solid var(--line);}
+.tail p{font-size:13.5px;color:var(--ink2);margin:0 0 9px;line-height:2;}
+.tail b{color:var(--ink);}
+footer{padding:40px 0 0;text-align:center;}
+.sig{font-family:var(--latin);font-size:18px;letter-spacing:.06em;}
+.sig-n{font-family:var(--sans);font-size:11px;color:var(--usu);margin-top:7px;}
+footer a{color:var(--midori);text-decoration:none;border-bottom:1px solid var(--midori-bd);}
+@media(max-width:600px){h1{font-size:23px;}}
+</style>
+<style>.toybar{max-width:1160px;margin:0 auto;padding:22px 22px 0;}
+.toybar a{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;font-size:12.5px;
+  letter-spacing:.06em;color:#8B887D;text-decoration:none;transition:color .4s ease;}
+.toybar a:hover{color:#C4622E;}</style>
+</head>
+<body>
+<div class="toybar"><a href="./noren.html">← おもちゃ箱</a></div>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">面談の稽古</div>
+  <h1>この人に、<br>どう返しますか。</h1>
+  <p class="lead">人材紹介の、初回面談です。柏木さんは、ゆっくり話します。<br>
+    <b>どう入るか</b>、<b>なんと受けるか</b>、<b>何を言うか</b>。それと、<b>返す間（ま）</b>。<br>
+    その組み合わせで、柏木さんの返しが変わります。急がなくて構いません。</p>
+  <div class="dan"><b>選んだものは、どこにも送っていません。</b>この稽古は、あなたのブラウザの中だけで動きます。<br>
+    台詞も、分岐も、間の判定も、<b>あらかじめ全部書き切ってあります</b>。その場でAIが作る文は、ひとつもありません。<br>
+    選択肢の並びは周回ごとに変わりますが、<b>評価の規準は変わりません</b>。</div>
+</header>
+
+<div class="fuda">
+  <div class="fuda-h">
+    <span class="fuda-n">柏木 頼子（かしわぎ よりこ）</span>
+    <span class="maai">参の間合い</span>
+  </div>
+  <div class="fuda-s">三十四歳・保育士・七年目。認可保育園に勤務。転職の相談で来ています。<br>
+    紹介会社は二社目。前の会社では、希望と違う園を三つ続けて勧められたそうです。</div>
+  <div class="ura"><b>札のうら</b>
+    子どもが二人（五歳と二歳）。夫は単身赴任中。実家は電車で四十分。<br>
+    面談の予約を二度、前日に変更している。理由は書かれていない。<br>
+    コーヒーは飲まない。</div>
+</div>
+
+<div class="talk" id="talk"></div>
+<div class="opts-h" id="optsh" hidden></div>
+<div class="opts" id="opts"></div>
+<div class="kekka" id="kekka" hidden></div>
+
+<footer>
+  <div class="sig">Good Luck</div>
+  <div class="sig-n">仕組みに完璧を求めて、人には求めない会社が作っています<br>
+    <a href="./noren.html">Good Luck のこと</a></div>
+</footer>
+</div>
+
+<script>
+/* ==================================================================
+   面談の稽古 v5 ― 組み合わせ文法
+
+   ここにあるものは、全部が書き切りの決め打ちです。AI生成は一切ありません。
+   分岐は台本ではなく、固定の規則で決まります。規則は以下のとおり。
+   採点と記録は「最終的にどの組み合わせを選んだか」だけ。過程の全分岐は追いません。
+
+   ◆ 応答 ＝ スロットの組み合わせ
+     初手（受・訊・答・間の4種）× 相槌（カタログから抽選）× 中身 × 間の取り方
+
+   ◆ 台詞の速度（人が読み上げるくらいのテンポ）
+     一文を出すまでの間 ＝ 650ms ＋ 文字数×110ms（上限 4000ms）
+
+   ◆ 間の判定（台詞が出きった瞬間を 0 秒とする）
+     食い気味（kui）：台詞の途中で押す（残りは一気に出る）。または 0.8秒未満
+     間が良い（yoi）：0.8〜2.5秒
+     間を取る（toru）：2.5秒より長い。悪ではない。重い場面では合う
+     判定するのは、直前に柏木さんの台詞が流れた押下だけ
+
+   ◆ 相槌 ＝ 91-005付録_相槌カタログ.md から表記どおりに抽選
+     kind：uke（受け止め・感情の受け）／kiki（聞き返し・復唱）／
+           mis（ミスリード＝カタログ③部分承認→転換・⑦要注意。認めてるようで認めてない）
+     oto（音の形）：k=被せ可／h=一呼吸／n=長間後
+     ミスリードは毎回かならず2つ混ぜる。並びはシャッフル（Math.random）
+
+   ◆ 反応クラス（開く open／中立 neutral／身構え migamae／不信 fushin）
+     【相槌のあと】
+       mis            → 食い気味なら fushin、それ以外は migamae
+       uke/kiki で音の形が間に合っていない
+         （被せ可なのに長間・一呼吸なのに食い気味・長間後なのに早い）→ migamae
+       音が合っていて 長間後の言葉 → open（長い間のあとでだけ生きる言葉が、生きた）
+       音が合っていて 間が良い → open、それ以外 → neutral
+     【中身のあと】中身の質（tag）で決める
+       kik（訊く）/jij（事実）/tom（止める）/wat（渡す）→ 間が良ければ open、他は neutral
+       sui（推測・先回りの約束）→ migamae
+       osu（押す・煽る・根拠なし保証）→ 食い気味なら fushin、他は migamae
+       mis（認めてるようで認めてない）→ 食い気味なら fushin、他は migamae
+       さらに、相槌でミスリードを選んでいたら一段階下がる（open→neutral→…→fushin）
+     反応文はクラスごとに場面別で数本。ローテで回す（作文はしない）
+
+   ◆ 間が合ったときの合図（急がせない。合うと気持ちいい方向）
+     小さな音（880Hz・60ms・音量0.03。外部ファイルなし）＋次の吹き出しがやわらぐ
+================================================================== */
+const PACE_BASE=650, PACE_CHAR=110, PACE_MAX=4000;
+const MA_KUI=0.8, MA_GOOD=2.5;
+
+/* ============ 四つの軸 ============ */
+const AX=[
+ {k:'kiku',  n:'きく',  d:'訊かずに決めつけなかったか。相手が話す時間を確保したか'},
+ {k:'kaesu', n:'かえす',d:'不安に、事実で答えたか。ごまかさなかったか'},
+ {k:'watasu',n:'わたす',d:'判断を相手に残したか。こちらで決めなかったか'},
+ {k:'tomeru',n:'とめる',d:'合わないと分かったとき、進めるのをやめられたか'}
+];
+
+/* ============ 初手（四種で固定。点は付けない。癖として数えるだけ） ============ */
+const SHOTE=[
+ {k:'uke',   tag:'受', t:'受け止める（まず一言、受ける）'},
+ {k:'kiki',  tag:'訊', t:'聞き返す（確かめてから進む）'},
+ {k:'sokuto',tag:'答', t:'すぐ答える（間を置かず、答えに入る）'},
+ {k:'ma',    tag:'間', t:'少し黙って考える'}
+];
+
+/* ============ 相槌（91-005付録_相槌カタログ.md より。表記どおり。id=カタログ番号） ============ */
+const AIZ_UKE=[
+ {id:4, t:'そうなんですね', oto:'h', kind:'uke', ura:'判断ゼロの完全中立。安全だが前に進まない'},
+ {id:6, t:'そうですか', oto:'h', kind:'uke', ura:'温度を意図的に下げている。同意も否定もしない距離'},
+ {id:13,t:'はい', oto:'h', kind:'uke', ura:'一回・等速。もっとも情報量が少なく、もっとも安全'},
+ {id:19,t:'ええ', oto:'h', kind:'uke', ura:'「はい」より柔らかく大人。電話で映える'},
+ {id:55,t:'……そうですか', oto:'n', kind:'uke', ura:'間が本体で言葉は蓋。同じ「そうですか」でも別物'},
+ {id:73,t:'大変でしたね', oto:'n', kind:'uke', ura:'過去形が肝。「大変ですね」だと現在進行の傍観になる'},
+ {id:74,t:'それはしんどいですね', oto:'h', kind:'uke', ura:'「しんどい」と口語に落とすことで敬語の壁を半分下げた'},
+ {id:79,t:'心配ですよね', oto:'k', kind:'uke', ura:'不安を「持っていて当然のもの」に格上げする'}
+];
+const AIZ_KIKI=[
+ {id:41,t:'と、いいますと？', oto:'h', kind:'kiki', ura:'白紙の器を差し出す。こちらの仮説を一切見せずに掘れる'},
+ {id:42,t:'…というのは？', oto:'k', kind:'kiki', ura:'相手の最後の語を受けて開く。柔らかく速い'},
+ {id:44,t:'例えばどんなときですか', oto:'h', kind:'kiki', ura:'一般論を一回の出来事に落とす。話が急に本物になる'},
+ {id:50,t:'他には？', oto:'h', kind:'kiki', ura:'一つ目の理由は建前が多い。二つ目三つ目に本音が出る'}
+];
+/* ミスリード枠：カタログ③（部分承認→転換）と⑦（要注意）。認めてるようで認めてない。
+   流れと雰囲気で、人はつい選ぶ。選んだ事実が癖の計測になる */
+const AIZ_MIS=[
+ {id:23,t:'確かに、そういう部分もありますね', oto:'h', kind:'mis', ura:'部分だけ認めて中身は認めていない。転換の準備。「部分も」の「も」が限定の印'},
+ {id:24,t:'それはそうですね。ただ…', oto:'h', kind:'mis', ura:'「ただ」以降が本題。前半は通行料'},
+ {id:25,t:'お気持ちは分かります', oto:'h', kind:'mis', ura:'気持ち「は」分かる＝主張は分からない。助詞一文字の限定'},
+ {id:27,t:'その見方もありますね', oto:'h', kind:'mis', ura:'「も」＝自分は別の見方。並列に置いて相対化した'},
+ {id:62,t:'それ、あるあるですね', oto:'k', kind:'mis', ura:'相手の固有の痛みを類型に落とした。「あなたの話は珍しくない」'},
+ {id:63,t:'みなさんそうおっしゃいます', oto:'h', kind:'mis', ura:'統計で個人を消す。丁寧な分だけ冷たい'},
+ {id:69,t:'大丈夫ですよ', oto:'k', kind:'mis', ura:'根拠のない保証。「採用できます」と言い切る業者と同じ音'},
+ {id:70,t:'それは考えすぎじゃないですか', oto:'h', kind:'mis', ura:'相手の不安の正当性を却下した。心配の門前払い'}
+];
+
+/* ============ 場面 ============
+   aite：柏木さんの言葉（一文ずつ流れる）
+   isogi：答えを待っている場面／omoi：重い話の場面（癖の講評に使う）
+   ech ：この場面の復唱・聞き返し（カタログ81/46の技を場面の言葉で。oto=被せ可）
+   R   ：反応クラスごとの反応文（数本ローテ。相槌のあとと中身のあとで共用）
+   naka：中身。t=台詞 p=点 c=講評 tag=質（反応クラスの規則に使う） */
+const S=[
+ {
+  aite:['……前のところでは、','希望と違う園ばかり、勧められて。','三回目でもう、いいですって言っちゃったんです。'],
+  ech:[{t:'三回目で、もういいです、と。'},{t:'希望と違う、というと……。'}],
+  R:{
+   open:[['……はい。','ちゃんと聞いてもらえてる気がします。'],['……そうですね。','順番に、話してみます。']],
+   neutral:[['……はい。'],['……ええ。']],
+   migamae:[['……ええ、まあ。'],['……はい、まあ。']],
+   fushin:[['……はあ、そうですか。'],['……前の会社でも、','最初はそんな感じでした。']]
+  },
+  naka:[
+   {t:'そうだったんですね。今回はそういうことのないように、しっかりお話を伺わせてください。',tag:'sui',
+    p:{kiku:1,kaesu:0,watasu:1,tomeru:0},
+    c:'無難です。ただ「うちは違います」を先に言ってしまうと、証明はこれからなのに約束が先に立ちます。'},
+   {t:'差し支えなければ、どのあたりが希望と違ったのか、聞かせていただけますか。',tag:'kik',
+    p:{kiku:3,kaesu:1,watasu:1,tomeru:0},
+    c:'いちばん多くを引き出せます。「希望と違う」の中身は人によってまったく別のものなので、ここを訊かずに進むと同じことが起きます。'},
+   {t:'それは大変でしたね。当社には非公開求人が多数ございますので、ご期待ください。',tag:'osu',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'痛みの話に、商品の話で返しています。相手はまだ何も話せていません。'},
+   {t:'お気持ちは分かります。ただ、前の会社さんにも事情があったのかもしれませんね。',tag:'mis',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'「お気持ちは分かります」の「は」が肝です（相槌カタログ25）。気持ちは分かるが主張は分からない、の形で、前の会社を庇う側に立ちました。'}
+  ]},
+ {
+  aite:['距離とか、時間ですかね。','「駅から近い」って言われて行ったら、坂の上で。','あと、お迎えに間に合わない時間ばかりで。'],
+  ech:[{t:'お迎えに、間に合わない。'},{t:'坂の上、ですか。'}],
+  R:{
+   open:[['そうなんです、そこなんです。'],['あ、そこ聞いてくれるんですね。']],
+   neutral:[['……はい。','そんな感じです。'],['……ええ。']],
+   migamae:[['あ……いえ、','そういうことでは、なくて。'],['……ええ、まあ。']],
+   fushin:[['……本当ですか。','前も、そういうこと言われた気がします。']]
+  },
+  naka:[
+   {t:'お迎えは、何時までに着いていないといけませんか。',tag:'kik',
+    p:{kiku:3,kaesu:1,watasu:0,tomeru:0},
+    c:'数字を取りにいけています。「間に合わない」は人によって三十分違うので、ここを確定させないと候補が絞れません。'},
+   {t:'では、駅から平坦な道で、十七時に上がれるところを探しますね。',tag:'sui',
+    p:{kiku:0,kaesu:1,watasu:0,tomeru:0},
+    c:'十七時は、こちらが勝手に置いた数字です。訊けば済むことを推測で埋めています。'},
+   {t:'そのあたり、求人票には書いていないことが多いんです。歩いた距離と退勤の実態は、こちらで調べてお伝えします。',tag:'jij',
+    p:{kiku:1,kaesu:3,watasu:1,tomeru:0},
+    c:'不安の正体（求人票が当てにならない）に、事実で答えています。ただ、まだ時刻を訊けていません。'},
+   {t:'確かに、求人票と実際が違うことは、そういう部分もありますね。まあ、見学で確かめるのが一番ですよ。',tag:'mis',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'部分だけ認めて（相槌カタログ23）、確かめる手間を相手に返しています。調べるのは、こちらの仕事のはずです。'}
+  ]},
+ {
+  aite:['十七時半には、出たいんです。','……でも、そんな条件だと、','たぶん、ないですよね。'],
+  ech:[{t:'ない、と思っていらっしゃるんですね。'},{t:'十七時半、ですね。'}],
+  R:{
+   open:[['……ちょっと、ほっとしました。'],['……はい。','正直に言ってもらえるんですね。']],
+   neutral:[['……そうですか。'],['……はい。']],
+   migamae:[['……やっぱり、そうなりますよね。'],['……ですよね。','すみません、わがまま言って。']],
+   fushin:[['……本当ですか？','前も、そう言われたんですけど。']]
+  },
+  naka:[
+   {t:'大丈夫です、きっと見つかりますよ。',tag:'osu',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'根拠のない励ましです。前の会社でも同じことを言われた可能性があります。'},
+   {t:'正直、数は多くないです。ただ、ゼロではなくて。いま条件に合うのは、二件でした。',tag:'jij',
+    p:{kiku:0,kaesu:3,watasu:2,tomeru:1},
+    c:'少ないという事実を先に置いて、そのうえで実数を出しています。期待も落胆も、相手が自分で決められます。'},
+   {t:'条件を少し緩めていただければ、選択肢はぐっと増えますが。',tag:'osu',
+    p:{kiku:0,kaesu:1,watasu:0,tomeru:0},
+    c:'こちらの都合で、相手の一線を動かそうとしています。緩めるかどうかは相手が決めることです。'},
+   {t:'みなさん、最初はそうおっしゃいます。でも、意外と何とかなるものですよ。',tag:'mis',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'「みなさん」で個人の事情を消しています（相槌カタログ63）。彼女の十七時半は、統計ではなく一線です。'}
+  ]},
+ {
+  aite:['二件……。','ちなみに、その二件って、','どんなところですか。'],
+  isogi:true,
+  ech:[{t:'どんなところ、というと……園の中身ですか、条件のほうですか。'},{t:'その二件の、何が気になりますか。'}],
+  R:{
+   open:[['……悪いほうまで、教えてくれるんですね。'],['……そういうの、','前の会社は教えてくれなかったです。']],
+   neutral:[['……そうですか。','分かりました。']],
+   migamae:[['良いって……','どういうふうに、ですか。'],['あ……はい。','そう、ですか。']],
+   fushin:[['……はあ。','……もう、大丈夫です。']]
+  },
+  naka:[
+   {t:'どちらも良い園ですよ。まずは見学だけでも行ってみませんか。',tag:'osu',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'「良い」はこちらの評価です。しかも見学へ進める話に、すぐ移っています。'},
+   {t:'一件は条件が合いますが、去年から三人辞めています。もう一件は入れ替わりは少ない分、来年から時間が変わるかもしれません。',tag:'jij',
+    p:{kiku:0,kaesu:3,watasu:3,tomeru:1},
+    c:'両方の悪い面まで先に出しています。判断の材料が揃うので、決めるのが相手の仕事になります。'},
+   {t:'詳細は、ご興味があればお送りします。まずはご経歴をもう少し詳しく伺ってもよろしいですか。',tag:'sui',
+    p:{kiku:2,kaesu:0,watasu:1,tomeru:0},
+    c:'訊く姿勢は良いのですが、相手が知りたいと言ったことに答えていません。順番が逆です。'},
+   {t:'それ、皆さん気にされるところです。ただ、園は実際に入ってみないと分からない部分もありますからね。',tag:'mis',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'本当のことを言いながら、訊かれた二件の中身に答えていません。「分からない」で店じまいをしています。'}
+  ]},
+ {
+  aite:['……正直、どっちも不安です。','うち、子どもが小さいので。','また辞めることになったら、困るんです。'],
+  omoi:true,
+  ech:[{t:'また辞めることになったら、というのは……前も、お子さんのことで何か。'},{t:'不安なのは、どちらかというと園のほうですか、ご家庭のほうですか。'}],
+  R:{
+   open:[['……上の子が入院したとき、','休めなくて。','それで辞めたんです、その前のところ。'],['……はい。','ちょっと、気が楽になりました。']],
+   neutral:[['……はい。','考えてみます。']],
+   migamae:[['……そう、ですよね。','急がないと、ですよね。'],['……はい。','……ちょっと、考えさせてください。']],
+   fushin:[['……そうですか。','……すみません、今日は、このへんで。']]
+  },
+  naka:[
+   {t:'では、今回は見送りましょうか。無理に動く時期ではないかもしれません。',tag:'tom',
+    p:{kiku:0,kaesu:2,watasu:3,tomeru:3},
+    c:'止められています。紹介会社にとって最も損な選択ですが、相手の状況に照らすと妥当です。ここで止められる人は、次に呼ばれます。'},
+   {t:'ご不安はもっともです。ただ、いま動かないと、来年はもっと厳しくなりますよ。',tag:'osu',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'不安を煽って動かそうとしています。使えば決まりますが、その後は続きません。'},
+   {t:'決めるのは、いまでなくて構いません。二件の詳細だけお渡しするので、ご家族と話してから教えてください。',tag:'wat',
+    p:{kiku:1,kaesu:2,watasu:3,tomeru:2},
+    c:'止めてはいませんが、判断を完全に相手へ渡しています。材料を置いて引くのは、止めることと近い効果があります。'},
+   {t:'お気持ちは分かります。でも、逆にチャンスですよ。小さいうちに環境を変えたほうが、お子さんにも良かったりします。',tag:'mis',
+    p:{kiku:0,kaesu:0,watasu:0,tomeru:0},
+    c:'不安の値踏みです（相槌カタログ68「逆にチャンスですよ」）。まだ悲しんでいる人に、前を向くことを強制しています。'}
+  ]}
+];
+
+let step=0, shotePick=null, aizPick=null, sec1=0, ma1='';
+let score={kiku:0,kaesu:0,watasu:0,tomeru:0}, log=[];
+let maStat={kui:0,yoi:0,toru:0}, maJudged=0, yawaNext=false, rot=0;
+const talk=document.getElementById('talk'), opts=document.getElementById('opts');
+const optsh=document.getElementById('optsh');
+
+/* ---- 抽選。周回ごとに並びと出現が変わる。規準は変わらない ---- */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function pickN(a,n){ return shuffle(a).slice(0,n); }
+
+/* ---- 台詞のストリーム。一文ずつ、読み上げるくらいの速さで ---- */
+let stTimer=0, stActive=false, doneAt=0, stQueue=[], stWho='', stCls='', stFirst=true, stAfter=null;
+function stream(who,cls,lines,after){
+  clearTimeout(stTimer);
+  stQueue=lines.slice(); stWho=who; stCls=cls; stFirst=true; stAfter=after||null;
+  if(!stQueue.length){ stActive=false; doneAt=performance.now(); if(stAfter)stAfter(); return; }
+  stActive=true;
+  stTimer=setTimeout(stNext,520);
+}
+function stNext(){
+  const line=stQueue.shift();
+  say(stWho, stCls+(stFirst?'':' cont'), line, stFirst);
+  stFirst=false;
+  if(!stQueue.length){ stActive=false; doneAt=performance.now(); if(stAfter)stAfter(); return; }
+  stTimer=setTimeout(stNext, Math.min(PACE_BASE+line.length*PACE_CHAR, PACE_MAX));
+}
+/* 食い気味に押されたとき：残りの台詞は一気に出す（情報は失わせない）。ト書きで返す */
+function stFlush(){
+  clearTimeout(stTimer);
+  while(stQueue.length){ say(stWho, stCls+' cont', stQueue.shift(), false); }
+  stActive=false; doneAt=performance.now();
+  note('――言い終わる前に、返した。');
+  const a=stAfter; stAfter=null; if(a)a();
+}
+
+/* ---- 間の判定。規準はファイル頭のコメントに固定 ---- */
+function maJudge(){
+  if(stActive){ stFlush(); maStat.kui++; maJudged++; return 'kui'; }
+  const dt=(performance.now()-doneAt)/1000;
+  maJudged++;
+  if(dt<MA_KUI){ maStat.kui++; return 'kui'; }
+  if(dt<=MA_GOOD){ maStat.yoi++; goodMa(); return 'yoi'; }
+  maStat.toru++; return 'toru';
+}
+/* 間が合ったときの合図。小さな音と、次の吹き出しがやわらぐ。それだけ */
+let AC=null;
+function goodMa(){
+  yawaNext=true;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.frequency.value=880; g.gain.value=0.03;
+    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime+0.06);
+    o.connect(g); g.connect(AC.destination);
+    o.start(); o.stop(AC.currentTime+0.07);
+  }catch(e){}
+}
+
+/* ---- 反応クラス。組み合わせ→クラスのパターン規則（規準はファイル頭に固定） ---- */
+function aizClass(a,ma){
+  if(a.kind==='mis') return ma==='kui'?'fushin':'migamae';
+  const match = a.oto==='k' ? (ma!=='toru') : a.oto==='h' ? (ma!=='kui') : (ma==='toru');
+  if(!match) return 'migamae';
+  if(a.oto==='n') return 'open';
+  return ma==='yoi'?'open':'neutral';
+}
+const ORDER=['open','neutral','migamae','fushin'];
+function nakaClass(tag,ma,misUsed){
+  let c;
+  if(tag==='sui') c='migamae';
+  else if(tag==='osu'||tag==='mis') c=(ma==='kui')?'fushin':'migamae';
+  else c=(ma==='yoi')?'open':'neutral';
+  if(misUsed) c=ORDER[Math.min(ORDER.indexOf(c)+1,3)];   /* ミスリード相槌のツケは、あとで来る */
+  return c;
+}
+/* クラスごとの反応文をローテで出す。作文はしない */
+function react(scene,cls){
+  const pool=scene.R[cls]||scene.R.neutral;
+  return pool[(rot++)%pool.length];
+}
+
+function say(who,cls,text,label){
+  const d=document.createElement('div');
+  let c='said '+cls;
+  if(cls.indexOf('aite')===0 && yawaNext){ c+=' yawa'; yawaNext=false; }
+  d.className=c;
+  d.innerHTML=(label!==false&&who?'<div class="who">'+who+'</div>':'')+'<div class="bubble">'+text+'</div>';
+  talk.appendChild(d);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('in')));
+  d.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function note(text){
+  const d=document.createElement('div');
+  d.className='note'; d.textContent=text;
+  talk.appendChild(d);
+}
+
+/* ① 初手。台詞が流れている間も押せる（被せると、食い気味になる） */
+function renderShote(){
+  if(step>=S.length){ return finish(); }
+  const s=S[step];
+  stream('柏木さん','aite',s.aite);
+  optsh.hidden=false; optsh.textContent='どう入りますか。';
+  opts.innerHTML='';
+  const t0=performance.now();
+  SHOTE.forEach(sh=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML='<span class="opt-k">'+sh.tag+'</span>'+sh.t;
+    b.addEventListener('click',()=>{
+      ma1=maJudge();
+      sec1=Math.max(1,Math.round((performance.now()-t0)/1000));
+      shotePick=sh.k;
+      opts.innerHTML=''; optsh.hidden=true;
+      if(sh.k==='sokuto'){ aizPick=null; setTimeout(renderNaka,420); return; }
+      if(sh.k==='ma') note('――少し黙って、考える。');
+      setTimeout(renderAiz,420);
+    });
+    opts.appendChild(b);
+  });
+}
+
+/* ② 相槌。カタログから抽選して5つ。ミスリードは毎回2つ混ぜる。並びはシャッフル */
+function renderAiz(){
+  const s=S[step];
+  optsh.hidden=false; optsh.textContent='なんと受けますか。';
+  opts.innerHTML='';
+  let pool;
+  if(shotePick==='kiki') pool=shuffle(
+    s.ech.map(e=>({id:81,t:e.t,oto:'k',kind:'kiki',ura:'判断ゼロで続きを促す最古の技。相手は「そうなんです、それで…」と続ける'}))
+    .concat(pickN(AIZ_KIKI,1)).concat(pickN(AIZ_MIS,2)));
+  else{
+    const nag=pickN(AIZ_UKE.filter(a=>a.oto==='n'),1);   /* 長間後の札を必ず1枚 */
+    pool=shuffle(nag
+      .concat(pickN(AIZ_UKE.filter(a=>a.t!==nag[0].t),2))
+      .concat(pickN(AIZ_MIS,2)));
+  }
+  /* 重複を除いて5つに揃える */
+  const seen={}, opts5=[];
+  pool.forEach(a=>{ if(!seen[a.t]&&opts5.length<5){ seen[a.t]=1; opts5.push(a); } });
+  opts5.forEach((a,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML='<span class="opt-n">'+String.fromCharCode(65+i)+'</span>'+a.t;
+    b.addEventListener('click',()=>{
+      aizPick=a;
+      opts.innerHTML=''; optsh.hidden=true;
+      say('あなた','jibun',a.t);
+      /* 反応クラス＝相槌の種類×音の形×間の取り方 */
+      const cls=aizClass(a,ma1);
+      setTimeout(()=>stream('柏木さん','aite',react(s,cls),renderNaka),650);
+    });
+    opts.appendChild(b);
+  });
+}
+
+/* ③ 中身。並びはシャッフル。ミスリード（tag:mis）が一つ混ざっている */
+function renderNaka(){
+  const s=S[step];
+  optsh.hidden=false; optsh.textContent='何を言いますか。';
+  opts.innerHTML='';
+  const t0=performance.now();
+  const judgeHere=(shotePick!=='sokuto');   /* 直前に台詞が流れたときだけ、間を判定する */
+  shuffle(s.naka.map((_,i)=>i)).forEach((oi,i)=>{
+    const o=s.naka[oi];
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML='<span class="opt-n">'+String.fromCharCode(65+i)+'</span>'+o.t;
+    b.addEventListener('click',()=>{
+      const ma2=judgeHere?maJudge():'';
+      const sec2=Math.max(1,Math.round((performance.now()-t0)/1000));
+      Object.keys(o.p).forEach(k=>score[k]+=o.p[k]);
+      /* 記録するのは、最終的に選んだ組み合わせだけ。過程の分岐は追わない */
+      log.push({step:step, shote:shotePick, aiz:aizPick, pick:oi, ma1:ma1, ma2:ma2, sec1:sec1, sec2:sec2});
+      opts.innerHTML=''; optsh.hidden=true;
+      say('あなた','jibun',o.t);
+      /* 反応クラス＝中身の質×間の取り方×（相槌がミスリードだったか） */
+      const cls=nakaClass(o.tag, ma2, aizPick&&aizPick.kind==='mis');
+      const r=react(s,cls);
+      step++; shotePick=null; aizPick=null;
+      setTimeout(()=>stream('柏木さん','aite',r,()=>setTimeout(renderShote,650)),650);
+    });
+    opts.appendChild(b);
+  });
+}
+
+/* 初手の癖。良し悪しは断定しない。癖として返すだけ */
+function kuseText(c){
+  const keys=['uke','kiki','sokuto','ma'];
+  const top=keys.slice().sort((a,b)=>c[b]-c[a])[0];
+  if(c[top]<=2) return '初手を場面ごとに変えています。決まった癖というより、相手を見て入り口を選んでいる形でした。';
+  const isogiLog=log.find(l=>S[l.step].isogi), omoiLog=log.find(l=>S[l.step].omoi);
+  if(top==='uke'){
+    return 'まず受け止めてから動くタイプです。'+((isogiLog&&isogiLog.shote==='uke')?
+      '相手が答えを待っている場面でも、同じ入り方をしていました。':'相手が答えを急ぐ場面では、入り方を変えていました。');
+  }
+  if(top==='kiki'){
+    return '返す前に、確かめるタイプです。'+((isogiLog&&isogiLog.shote==='kiki')?
+      '相手が答えを急いでいる場面でも、まず確かめてから入っていました。':'急ぎの場面では、確かめずに入っていました。');
+  }
+  if(top==='sokuto'){
+    return '間を置かずに返すタイプです。'+((omoiLog&&omoiLog.shote==='sokuto')?
+      '重い話の場面でも、同じ速さで入っていました。':'重い話の場面では、速さを緩めていました。');
+  }
+  return '一拍置いてから動くタイプです。'+((isogiLog&&isogiLog.shote==='ma')?
+    '相手が答えを待っている場面でも、間が先に出ていました。':'相手が急ぐ場面では、間を短くしていました。');
+}
+/* 返しの間の癖。これも断定しない */
+function maText(){
+  if(!maJudged) return '';
+  if(maStat.kui>=maJudged/2)  return ' 返しは、相手の言い終わりに被りがちでした。';
+  if(maStat.yoi>=maJudged/2)  return ' 間の取り方は、会話の呼吸に合っていました。';
+  if(maStat.toru>=maJudged/2) return ' 間を長めに取るほうです。重い場面では、それが合っていました。';
+  return ' 間の取り方は、場面ごとに揺れていました。';
+}
+/* 流れの相槌。選んだ事実だけを返す */
+function misText(n,m){
+  if(!m) return '';
+  if(n>=2) return ' 「確かに、そういう部分も」型――認めているようで認めていない相槌を、'+n+'回選んでいます。流れと雰囲気で、つい出る形の言葉です。';
+  if(n===1) return ' 認めているようで認めていない相槌が、一度だけ出ています。';
+  return ' 流れの相槌には、乗っていません。';
+}
+
+function finish(){
+  /* 満点は、設問データ S から毎回数え直す。手で書くと、設問を足したときにずれる。
+     実際、かえすは12点取れるのに分母が11で109%と出て、
+     とめるは最大5点なのに分母が7で、誰も71%を超えられなかった。
+     ||0 は必ず要る。軸のキーが無い選択肢で NaN になるため。
+     初手・相槌・間は点を持たないので、分母は中身（naka）だけで数える。
+     並びはシャッフルされるが中身の集合は同じなので、どの周回でも満点は同じ。 */
+  const MAX={};
+  ['kiku','kaesu','watasu','tomeru'].forEach(a=>{
+    MAX[a]=S.reduce((t,q)=>t+Math.max(...q.naka.map(o=>(o.p&&o.p[a])||0)),0);
+  });
+  const k=document.getElementById('kekka');
+  const tot=Object.keys(score).reduce((a,x)=>a+score[x]/MAX[x],0)/4;
+  let sum;
+  if(score.tomeru>=3 && score.watasu>=7) sum='止められる人でした。決めさせようとしていません。この面談のあと、柏木さんはたぶんもう一度来ます。';
+  else if(score.kiku>=6 && score.kaesu>=7) sum='よく聞いて、事実で返せています。あとは、引くところで引けるかどうかです。';
+  else if(score.kaesu<=3) sum='話は進みましたが、相手の不安に事実で答える場面が少なめでした。';
+  else sum='進め方は丁寧です。ただ、判断を相手に渡す場面がもう少しあってよさそうです。';
+
+  /* 時間は裏で測っている。速い＝平均12秒以下、的確＝総合6割以上 */
+  const KAN=['一','二','三','四','五','六','七','八','九','十'];
+  const avg=Math.round(log.reduce((a,l)=>a+l.sec1+l.sec2,0)/log.length);
+  const fast=avg<=12, ateki=tot>=0.6;
+  if(fast&&ateki)      sum+=' 返しは速く、中身も外していません。';
+  else if(fast)        sum+=' 返しは速いぶん、訊く前に決めた場面がありました。';
+  else if(ateki)       sum+=' 時間はかかりましたが、返した中身は外していません。';
+  else                 sum+=' 迷いが長く、返しにも迷いが残っていました。';
+  const jline=log.map((l,i)=>(KAN[i]||(i+1))+'場面目 '+l.sec1+'＋'+l.sec2+'秒').join('｜')+'　　平均 '+avg+'秒';
+
+  /* 応答スタイル。回数をそのまま出す。良し悪しの断定はしない */
+  const c={uke:0,kiki:0,sokuto:0,ma:0};
+  log.forEach(l=>c[l.shote]++);
+  const aizLogs=log.filter(l=>l.aiz);
+  const misN=aizLogs.filter(l=>l.aiz.kind==='mis').length;
+  const styleLine='受け止める '+c.uke+'回／聞き返す '+c.kiki+'回／すぐ答える '+c.sokuto+'回／間を取る '+c.ma+'回（全'+log.length+'場面）';
+  const maLine='返しの間：間が合った '+maStat.yoi+'回／食い気味 '+maStat.kui+'回／長く置いた '+maStat.toru+'回（判定した返し '+maJudged+'回）';
+  const misLine='相槌：ミスリード（認めてるようで認めてない）'+misN+'回／選んだ相槌 '+aizLogs.length+'回';
+
+  const cols={kiku:'#3F6B55',kaesu:'#54707F',watasu:'#9A7B4A',tomeru:'#B4614E'};
+  k.innerHTML='<h2>今回の面談は、こうでした。</h2><p class="sum">'+sum+'</p>'+
+    '<p class="jikan">'+jline+'（初手＋中身）</p>'+
+    '<div class="kuse"><div class="jiku-h"><span class="jiku-n">応答の癖</span></div>'+
+    '<div class="kuse-r">'+styleLine+'<br>'+maLine+'<br>'+misLine+'</div>'+
+    '<div class="jiku-c">'+kuseText(c)+maText()+misText(misN,aizLogs.length)+
+    ' どれが良いという話ではありません。同じ言葉でも、間と場面が変われば相手の受け取りは変わります。それは会話の中に出ていたはずです。</div></div>'+
+    AX.map(a=>{
+      const pc=Math.round(score[a.k]/MAX[a.k]*100);
+      return '<div class="jiku"><div class="jiku-h"><span class="jiku-n">'+a.n+'</span>'+
+        '<span class="pt">'+score[a.k]+' / '+MAX[a.k]+'</span></div>'+
+        '<div class="jiku-c">'+a.d+'</div>'+
+        '<div class="bar"><i style="width:'+pc+'%;background:'+cols[a.k]+'"></i></div></div>';
+    }).join('')+
+    (aizLogs.length?'<div class="hoka"><h3>今日の相槌の、裏の意味</h3>'+
+    aizLogs.map(l=>'<div class="h-item"><b>'+l.aiz.t+'</b>'+l.aiz.ura+'</div>').join('')+
+    '<div class="h-item">表の顔と裏の意味は、相槌カタログから写しています。判断は、読むあなたに残します。</div></div>':'')+
+    '<div class="hoka"><h3>選ばなかったほうは、こうでした</h3>'+
+    log.map(l=>{
+      const s=S[l.step];
+      return s.naka.map((o,i)=>i===l.pick?'':
+        '<div class="h-item"><b>'+o.t+'</b>'+o.c+'</div>').join('');
+    }).join('')+'</div>'+
+    '<div class="acts"><button class="prim" onclick="location.reload()">もう一度</button>'+
+    '<button onclick="window.print()">印刷する</button></div>'+
+    '<div class="tail"><p><b>点が高いことは、うまいことと同じではありません。</b>'+
+    'この四つは、うちが大事だと思っている順番にすぎません。ほかの会社では、別の軸で測られます。</p>'+
+    '<p>ただ、ひとつだけ。<b>「今回は見送りましょう」と言える人は、次に呼ばれます。</b>'+
+    'それだけは、どこで測っても同じだと思います。</p></div>';
+  k.hidden=false;
+  k.scrollIntoView({block:'start',behavior:'smooth'});
+}
+renderShote();
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>私の説明書｜Good Luck</title>
+<meta name="description" content="自分がどう扱われると力を出せるかを、先に書いておく紙。入力は送信されません。">
+<meta property="og:title" content="私の説明書">
+<meta property="og:description" content="能力ではなく、扱われ方を書く紙です。">
+<style>
+:root{
+  --paper:#FAF9F6; --card:#FFFFFF; --ink:#2A2A28; --ink2:#5C5A54; --usu:#96938A;
+  --line:#E5E3DC;
+  --hito:#C97D8E;      /* 人の側 */
+  --hito-bg:#FBF0F2;
+  --kaisha:#5F937A;    /* 会社の側 */
+  --kaisha-bg:#EDF4F0;
+  --g:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+  --gb:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--g);
+  line-height:1.95;letter-spacing:.02em;-webkit-font-smoothing:antialiased;font-size:15px;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
+
+/* ---- 見出し ---- */
+header{padding:40px 0 0;}
+.usagi{width:74px;height:74px;display:block;margin-bottom:14px;}
+.usagi path,.usagi circle,.usagi ellipse{fill:none;stroke:#B9B5AA;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;}
+.usagi .eye{fill:#B9B5AA;stroke:none;}
+h1{font-size:30px;font-weight:800;letter-spacing:.01em;margin:0;line-height:1.5;}
+h1 small{display:block;font-size:13px;font-weight:600;color:var(--usu);letter-spacing:.14em;margin-bottom:8px;}
+.lead{font-size:14.5px;color:var(--ink2);margin:18px 0 0;max-width:640px;}
+.lead b{font-weight:700;color:var(--ink);background:linear-gradient(transparent 62%,#FBF0F2 62%);}
+
+/* ---- 断り書き ---- */
+.dan{margin:26px 0 0;padding:16px 18px;border-radius:12px;background:#F2F1EC;
+  font-size:12.5px;color:var(--ink2);line-height:1.9;max-width:640px;}
+.dan b{color:var(--ink);}
+
+/* ---- 二面のしるし ---- */
+.two{display:flex;gap:8px;margin:22px 0 0;flex-wrap:wrap;}
+.pill{font-size:11.5px;padding:6px 12px;border-radius:999px;letter-spacing:.06em;font-weight:700;}
+.p-hito{background:var(--hito-bg);color:var(--hito);}
+.p-kaisha{background:var(--kaisha-bg);color:var(--kaisha);}
+
+/* ---- 本体：左に質問、右に紙 ---- */
+.grid{display:grid;grid-template-columns:1fr 400px;gap:34px;align-items:start;margin:40px 0 0;}
+@media(max-width:900px){.grid{grid-template-columns:1fr;gap:26px;}}
+
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:22px 20px;margin-bottom:14px;}
+.q-no{font-size:11px;font-weight:800;color:var(--usu);letter-spacing:.18em;}
+.q-t{font-size:16px;font-weight:800;margin:6px 0 4px;}
+.q-h{font-size:12.5px;color:var(--usu);margin-bottom:14px;}
+.opts{display:flex;flex-wrap:wrap;gap:8px;}
+.opt{font-size:13.5px;padding:10px 15px;border-radius:10px;border:1px solid var(--line);
+  background:#FCFCFA;color:var(--ink2);cursor:pointer;font-family:var(--g);
+  transition:background .3s,border-color .3s,color .3s;}
+.opt:hover{background:#F4F3EE;}
+.opt.on{background:var(--hito-bg);border-color:var(--hito);color:var(--hito);font-weight:700;}
+textarea{width:100%;margin-top:12px;min-height:64px;padding:12px 13px;border-radius:10px;
+  border:1px solid var(--line);background:#FCFCFA;font-family:var(--g);font-size:13.5px;
+  line-height:1.9;color:var(--ink);resize:vertical;}
+textarea:focus{outline:2px solid var(--hito);outline-offset:1px;}
+.give{display:flex;gap:7px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);
+  align-items:center;flex-wrap:wrap;}
+.give-l{font-size:11.5px;color:var(--usu);margin-right:2px;}
+.gv{font-size:12px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;color:var(--ink2);cursor:pointer;font-family:var(--g);
+  transition:background .3s,border-color .3s,color .3s;}
+.gv.on{background:var(--kaisha-bg);border-color:var(--kaisha);color:var(--kaisha);font-weight:700;}
+
+/* ---- 右の紙 ---- */
+.sheet{position:sticky;top:20px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:24px 22px;box-shadow:0 6px 28px rgba(40,38,30,.05);}
+@media(max-width:900px){.sheet{position:static;}}
+.sheet h2{font-size:13px;font-weight:800;letter-spacing:.14em;color:var(--usu);margin:0 0 4px;}
+.sheet .who{font-size:19px;font-weight:800;margin:0 0 16px;}
+.sheet .who input{font:inherit;border:none;border-bottom:1.5px solid var(--line);
+  background:transparent;width:100%;padding:2px 0;color:var(--ink);}
+.sheet .who input:focus{outline:none;border-color:var(--hito);}
+.item{padding:13px 0;border-top:1px solid #F0EEE8;}
+.item:first-of-type{border-top:none;}
+.item-t{font-size:11.5px;font-weight:800;color:var(--usu);letter-spacing:.1em;margin-bottom:5px;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.item-t em{font-style:normal;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;}
+.tag-give{background:var(--kaisha-bg);color:var(--kaisha);}
+.tag-keep{background:#F1F0EB;color:var(--usu);}
+.tag-later{background:#FDF6E9;color:#A98338;}
+.item-b{font-size:13.5px;line-height:1.95;color:var(--ink);}
+.item-b.empty{color:#C6C3BA;}
+.sheet-foot{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);}
+.dl{width:100%;height:48px;border-radius:999px;border:none;background:var(--ink);color:#FAF9F6;
+  font-family:var(--g);font-size:14px;font-weight:700;letter-spacing:.08em;cursor:pointer;
+  transition:background .4s;}
+.dl:hover{background:#3E3C38;}
+.dl-n{font-size:11px;color:var(--usu);text-align:center;margin-top:10px;line-height:1.8;}
+
+.dl2{width:100%;height:40px;margin-top:8px;border-radius:999px;border:1px solid var(--line);
+  background:transparent;color:var(--usu);font-family:var(--g);font-size:12.5px;cursor:pointer;
+  transition:background .4s;}
+.dl2:hover{background:#F4F3EE;}
+#paper{position:fixed;inset:0;z-index:600;background:rgba(42,42,40,.42);
+  display:flex;align-items:center;justify-content:center;padding:20px;}
+#paper[hidden]{display:none;}
+.paper-in{background:var(--card);border-radius:14px;padding:18px 18px 16px;
+  width:100%;max-width:520px;max-height:82vh;display:flex;flex-direction:column;gap:10px;}
+.paper-h{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--g);font-size:12.5px;font-weight:700;color:var(--ink2);}
+.paper-h button{border:none;background:none;font-size:22px;line-height:1;color:var(--usu);cursor:pointer;padding:0 4px;}
+#paper textarea{flex:1;min-height:240px;border:1px solid var(--line);border-radius:10px;
+  padding:12px;font-family:var(--g);font-size:13px;line-height:1.9;background:#FCFCFA;color:var(--ink);resize:none;}
+#paperCopy{height:46px;border-radius:999px;border:none;background:var(--ink);color:#FAF9F6;
+  font-family:var(--g);font-size:13.5px;font-weight:700;letter-spacing:.06em;cursor:pointer;}
+.paper-n{font-family:var(--g);font-size:11px;color:var(--usu);margin:0;text-align:center;line-height:1.8;}
+
+/* ---- 繋ぐ ---- */
+.next{margin:46px 0 0;padding:26px 24px;border-radius:14px;
+  border:1px solid var(--line);background:#F7F6F2;}
+.next h3{font-size:17px;font-weight:800;margin:0 0 10px;}
+.next p{font-size:13.5px;color:var(--ink2);margin:0 0 14px;line-height:1.95;}
+.next b{color:var(--ink);}
+.next .warn{font-size:12.5px;padding:13px 15px;border-radius:10px;background:#fff;
+  border:1px solid var(--line);color:var(--ink2);margin-bottom:14px;}
+.next .warn b{color:var(--hito);}
+footer{padding:50px 0 80px;text-align:center;}
+.sig{font-family:'Hoefler Text','Baskerville','Palatino',serif;font-size:19px;letter-spacing:.06em;color:var(--ink);}
+.sig-n{font-size:11.5px;color:var(--usu);margin-top:8px;}
+footer a{color:var(--kaisha);text-decoration:none;border-bottom:1px solid #BBD3C6;}
+</style>
+<style>.toybar{max-width:1160px;margin:0 auto;padding:22px 22px 0;}
+.toybar a{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;font-size:12.5px;
+  letter-spacing:.06em;color:#8B887D;text-decoration:none;transition:color .4s ease;}
+.toybar a:hover{color:#C4622E;}</style>
+</head>
+<body>
+<div class="toybar"><a href="./noren.html">← おもちゃ箱</a></div>
+
+<div class="wrap">
+<header>
+  <svg class="usagi" viewBox="0 0 80 80" aria-hidden="true">
+    <path d="M27 30 C24 18 25 8 29 8 C33 8 34 19 33 30"/>
+    <path d="M45 30 C46 19 47 8 51 8 C55 8 56 18 53 30"/>
+    <path d="M40 30 C53 30 61 40 61 51 C61 62 52 68 40 68 C28 68 19 62 19 51 C19 40 27 30 40 30 Z"/>
+    <circle class="eye" cx="33" cy="47" r="2.1"/>
+    <circle class="eye" cx="47" cy="47" r="2.1"/>
+    <path d="M37 55 C38.5 57 41.5 57 43 55"/>
+  </svg>
+  <h1><small>MY MANUAL</small>私の説明書</h1>
+  <p class="lead">履歴書は、できることを書く紙です。これは、<b>どう扱われると力を出せるか</b>を書く紙です。<br>
+    苦手を隠して入って、あとで擦り減るより、先に言っておいたほうが、たぶん楽です。</p>
+
+  <div class="two">
+    <span class="pill p-hito">人の側</span>
+    <span class="pill p-kaisha">会社の側</span>
+  </div>
+
+  <div class="dan">
+    <b>入力したものは、どこにも送っていません。</b>この紙は、あなたのブラウザの中だけで組み上がります。
+    こちらのサーバーには何も届かず、保存もしていません。<br>
+    書き終わったら、<b>ご自身の端末に保存してください。</b>預かりません。
+  </div>
+</header>
+
+<div class="grid">
+  <div id="qs"></div>
+
+  <aside class="sheet">
+    <h2>できあがる紙</h2>
+    <div class="who"><input id="nick" placeholder="お名前（ニックネームで結構です）" maxlength="24"></div>
+    <div id="out"></div>
+    <div class="sheet-foot">
+      <button class="dl" id="dl">この紙を、手元に保存する</button>
+      <p class="dl-n" id="dlDone" style="min-height:1em;color:var(--kaisha);font-weight:700;"></p>
+      <button class="dl2" id="dl2">保存できないときは、こちら</button>
+      <p class="dl-n">あなたの端末に保存されます。<br>こちらには何も残りません。</p>
+    </div>
+  </aside>
+</div>
+
+<div id="paper" hidden>
+  <div class="paper-in">
+    <div class="paper-h">
+      <span>この文字を、控えておいてください</span>
+      <button id="paperClose" aria-label="とじる">×</button>
+    </div>
+    <textarea readonly></textarea>
+    <button id="paperCopy">ぜんぶコピーする</button>
+    <p class="paper-n">長押しして選ぶこともできます。メモ帳やメールに貼って、お手元に。</p>
+  </div>
+</div>
+
+<div class="next">
+  <h3>この紙を、誰かに渡すとき</h3>
+  <p>渡すかどうかは、項目ごとに選べます。<b>持っておく</b>を選んだ項目は、この紙には「本人が持っています」とだけ書かれます。
+    何を持っているかは、書きません。</p>
+  <div class="warn">
+    そして、お繋ぎする先は<b>提携している紹介会社です。私たちではありません。</b>
+    私たちは、いま人材紹介の許可事業として動いていません。この紙を作る道具を、置いているだけです。
+  </div>
+  <p style="margin:0;color:var(--usu);font-size:12.5px;">お繋ぎのしくみは、まだ何もありません。打ち始めたところです。</p>
+</div>
+
+<footer>
+  <div class="sig">Good Luck</div>
+  <div class="sig-n">仕組みに完璧を求めて、人には求めない会社が作っています<br>
+    <a href="./noren.html">Good Luck のこと</a></div>
+</footer>
+</div>
+
+<script>
+/* ============ 質問と、書き換えの表 ============
+   選択したものを、渡せる言葉に置き換える。
+   変換はこの中だけで完結する。どこにも送っていない。 */
+const Q=[
+ {id:'renraku', t:'連絡の取り方', h:'いちばん動きやすいのは、どれですか',
+  o:[['text','テキストがいい','文字でのやり取りを中心にすると、応答が早く、正確になる方です。'],
+     ['tel','電話でも平気','電話でのやり取りに抵抗がありません。急ぎの連絡は電話が確実です。'],
+     ['face','会って話したい','対面での対話を好みます。初回はお会いする形が向いています。'],
+     ['any','おまかせ','連絡手段にこだわりはありません。']]},
+ {id:'susume', t:'仕事の進め方', h:'力が出るのは、どちらのときですか',
+  o:[['zentai','先に全体像がほしい','着手前に全体像と目的を共有いただけると、力を発揮しやすい方です。'],
+     ['temae','手前から順に','手順を一つずつ確認しながら進めるやり方が向いています。'],
+     ['makase','任されたい','裁量を委ねていただいたほうが、成果が出やすい方です。'],
+     ['soudan','こまめに相談','短い相談を挟みながら進めるほうが、精度が上がります。']]},
+ {id:'tsume', t:'詰められたとき', h:'急かされる場面で、どうなりますか',
+  o:[['kataku','固まってしまう','その場で詰めて問われると、考えが止まりやすい方です。少し時間をいただければ、整理して戻せます。'],
+     ['moeru','燃える','短い納期や強い要求で、集中力が上がるタイプです。'],
+     ['futsu','とくに変わらない','急かされても、進め方は変わりません。']]},
+ {id:'jikan', t:'時間の制約', h:'外せない予定はありますか',
+  o:[['omukae','お迎えがある','決まった時刻に退勤する必要があります。'],
+     ['kaigo','家族の世話がある','家庭の事情で、時間の融通が必要な日があります。'],
+     ['tsuuin','定期的な予定がある','定期的に通う予定があり、その時間は動かせません。'],
+     ['nashi','とくにない','時間の制約は、いまのところありません。']]},
+ {id:'kankyo', t:'まわりの環境', h:'集中できるのは、どんな場所ですか',
+  o:[['shizuka','静かなほうがいい','静かな環境のほうが集中できます。'],
+     ['zawa','少し賑やかなほうがいい','人の気配がある環境のほうが落ち着きます。'],
+     ['dochira','どちらでも','環境は問いません。']]},
+ {id:'homerare', t:'ありがたい関わり方', h:'これがあると助かる、というもの',
+  o:[['kotoba','言葉にして伝えてほしい','できている点を言葉で伝えていただけると、続けやすくなります。'],
+     ['sotto','そっとしておいてほしい','過度に見守られるより、任せていただくほうが動きやすい方です。'],
+     ['riyuu','理由を教えてほしい','なぜそうするのかを共有いただけると、納得して進められます。']]},
+ {id:'nigate', t:'配慮してほしいこと', h:'書ける範囲で構いません。書かなくても大丈夫です',
+  o:[]},
+ {id:'tsuyomi', t:'こういうときは強いです', h:'自分で気づいている得意なこと',
+  o:[]}
+];
+
+const state={};   /* {id:{sel, free, give}} */
+Q.forEach(q=>state[q.id]={sel:null,free:'',give:'give'});
+
+/* ---- 質問を組む ---- */
+const qs=document.getElementById('qs');
+Q.forEach((q,i)=>{
+  const d=document.createElement('div'); d.className='q';
+  d.innerHTML=`<div class="q-no">${String(i+1).padStart(2,'0')}</div>
+    <div class="q-t">${q.t}</div><div class="q-h">${q.h}</div>
+    <div class="opts">${q.o.map(o=>`<button class="opt" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>
+    <textarea placeholder="ご自身の言葉で書き足せます（任意）"></textarea>
+    <div class="give"><span class="give-l">この項目は</span>
+      <button class="gv on" data-g="give">渡す</button>
+      <button class="gv" data-g="keep">持っておく</button>
+      <button class="gv" data-g="later">あとで決める</button></div>`;
+  d.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const on=state[q.id].sel===b.dataset.v;
+    d.querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));
+    if(on){state[q.id].sel=null;}else{state[q.id].sel=b.dataset.v;b.classList.add('on');}
+    draw();
+  }));
+  d.querySelector('textarea').addEventListener('input',e=>{state[q.id].free=e.target.value;draw();});
+  d.querySelectorAll('.gv').forEach(b=>b.addEventListener('click',()=>{
+    d.querySelectorAll('.gv').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); state[q.id].give=b.dataset.g; draw();
+  }));
+  qs.appendChild(d);
+});
+
+/* ---- 紙を組む ---- */
+const out=document.getElementById('out');
+const TAG={give:['渡す','tag-give'],keep:['持っておく','tag-keep'],later:['あとで','tag-later']};
+function line(q){
+  const s=state[q.id];
+  if(s.give==='keep')return '<span style="color:#C6C3BA;">（本人が持っています）</span>';
+  let t='';
+  if(s.sel){ const o=q.o.find(x=>x[0]===s.sel); if(o)t=o[2]; }
+  if(s.free.trim()) t = t ? t+'　'+s.free.trim() : s.free.trim();
+  return t || '<span class="empty">まだ書かれていません</span>';
+}
+function draw(){
+  out.innerHTML=Q.map(q=>{
+    const g=TAG[state[q.id].give];
+    return `<div class="item"><div class="item-t"><span>${q.t}</span><em class="${g[1]}">${g[0]}</em></div>
+      <div class="item-b">${line(q)}</div></div>`;
+  }).join('');
+}
+draw();
+
+/* ---- 手元に保存する ---- */
+function makeText(){
+  const nick=(document.getElementById('nick').value||'（お名前）').trim();
+  const L=['私の説明書','',nick,''];
+  Q.forEach(q=>{
+    const s=state[q.id], g=TAG[s.give][0];
+    let body;
+    if(s.give==='keep'){ body='（本人が持っています）'; }
+    else{
+      let t=''; if(s.sel){const o=q.o.find(x=>x[0]===s.sel); if(o)t=o[2];}
+      if(s.free.trim()) t = t ? t+'　'+s.free.trim() : s.free.trim();
+      body=t||'（記入なし）';
+    }
+    L.push('■ '+q.t+'　［'+g+'］', body, '');
+  });
+  L.push('---','この紙は本人が書いたものです。','扱われ方の希望であって、能力の証明ではありません。','',
+         'Good Luck — この紙を作る道具を置いているだけの会社です。','company.html');
+  return {text:L.join('\n'), name:'私の説明書'+(nick&&nick!=='（お名前）'?'_'+nick:'')+'.txt'};
+}
+
+document.getElementById('dl').addEventListener('click',async()=>{
+  const {text,name}=makeText();
+  /* 一．端末の共有窓に渡す（iPhone はこれでないと保存できない） */
+  try{
+    const file=new File([text],name,{type:'text/plain'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'私の説明書'});
+      return;
+    }
+  }catch(e){ if(e && e.name==='AbortError')return; }
+  /* 二．ファイルとして落とす（PC はこれで足りる） */
+  try{
+    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+    const ok=document.getElementById('dlDone');
+    ok.textContent='保存しました。'; setTimeout(()=>ok.textContent='',3500);
+    return;
+  }catch(e){}
+  /* 三．どちらも通らなければ、画面に出す */
+  showText(text);
+});
+
+/* 三段目：文字にして見せる。長押しでコピーできる */
+function showText(t){
+  const w=document.getElementById('paper');
+  w.querySelector('textarea').value=t;
+  w.hidden=false;
+  w.querySelector('textarea').select();
+}
+document.getElementById('paperClose').addEventListener('click',()=>{
+  document.getElementById('paper').hidden=true;
+});
+document.getElementById('paperCopy').addEventListener('click',async()=>{
+  const ta=document.getElementById('paper').querySelector('textarea');
+  try{ await navigator.clipboard.writeText(ta.value);
+    document.getElementById('paperCopy').textContent='うつしました';
+    setTimeout(()=>document.getElementById('paperCopy').textContent='ぜんぶコピーする',2500);
+  }catch(e){ ta.select(); document.execCommand('copy'); }
+});
+document.getElementById('dl2').addEventListener('click',()=>{ showText(makeText().text); });
+</script>
+</body>
+</html>

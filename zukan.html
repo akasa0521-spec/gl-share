@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>モンスター図鑑 プロトタイプ</title>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    background:#e5ded0;
+    font-family:"Hiragino Sans","Yu Gothic",sans-serif;
+    padding:24px 12px;
+  }
+  .caption{
+    max-width:390px;
+    text-align:center;
+    font-size:0.78rem;
+    color:#7a7266;
+    margin-bottom:14px;
+    line-height:1.7;
+  }
+  .phone{
+    width:100%;
+    max-width:390px;
+    aspect-ratio:9/17.5;
+    border-radius:36px;
+    background:#2b2620;
+    padding:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.25);
+  }
+  .screen{
+    position:relative;
+    width:100%;
+    height:100%;
+    border-radius:28px;
+    overflow:hidden;
+    background:linear-gradient(#bfe0e8 0%, #cfe9c9 42%, #9dc98a 100%);
+  }
+
+  /* top bar */
+  .topbar{
+    position:absolute; top:0; left:0; right:0;
+    padding:16px 18px 10px;
+    z-index:50;
+    background:linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0));
+  }
+  .topbar h1{
+    font-size:0.95rem;
+    margin:0;
+    color:#4a4030;
+  }
+  .topbar p{
+    font-size:0.65rem;
+    margin:2px 0 0;
+    color:#6b6152;
+  }
+
+  /* clouds */
+  .cloud{
+    position:absolute;
+    background:rgba(255,255,255,0.75);
+    border-radius:50%;
+    filter:blur(1px);
+  }
+
+  /* mood patches behind specific monsters */
+  .patch-water{
+    position:absolute;
+    width:150px;height:60px;
+    background:radial-gradient(ellipse at center, rgba(140,190,220,0.55), transparent 70%);
+    border-radius:50%;
+  }
+  .patch-shade{
+    position:absolute;
+    width:170px;height:170px;
+    background:radial-gradient(ellipse at center, rgba(30,40,35,0.28), transparent 72%);
+    border-radius:50%;
+  }
+
+  /* grass tufts */
+  .tuft{
+    position:absolute;
+    width:70px;
+    height:46px;
+  }
+  .tuft::before, .tuft::after, .tuft .blade{
+    content:'';
+    position:absolute;
+    bottom:0;
+    width:16px;
+    height:38px;
+    background:#5c9c52;
+    border-radius:50% 50% 0 0 / 60% 60% 0 0;
+  }
+  .tuft::before{left:2px; height:30px; background:#4d8a45; transform:rotate(-8deg);}
+  .tuft::after{right:2px; height:32px; background:#4d8a45; transform:rotate(9deg);}
+  .tuft .blade{left:24px; height:44px; background:#68ab5c;}
+  .tuft .blade2{
+    position:absolute; bottom:0; left:40px;
+    width:16px; height:34px;
+    background:#5c9c52;
+    border-radius:50% 50% 0 0/60% 60% 0 0;
+    transform:rotate(10deg);
+  }
+
+  /* monster spot wrapper */
+  .spot{
+    position:absolute;
+    width:74px;
+    text-align:center;
+    cursor:pointer;
+    z-index:10;
+  }
+  .creature{
+    position:relative;
+    width:56px;
+    height:56px;
+    margin:0 auto;
+    z-index:5;
+    animation:bob 3.2s ease-in-out infinite;
+    transition:transform .45s cubic-bezier(.34,1.4,.4,1);
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-5px);}
+    82%{transform:translateY(-14px);}
+    90%{transform:translateY(-4px);}
+  }
+  .spot .tuft{
+    z-index:8;
+    bottom:-6px;
+    left:9px;
+  }
+  .spot.active .creature{
+    animation:none;
+    transform:translateY(-46px) scale(1.35);
+  }
+  .spot.active{ z-index:60; }
+
+  /* species shapes reused from sound-monster prototype */
+  .blob{
+    width:100%;height:100%;
+    border-radius:45% 55% 60% 40%/55% 45% 55% 45%;
+  }
+  .fluffy-wrap{width:100%;height:100%;position:relative;}
+  .fluffy-body{position:absolute;inset:10%;border-radius:50%;}
+  .fluffy-bump{position:absolute;width:22%;height:22%;border-radius:50%;}
+  .horned-wrap{width:100%;height:100%;position:relative;}
+  .horned-body{position:absolute;inset:8% 8% 4% 8%;border-radius:50%;}
+  .horn{position:absolute;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;top:2%;}
+
+  .name-tag{
+    margin-top:2px;
+    font-size:0.62rem;
+    color:#3f382c;
+    background:rgba(255,255,255,0.8);
+    border-radius:8px;
+    padding:1px 6px;
+    display:inline-block;
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .spot.active .name-tag{opacity:1;}
+
+  /* info panel */
+  .panel{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    background:#fffaf2;
+    border-radius:22px 22px 0 0;
+    padding:16px 18px 20px;
+    box-shadow:0 -6px 20px rgba(0,0,0,0.15);
+    transform:translateY(100%);
+    transition:transform .35s cubic-bezier(.32,1,.4,1);
+    z-index:70;
+  }
+  .panel.open{ transform:translateY(0); }
+  .panel-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .panel-name{font-size:1rem; font-weight:700; color:#3f382c; margin:0;}
+  .panel-sub{font-size:0.68rem; color:#8c8171; margin:2px 0 0;}
+  .close-btn{
+    border:none; background:#eee4d6; color:#6b6152;
+    width:26px;height:26px;border-radius:50%;
+    font-size:0.8rem; cursor:pointer;
+  }
+  .genre-badge{
+    display:inline-block;
+    font-size:0.65rem;
+    padding:2px 9px;
+    border-radius:10px;
+    background:#f1ece3;
+    color:#4a4030;
+    margin-top:6px;
+  }
+  .play-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+  }
+  .play-btn{
+    border:none;
+    background:#e8927c;
+    color:#fff;
+    width:42px;height:42px;
+    border-radius:50%;
+    font-size:1rem;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .track-title{
+    font-size:0.72rem;
+    color:#4a4030;
+  }
+  .track-status{
+    font-size:0.62rem;
+    color:#a39a8b;
+  }
+
+  .empty-hint{
+    position:absolute;
+    bottom:14px; left:0; right:0;
+    text-align:center;
+    font-size:0.6rem;
+    color:rgba(60,50,35,0.55);
+    z-index:5;
+  }
+</style>
+</head>
+<body>
+
+<div class="caption">
+  草むらをタップすると、隠れているモンスターがひょこっと出てきます。もう一度タップ（または✕）で草の陰に戻ります。
+</div>
+
+<div class="phone">
+  <div class="screen" id="screen">
+    <div class="topbar">
+      <h1>🌿 音出しモンスター図鑑</h1>
+      <p>やすみじかんの ごほうびリスニング</p>
+    </div>
+
+    <!-- atmosphere -->
+    <div class="cloud" style="width:60px;height:22px;top:8%;left:8%;"></div>
+    <div class="cloud" style="width:44px;height:16px;top:14%;left:62%;"></div>
+    <div class="cloud" style="width:36px;height:14px;top:6%;left:70%;"></div>
+
+    <!-- mood patches -->
+    <div class="patch-water" style="left:2%; bottom:14%;"></div>
+    <div class="patch-shade" style="left:48%; bottom:8%;"></div>
+
+    <!-- monster spots (populated by JS) -->
+    <div id="spots"></div>
+
+    <div class="empty-hint" id="emptyHint">草むらを タップしてみて</div>
+
+    <!-- info panel -->
+    <div class="panel" id="panel">
+      <div class="panel-row">
+        <div>
+          <p class="panel-name" id="pName">-</p>
+          <p class="panel-sub" id="pSub">-</p>
+          <span class="genre-badge" id="pGenre">-</span>
+        </div>
+        <button class="close-btn" id="closeBtn">✕</button>
+      </div>
+      <div class="play-row">
+        <button class="play-btn" id="playBtn">▶</button>
+        <div>
+          <div class="track-title" id="pTrack">-</div>
+          <div class="track-status" id="pStatus">停止中</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+const monsters = [
+  { id:'mizutama', name:'みずたま', species:'ぷるん', shape:'blob', color:'#8fb8d9',
+    genre:'アンビエント', track:'水のそこ', file:'sound-mizutama.mp3',
+    pos:{left:'6%', bottom:'20%'} },
+  { id:'daidai', name:'だいだい', species:'ぷるん', shape:'blob', color:'#f0a15c',
+    genre:'チップチューン', track:'だいだいいろのきもち', file:'sound-daidai.mp3',
+    pos:{left:'30%', bottom:'46%'} },
+  { id:'komugi', name:'こむぎ', species:'もふ', shape:'fluffy', color:'#e8d3a5',
+    genre:'ローファイ', track:'膝の上で丸くなる', file:'sound-komugi.mp3',
+    pos:{left:'54%', bottom:'18%'} },
+  { id:'sumomo', name:'すもも', species:'もふ', shape:'fluffy', color:'#c6a3d1',
+    genre:'あめ', track:'雨の糸', file:'sound-sumomo.mp3',
+    pos:{left:'74%', bottom:'44%'} },
+  { id:'kazehiki', name:'かぜひき', species:'つの', shape:'horned', color:'#8fc9a0',
+    genre:'しぜん', track:'風と歩む道', file:'sound-kazehiki.mp3',
+    pos:{left:'16%', bottom:'62%'} },
+  { id:'hikage', name:'ひかげ', species:'つの', shape:'horned', color:'#5f8a8a',
+    genre:'チップチューン(短調)', track:'ひかげのいろ', file:'sound-hikage.mp3',
+    pos:{left:'56%', bottom:'62%'} },
+];
+
+function shapeMarkup(m){
+  if(m.shape==='blob') return `<div class="blob" style="background:${m.color}"></div>`;
+  if(m.shape==='fluffy') return `
+    <div class="fluffy-wrap">
+      <div class="fluffy-bump" style="background:${m.color};top:0;left:30%;"></div>
+      <div class="fluffy-bump" style="background:${m.color};top:5%;left:55%;"></div>
+      <div class="fluffy-body" style="background:${m.color}"></div>
+    </div>`;
+  if(m.shape==='horned') return `
+    <div class="horned-wrap">
+      <div class="horn" style="border-bottom:13px solid ${m.color};left:22%;"></div>
+      <div class="horn" style="border-bottom:13px solid ${m.color};left:62%;"></div>
+      <div class="horned-body" style="background:${m.color}"></div>
+    </div>`;
+  return '';
+}
+
+const spotsEl = document.getElementById('spots');
+monsters.forEach((m,i)=>{
+  const spot = document.createElement('div');
+  spot.className = 'spot';
+  spot.id = 'spot-'+m.id;
+  spot.style.left = m.pos.left;
+  spot.style.bottom = m.pos.bottom;
+  spot.style.animationDelay = (i*0.4)+'s';
+  spot.innerHTML = `
+    <div class="creature" style="animation-delay:${i*0.35}s">${shapeMarkup(m)}</div>
+    <div class="tuft"><div class="blade"></div><div class="blade2"></div></div>
+    <span class="name-tag">${m.name}</span>
+  `;
+  spot.addEventListener('click', ()=>selectMonster(m));
+  spotsEl.appendChild(spot);
+});
+
+const audio = document.getElementById('audio');
+const panel = document.getElementById('panel');
+const emptyHint = document.getElementById('emptyHint');
+let currentId = null;
+
+function selectMonster(m){
+  if(currentId === m.id){
+    closePanel();
+    return;
+  }
+  if(currentId){
+    document.getElementById('spot-'+currentId).classList.remove('active');
+  }
+  currentId = m.id;
+  document.getElementById('spot-'+m.id).classList.add('active');
+
+  document.getElementById('pName').textContent = m.name;
+  document.getElementById('pSub').textContent = '種族：'+m.species;
+  document.getElementById('pGenre').textContent = m.genre;
+  document.getElementById('pTrack').textContent = '♪ '+m.track;
+  document.getElementById('pStatus').textContent = '停止中';
+  document.getElementById('playBtn').textContent = '▶';
+
+  audio.pause();
+  audio.src = m.file;
+  panel.classList.add('open');
+  emptyHint.style.display = 'none';
+}
+
+function closePanel(){
+  if(currentId) document.getElementById('spot-'+currentId).classList.remove('active');
+  currentId = null;
+  audio.pause();
+  panel.classList.remove('open');
+  emptyHint.style.display = 'block';
+}
+
+document.getElementById('closeBtn').addEventListener('click', closePanel);
+
+document.getElementById('playBtn').addEventListener('click', ()=>{
+  if(audio.paused){
+    audio.play();
+    document.getElementById('playBtn').textContent = '❚❚';
+    document.getElementById('pStatus').textContent = 'さいせい中…';
+  } else {
+    audio.pause();
+    document.getElementById('playBtn').textContent = '▶';
+    document.getElementById('pStatus').textContent = '停止中';
+  }
+});
+
+audio.addEventListener('ended', ()=>{
+  document.getElementById('playBtn').textContent = '▶';
+  document.getElementById('pStatus').textContent = '再生おわり';
+});
+</script>
+</body>
+</html>

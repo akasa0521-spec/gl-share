@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>困りごとの、計算機｜Good Luck</title>
+<meta name="description" content="いま何が起きているかを、数字で置くための道具。入力は送信されません。">
+<style>
+:root{color-scheme:light only;
+  --paper:#F7F6F1; --card:#FFFFFF; --ink:#211F1A; --ink-soft:#4A473F;
+  --usuzumi:#8B887D; --keiline:#DEDBD0; --tokiwa:#2E5B3D; --tokiwa-lt:#A9C4B0;
+  --midori:#3F6B55; --midori-bg:#EDF3EE;
+  --kane:#9A7B4A; --kane-bg:#F5EFE2;
+  --serifB:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP','Noto Serif CJK JP',serif;
+  --sans:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+  --latin:'Hoefler Text','Baskerville','Palatino','Times New Roman',serif;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serifB);
+  line-height:2;letter-spacing:.03em;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:980px;margin:0 auto;padding:0 22px;}
+
+header{padding:46px 0 0;}
+.eyebrow{font-family:var(--serifB);font-size:11.5px;letter-spacing:.22em;color:var(--tokiwa);font-weight:600;}
+h1{font-size:28px;font-weight:600;line-height:1.6;margin:14px 0 0;}
+.lead{font-size:14px;color:var(--ink-soft);margin:16px 0 0;max-width:620px;}
+.dan{margin:22px 0 0;padding:14px 16px;border-radius:10px;background:#EFEDE5;
+  font-family:var(--sans);font-size:11.5px;color:var(--ink-soft);line-height:1.9;max-width:620px;}
+
+/* ── 観点の切り替え ── */
+.tabs{display:flex;gap:7px;margin:32px 0 0;flex-wrap:wrap;}
+.tab{font-family:var(--serifB);font-size:13.5px;padding:11px 18px;border-radius:999px;
+  border:1px solid var(--keiline);background:#FCFCFA;color:var(--ink-soft);cursor:pointer;
+  transition:background .4s,border-color .4s,color .4s;}
+.tab:hover{background:#F3F2EC;}
+.tab.on{background:var(--midori-bg);border-color:var(--tokiwa-lt);color:var(--midori);font-weight:600;}
+
+.grid{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;margin:26px 0 0;}
+.grid>*{min-width:0;}
+@media(max-width:880px){.grid{grid-template-columns:1fr;}}
+
+/* ── 入力 ── */
+.q{background:var(--card);border:1px solid var(--keiline);border-radius:12px;
+  padding:18px 18px 16px;margin-bottom:11px;}
+.q-t{font-size:15px;font-weight:600;margin:0 0 3px;}
+.q-h{font-family:var(--sans);font-size:11.5px;color:var(--usuzumi);margin-bottom:12px;line-height:1.8;}
+.row{display:flex;align-items:center;gap:10px;}
+.row input{flex:1;min-width:0;font-family:var(--latin);font-size:19px;padding:9px 12px;
+  border:1px solid var(--keiline);border-radius:8px;background:#FCFCFA;color:var(--ink);}
+.row input:focus{outline:2px solid var(--tokiwa-lt);outline-offset:1px;}
+.unit{font-family:var(--sans);font-size:12px;color:var(--usuzumi);white-space:nowrap;}
+.src{margin-top:10px;font-family:var(--sans);font-size:11px;color:var(--usuzumi);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.chip{font-size:10.5px;padding:3px 9px;border-radius:999px;font-weight:600;letter-spacing:.04em;}
+.c-real{background:var(--midori-bg);color:var(--midori);}
+.c-kari{background:var(--kane-bg);color:var(--kane);}
+
+/* ── 結果 ── */
+.out{position:sticky;top:18px;background:var(--card);border:1px solid var(--keiline);
+  border-radius:12px;padding:22px 20px;box-shadow:0 6px 26px rgba(40,38,30,.05);}
+@media(max-width:880px){.out{position:static;}}
+.out h2{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;
+  color:var(--usuzumi);margin:0 0 12px;}
+.big{font-family:var(--latin);font-size:33px;line-height:1.25;color:var(--ink);letter-spacing:.01em;}
+.big small{font-family:var(--sans);font-size:13px;color:var(--usuzumi);margin-left:5px;}
+.sub{font-size:13px;color:var(--ink-soft);margin-top:9px;line-height:1.9;}
+.brk{margin-top:16px;padding-top:14px;border-top:1px solid #F0EEE8;}
+.brk div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;
+  color:var(--ink-soft);padding:4px 0;}
+.brk b{font-family:var(--latin);font-weight:400;color:var(--ink);}
+.foot-note{font-family:var(--sans);font-size:10.5px;color:var(--usuzumi);
+  margin-top:14px;padding-top:12px;border-top:1px solid #F0EEE8;line-height:1.85;}
+
+.acts{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap;}
+.acts button{flex:1;min-width:120px;height:44px;border-radius:999px;cursor:pointer;
+  font-family:var(--serifB);font-size:13px;letter-spacing:.08em;border:1px solid var(--keiline);
+  background:#fff;color:var(--ink-soft);transition:background .4s;}
+.acts button:hover{background:#F4F3EE;}
+.acts .prim{background:var(--ink);color:#F7F6F1;border-color:var(--ink);}
+.acts .prim:hover{background:#3A3833;}
+
+.tail{margin:40px 0 0;padding:22px 22px 20px;border-radius:12px;background:#F2F1EB;
+  border:1px solid var(--keiline);}
+.tail p{font-size:13.5px;color:var(--ink-soft);margin:0 0 10px;line-height:2;}
+.tail b{color:var(--ink);}
+footer{padding:44px 0 70px;text-align:center;}
+.sig{font-family:var(--latin);font-size:18px;letter-spacing:.06em;}
+.sig-n{font-family:var(--sans);font-size:11px;color:var(--usuzumi);margin-top:7px;}
+footer a{color:var(--tokiwa);text-decoration:none;border-bottom:1px solid var(--tokiwa-lt);}
+
+/* ── 紙に出すとき ── */
+@media print{
+  @page{size:A4;margin:14mm 13mm;}
+  body{background:#fff;font-size:10.5pt;line-height:1.8;}
+  .wrap{max-width:none;padding:0;}
+  .tabs,.acts,.dan,footer .sig-n{display:none!important;}
+  .grid{grid-template-columns:1fr;gap:10mm;}
+  .q,.out{break-inside:avoid;box-shadow:none;border:1px solid #CCC;}
+  .out{position:static;}
+  header{padding:0 0 4mm;}
+  h1{font-size:17pt;}
+  .row input{font-size:14pt;border:none;border-bottom:1px solid #999;border-radius:0;background:none;}
+  .print-title{display:block!important;}
+  .tail{background:none;border:1px solid #DDD;}
+  a[href]:after{content:"";}
+}
+.print-title{display:none;font-family:var(--sans);font-size:9pt;color:#666;
+  border-bottom:1px solid #DDD;padding-bottom:3mm;margin-bottom:5mm;
+  display:none;justify-content:space-between;}
+</style>
+<style>.toybar{max-width:1160px;margin:0 auto;padding:22px 22px 0;}
+.toybar a{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;font-size:12.5px;
+  letter-spacing:.06em;color:#8B887D;text-decoration:none;transition:color .4s ease;}
+.toybar a:hover{color:#C4622E;}</style>
+</head>
+<body>
+<div class="toybar"><a href="./noren.html">← おもちゃ箱</a></div>
+<div class="wrap">
+
+<div class="print-title" id="ptitle"><span></span><span>Good Luck</span></div>
+
+<header>
+  <div class="eyebrow">困りごとの、計算機</div>
+  <h1 id="h1">いま何が起きているかを、<br>数字で置いてみる。</h1>
+  <p class="lead" id="lead">解けるかどうかは、そのあとの話です。<br>
+    まず、いくら分の困りごとなのかを、そちらの実数で置いてみてください。</p>
+  <div class="dan">
+    <b>入力したものは、どこにも送っていません。</b>この計算は、あなたのブラウザの中だけで動きます。
+    数字はこちらに届きません。印刷して、社内でお使いください。
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<div class="grid">
+  <div id="qs"></div>
+  <aside class="out">
+    <h2 id="outTitle">この困りごとの、大きさ</h2>
+    <div class="big"><span id="mainN">—</span><small id="mainU"></small></div>
+    <div class="sub" id="mainS"></div>
+    <div class="brk" id="brk"></div>
+    <div class="foot-note" id="fnote"></div>
+    <div class="acts">
+      <button class="prim" onclick="window.print()">印刷する</button>
+      <button onclick="blank()">空欄で印刷</button>
+    </div>
+  </aside>
+</div>
+
+<div class="tail">
+  <p><b>この数字は、こちらが出したものではありません。</b>すべて、そちらが入れた実数から計算しています。
+    計算の式は、この画面に全部出しています。隠している前提はありません。</p>
+  <p>数字が小さければ、急ぐ必要はないということです。<b>解決を売るための道具ではありません。</b>
+    いま何が起きているかを、見えるようにするだけの紙です。</p>
+</div>
+
+<footer>
+  <div class="sig">Good Luck</div>
+  <div class="sig-n">仕組みに完璧を求めて、人には求めない会社が作っています<br>
+    <a href="./noren.html">Good Luck のこと</a></div>
+</footer>
+</div>
+
+<script>
+/* ============ 観点 ============ */
+const V={
+ tejikan:{
+  name:'手作業の時間',
+  h1:'その作業に、<br>年間どれだけ使っていますか。',
+  lead:'転記、集計、確認の電話。慣れてしまって、誰も数えていない時間です。',
+  outT:'年間に、使っている時間',
+  q:[
+   {k:'min', t:'一回あたり、何分かかりますか', h:'始めてから終わるまで。待ち時間も含めて', v:20, u:'分'},
+   {k:'cnt', t:'それを、月に何回やりますか', h:'部署全体の回数で', v:60, u:'回'},
+   {k:'ppl', t:'何人が関わりますか', h:'同じ作業を分担している人数', v:2, u:'人'},
+   {k:'wage',t:'その人たちの時給は', h:'社会保険料などを含めた、会社から見た人件費', v:2200, u:'円'}
+  ],
+  calc:(d)=>{
+    const h = d.min*d.cnt*d.ppl*12/60;
+    const y = h*d.wage;
+    return {main:Math.round(h), unit:'時間 / 年',
+      sub:'人件費に換算すると、年 <b>'+Math.round(y).toLocaleString()+'</b> 円ぶんです。',
+      brk:[['一回 '+d.min+'分 × 月'+d.cnt+'回', (d.min*d.cnt/60).toFixed(1)+' 時間/月'],
+           ['× '+d.ppl+'人', (d.min*d.cnt*d.ppl/60).toFixed(1)+' 時間/月'],
+           ['× 12ヶ月', Math.round(h).toLocaleString()+' 時間/年'],
+           ['× 時給 '+d.wage.toLocaleString()+'円', Math.round(y).toLocaleString()+' 円/年']],
+      note:'※ この時間がゼロになるとは限りません。半分になるのか、三割なのかは、実際に見てからでないと分かりません。'};
+  }},
+
+ teichaku:{
+  name:'人が辞めること',
+  h1:'一人辞めると、<br>いくらかかっていますか。',
+  lead:'募集の費用、引き継ぎ、空席のあいだの残業。全部足すと、たいてい想像より大きくなります。',
+  outT:'年間に、出ている費用',
+  q:[
+   {k:'leave',t:'年に何人、辞めますか', h:'早期離職だけでなく、全体の人数で', v:6, u:'人'},
+   {k:'hire', t:'採用に、一人いくらかかりますか', h:'紹介手数料、広告費、面接にかかる人件費', v:800000, u:'円'},
+   {k:'days', t:'空席のまま、何日ありますか', h:'辞めてから、次の人が戦力になるまで', v:60, u:'日'},
+   {k:'cost', t:'空席の一日あたり、いくら', h:'残業代、派遣費、受けられなかった仕事', v:12000, u:'円'}
+  ],
+  calc:(d)=>{
+    const a=d.leave*d.hire, b=d.leave*d.days*d.cost, t=a+b;
+    return {main:Math.round(t).toLocaleString(), unit:'円 / 年',
+      sub:'採用に <b>'+Math.round(a).toLocaleString()+'</b> 円、空席のあいだに <b>'+Math.round(b).toLocaleString()+'</b> 円。',
+      brk:[['採用 '+d.hire.toLocaleString()+'円 × '+d.leave+'人', Math.round(a).toLocaleString()+' 円'],
+           ['空席 '+d.days+'日 × '+d.cost.toLocaleString()+'円', (d.days*d.cost).toLocaleString()+' 円/人'],
+           ['× '+d.leave+'人', Math.round(b).toLocaleString()+' 円'],
+           ['合計', Math.round(t).toLocaleString()+' 円/年']],
+      note:'※ 辞める人がゼロになることはありません。何人減らせるかは、理由を見てからの話です。'};
+  }},
+
+ toiawase:{
+  name:'問い合わせ',
+  h1:'同じ質問に、<br>何度答えていますか。',
+  lead:'書いてあるのに読まれない。電話が鳴る。答える人の手が止まる。',
+  outT:'年間に、対応している時間',
+  q:[
+   {k:'cnt', t:'月に何件、来ますか', h:'電話、メール、窓口を合わせて', v:120, u:'件'},
+   {k:'min', t:'一件あたり、何分かかりますか', h:'調べる時間、折り返しの時間も含めて', v:8, u:'分'},
+   {k:'same',t:'そのうち、同じ内容は何割ですか', h:'調べなくても答えられるもの', v:60, u:'％'},
+   {k:'wage',t:'対応する人の時給は', h:'会社から見た人件費で', v:2500, u:'円'}
+  ],
+  calc:(d)=>{
+    const h=d.cnt*d.min*12/60, hs=h*d.same/100, y=hs*d.wage;
+    return {main:Math.round(hs), unit:'時間 / 年',
+      sub:'同じ内容の対応だけで、年 <b>'+Math.round(y).toLocaleString()+'</b> 円ぶんです。',
+      brk:[['月'+d.cnt+'件 × '+d.min+'分', (d.cnt*d.min/60).toFixed(1)+' 時間/月'],
+           ['× 12ヶ月', Math.round(h)+' 時間/年'],
+           ['うち同じ内容 '+d.same+'％', Math.round(hs)+' 時間/年'],
+           ['× 時給 '+d.wage.toLocaleString()+'円', Math.round(y).toLocaleString()+' 円/年']],
+      note:'※ ゼロにはなりません。人に聞きたい人は、必ずいます。'};
+  }},
+
+ hikitsugi:{
+  name:'その人しか知らない',
+  h1:'その人が休むと、<br>止まる仕事はありますか。',
+  lead:'属人化と呼ばれるものです。困るのは、たいてい辞める日ではなく、急に休んだ日です。',
+  outT:'止まると、これだけ',
+  q:[
+   {k:'jobs',t:'その人しかできない仕事は、いくつありますか', h:'手順を書いた紙がないもの', v:5, u:'件'},
+   {k:'freq',t:'それぞれ、月に何回ありますか', h:'', v:4, u:'回'},
+   {k:'stop',t:'止まると、何時間の遅れが出ますか', h:'代わりの人が調べる時間、待たせる時間', v:3, u:'時間'},
+   {k:'wage',t:'関わる人の時給は', h:'会社から見た人件費で', v:2500, u:'円'}
+  ],
+  calc:(d)=>{
+    const risk=d.jobs*d.freq*12, h=risk*d.stop*0.1, y=h*d.wage;
+    return {main:risk.toLocaleString(), unit:'回 / 年',
+      sub:'一割で滞ると仮定すると、年 <b>'+Math.round(h)+'</b> 時間、<b>'+Math.round(y).toLocaleString()+'</b> 円ぶんの遅れです。',
+      brk:[[d.jobs+'件 × 月'+d.freq+'回 × 12ヶ月', risk.toLocaleString()+' 回/年'],
+           ['うち一割が滞る（仮）', Math.round(risk*0.1)+' 回/年'],
+           ['× '+d.stop+'時間', Math.round(h)+' 時間/年'],
+           ['× 時給 '+d.wage.toLocaleString()+'円', Math.round(y).toLocaleString()+' 円/年']],
+      note:'※「一割」はこちらが置いた仮の数字です。実際の頻度は、そちらのほうがご存知です。動かして構いません。'};
+  }}
+};
+
+let cur='tejikan', data={};
+const tabs=document.getElementById('tabs'), qs=document.getElementById('qs');
+
+Object.keys(V).forEach(k=>{
+  const b=document.createElement('button');
+  b.className='tab'+(k===cur?' on':''); b.textContent=V[k].name; b.dataset.k=k;
+  b.addEventListener('click',()=>{cur=k;build();});
+  tabs.appendChild(b);
+});
+
+function build(){
+  [...tabs.children].forEach(b=>b.classList.toggle('on',b.dataset.k===cur));
+  const v=V[cur];
+  document.getElementById('h1').innerHTML=v.h1;
+  document.getElementById('lead').textContent=v.lead;
+  document.getElementById('outTitle').textContent=v.outT;
+  document.getElementById('ptitle').firstElementChild.textContent='困りごとの計算 — '+v.name;
+  data={}; qs.innerHTML='';
+  v.q.forEach(q=>{
+    data[q.k]=q.v;
+    const d=document.createElement('div'); d.className='q';
+    d.innerHTML=`<div class="q-t">${q.t}</div>${q.h?`<div class="q-h">${q.h}</div>`:''}
+      <div class="row"><input type="number" value="${q.v}" min="0"><span class="unit">${q.u}</span></div>
+      <div class="src"><span class="chip c-kari">仮に置いた数字</span>
+        <span>そちらの実数を入れてください</span></div>`;
+    const inp=d.querySelector('input'), chip=d.querySelector('.chip'), note=d.querySelector('.src span:last-child');
+    inp.addEventListener('input',()=>{
+      data[q.k]=+inp.value||0;
+      if(+inp.value!==q.v){chip.className='chip c-real';chip.textContent='そちらの実数';note.textContent='入力されました';}
+      else{chip.className='chip c-kari';chip.textContent='仮に置いた数字';note.textContent='そちらの実数を入れてください';}
+      draw();
+    });
+    qs.appendChild(d);
+  });
+  draw();
+}
+function draw(){
+  const r=V[cur].calc(data);
+  document.getElementById('mainN').textContent=typeof r.main==='number'?r.main.toLocaleString():r.main;
+  document.getElementById('mainU').textContent=r.unit;
+  document.getElementById('mainS').innerHTML=r.sub;
+  document.getElementById('brk').innerHTML=r.brk.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
+  document.getElementById('fnote').textContent=r.note;
+}
+function blank(){
+  qs.querySelectorAll('input').forEach(i=>i.value='');
+  document.body.classList.add('blank'); window.print();
+  setTimeout(()=>{document.body.classList.remove('blank');build();},600);
+}
+build();
+</script>
+</body>
+</html>

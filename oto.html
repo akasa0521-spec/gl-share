@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="./favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>音｜Good Luck</title>
+<meta name="description" content="静かすぎて話しづらい部屋のための音。ブラウザがその場で作ります。音源ファイルはありません。無料・登録不要。">
+<meta property="og:title" content="音｜Good Luck">
+<meta property="og:description" content="静かすぎて話しづらい部屋のための音。ブラウザがその場で作ります。">
+<meta property="og:type" content="website">
+<style>
+:root{color-scheme:light only;
+  --paper:#F7F6F1; --ink:#211F1A; --ink-soft:#4A473F; --usuzumi:#8B887D; --keiline:#DEDBD0;
+  --tokiwa:#2E5B3D; --mori:#3F6B55; --mori-lt:#E9EFE7; --mori-bd:#B4C4B0;
+  --serifB:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP','Noto Serif CJK JP',serif;
+  --latin:'Hoefler Text','Baskerville','Palatino','Times New Roman',serif;
+  --sans:'Hiragino Sans','Yu Gothic','YuGothic','Noto Sans JP','Noto Sans CJK JP',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serifB);
+  line-height:2.05;letter-spacing:.045em;
+  transition:background 3.5s ease;
+  -webkit-font-smoothing:antialiased;}
+body.t-asa{background:#F5F7F2;} body.t-hiru{background:#F4F6F7;}
+body.t-gogo{background:#F8F6F1;} body.t-yoru{background:#F2F2F0;}
+.wrap{max-width:640px;margin-left:auto;margin-right:auto;padding:0 24px;}
+body{display:block;}
+header{padding:34px 0 8px;}
+.home{display:inline-block;margin-bottom:26px;font-family:var(--latin);font-size:13px;
+  letter-spacing:.06em;color:var(--usuzumi);text-decoration:none;
+  transition:color .5s ease;}
+.home:hover{color:var(--tokiwa);}
+.eyebrow{font-family:var(--serifB);font-size:11.5px;letter-spacing:.22em;color:var(--tokiwa);font-weight:600;}
+h1{font-size:29px;line-height:1.62;letter-spacing:.03em;margin:16px 0 0;font-weight:600;}
+h1 b{font-weight:600;border-bottom:1.5px solid var(--mori-bd);padding-bottom:2px;}
+.lead{font-size:14.5px;color:var(--ink-soft);margin-top:22px;}
+.rule{width:56px;height:1.5px;background:var(--tokiwa);opacity:.5;margin:34px 0 0;}
+
+/* ——— 操作盤 ——— */
+.panel{margin:38px 0 0;padding:26px 24px 24px;background:rgba(255,255,255,.62);
+  border:1px solid var(--keiline);border-radius:14px;backdrop-filter:blur(6px);}
+.big{width:100%;height:60px;border-radius:999px;border:1px solid var(--mori-bd);
+  background:var(--mori-lt);color:var(--mori);cursor:pointer;
+  font-family:var(--serifB);font-size:16px;letter-spacing:.16em;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  transition:background .5s ease,color .5s ease,border-color .5s ease;}
+.big:hover{background:#DFE9DC;}
+.big.on{background:var(--mori);color:#F2F6F0;border-color:var(--mori);}
+.dot{width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.5;}
+.big.on .dot{opacity:1;animation:pulse 3.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.55;}50%{transform:scale(1.5);opacity:1;}}
+
+.row{margin-top:24px;}
+.label{font-family:var(--sans);font-size:11px;letter-spacing:.14em;color:var(--usuzumi);margin-bottom:10px;}
+.times{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
+.tb{padding:11px 4px;border-radius:9px;border:1px solid var(--keiline);background:rgba(255,255,255,.7);
+  font-family:var(--serifB);font-size:12.5px;color:var(--ink-soft);cursor:pointer;
+  transition:background .45s ease,border-color .45s ease,color .45s ease;}
+.tb.sel{background:var(--mori-lt);border-color:var(--mori-bd);color:var(--mori);}
+.tb small{display:block;font-family:var(--sans);font-size:9.5px;letter-spacing:.06em;color:var(--usuzumi);margin-top:3px;}
+.tb.sel small{color:var(--mori);opacity:.75;}
+
+input[type=range]{width:100%;accent-color:var(--mori);height:26px;}
+.mx{display:grid;grid-template-columns:76px 1fr 30px;align-items:center;gap:10px;margin-bottom:2px;}
+.mx span{font-family:var(--serifB);font-size:12.5px;color:var(--ink-soft);letter-spacing:.06em;}
+.mx i{font-family:var(--latin);font-size:11.5px;color:var(--usuzumi);font-style:normal;text-align:right;}
+.mx input{height:22px;}
+.mx select{font-family:var(--latin);font-size:13px;padding:6px 8px;border-radius:7px;
+  border:1px solid var(--keiline);background:#fff;color:var(--ink);}
+.mw-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.mw-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px 7px 13px;
+  border-radius:999px;border:1px solid var(--mori-bd);background:var(--mori-lt);
+  font-family:var(--latin);font-size:13px;color:var(--mori);}
+.mw-chip button{border:none;background:none;cursor:pointer;color:var(--mori);opacity:.55;
+  font-size:15px;line-height:1;padding:0 2px;}
+.mw-chip button:hover{opacity:1;}
+.mw-empty{font-family:var(--sans);font-size:11px;color:var(--usuzumi);margin-top:8px;}
+.vol-n{font-family:var(--latin);font-size:12px;color:var(--usuzumi);float:right;}
+
+.note{font-family:var(--sans);font-size:11.5px;color:var(--usuzumi);line-height:1.95;margin-top:18px;}
+
+/* ——— 読みもの ——— */
+section{padding:48px 0 0;}
+p{font-size:14.5px;line-height:2.1;margin:0 0 20px;}
+p b{font-weight:600;border-bottom:1.5px solid var(--mori-bd);padding-bottom:1px;}
+h2{font-size:17px;font-weight:600;letter-spacing:.06em;margin:0 0 18px;}
+#bigDot{position:fixed;right:16px;bottom:16px;z-index:400;width:46px;height:46px;border-radius:50%;
+  background:rgba(247,246,241,.94);border:1px solid var(--keiline);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;
+  font-family:var(--serifB);color:var(--usuzumi);box-shadow:0 4px 16px rgba(40,38,30,.07);
+  transition:background .5s ease,color .5s ease,border-color .5s ease;}
+#bigMark{font-size:16px;line-height:1;transition:font-size .5s ease;}
+#bigDot.s1{border-color:var(--mori-bd);color:var(--mori);background:var(--mori-lt);}
+#bigDot.s1 #bigMark{font-size:19px;}
+#bigDot.s2{border-color:var(--mori);color:#F2F6F0;background:var(--mori);}
+#bigDot.s2 #bigMark{font-size:22px;}
+body.big1{--fs:1.18;} body.big2{--fs:1.36;}
+body.big1 p,body.big2 p{font-size:calc(14.5px * var(--fs));color:var(--ink);}
+body.big1 .lead,body.big2 .lead{font-size:calc(14.5px * var(--fs));}
+body.big1 h2,body.big2 h2{font-size:calc(17px * var(--fs));}
+body.big1 h1,body.big2 h1{font-size:calc(29px * var(--fs));line-height:1.55;}
+body.big1 .label,body.big2 .label{font-size:calc(11px * var(--fs));}
+body.big1 .tb,body.big2 .tb{font-size:calc(12.5px * var(--fs));}
+body.big1 .big,body.big2 .big{font-size:calc(16px * var(--fs));}
+body.big1 .note,body.big2 .note{font-size:calc(11.5px * var(--fs));color:var(--ink-soft);}
+body.big1 .mx span,body.big2 .mx span{font-size:calc(12.5px * var(--fs));}
+@media(max-width:719px){#bigDot{right:12px;bottom:12px;width:42px;height:42px;}
+  body.big1 h1,body.big2 h1{font-size:calc(24px * var(--fs));}}
+#thanks{margin:46px 0 0;padding:28px 26px 24px;border-radius:14px;
+  border:1px solid var(--mori-bd);background:var(--mori-lt);
+  opacity:0;transform:translateY(10px);
+  transition:opacity 1.6s cubic-bezier(.3,.5,.2,1),transform 1.6s cubic-bezier(.3,.5,.2,1);}
+#thanks.in{opacity:1;transform:none;}
+.th-q{font-family:var(--serifB);font-size:17px;color:var(--mori);margin:0 0 10px;font-weight:600;letter-spacing:.05em;}
+.th-a{font-size:13.5px;color:var(--ink-soft);margin:0 0 18px;line-height:2;}
+.th-n{font-family:var(--sans);font-size:11px;color:var(--usuzumi);}
+.th-b{display:flex;gap:10px;flex-wrap:wrap;}
+.th-b button{height:44px;padding:0 20px;border-radius:999px;cursor:pointer;
+  font-family:var(--serifB);font-size:13px;letter-spacing:.1em;
+  transition:background .5s ease;}
+#thX{border:1px solid var(--mori);background:var(--mori);color:#F2F6F0;}
+#thX:hover{background:#345A47;}
+#thNo{border:1px solid var(--keiline);background:transparent;color:var(--usuzumi);}
+footer{padding:56px 0 90px;border-top:1px solid var(--keiline);margin-top:52px;}
+footer a{color:var(--tokiwa);text-decoration:none;}
+.back{display:inline-flex;align-items:center;height:48px;padding:0 24px;border-radius:999px;
+  border:1px solid var(--mori-bd);background:var(--mori-lt);color:var(--mori)!important;
+  font-family:var(--serifB);font-size:14px;letter-spacing:.1em;
+  transition:background .5s ease;}
+.back:hover{background:#DFE9DC;}
+.sig{font-family:var(--latin);font-size:15px;letter-spacing:.06em;}
+
+/* ——— 見回りの窓 ——— */
+#mimawari{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;
+  background:rgba(33,31,26,.28);backdrop-filter:blur(3px);}
+#mimawari.show{display:flex;}
+.mw{background:var(--paper);border:1px solid var(--keiline);border-radius:16px;
+  padding:34px 30px 26px;max-width:390px;width:calc(100% - 40px);text-align:center;
+  box-shadow:0 18px 60px rgba(40,38,30,.16);}
+.mw h3{font-size:19px;margin:0 0 14px;font-weight:600;letter-spacing:.06em;}
+.mw p{font-size:13.5px;color:var(--ink-soft);margin:0 0 22px;}
+.mw-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mw-btns button{height:46px;border-radius:999px;cursor:pointer;
+  font-family:var(--serifB);font-size:13.5px;letter-spacing:.1em;}
+/* どちらが上等にも見えないように、同じ濃さの色違い */
+.mw-a{border:1px solid #B4C4B0;background:#E9EFE7;color:#3F6B55;}
+.mw-b{border:1px solid #B7BEC6;background:#E7EBEF;color:#4A5A66;}
+.mw-note{font-family:var(--sans);font-size:10.5px;color:var(--usuzumi);margin-top:16px;line-height:1.9;}
+@media(max-width:719px){
+  header{padding:56px 0 6px;} h1{font-size:24px;}
+  .wrap{padding:0 20px;} .times{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body class="t-gogo">
+<!-- タブに「音が鳴っています」を出させるためだけの、無音の一秒 -->
+<audio id="silent" loop preload="auto" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA="></audio>
+
+<div class="wrap">
+<header>
+  <a class="home" href="./noren.html">← おもちゃ箱</a>
+  <div class="eyebrow">音</div>
+  <h1>静かすぎる部屋では、<br><b>最初に喋る人が悪者</b>になる。</h1>
+  <p class="lead">これは性格の問題ではなく、部屋の設計の問題です。<br>
+     音を足すのは、隠すためではなく、喋っていいと伝えるため。<br>
+     開いておくだけで働きます。無料、登録も不要です。</p>
+  <div class="rule"></div>
+</header>
+
+<div class="panel">
+  <button class="big" id="go"><span class="dot"></span><span id="goT">音を、灯す</span></button>
+
+  <div class="row">
+    <div class="label">とき<span id="autoTag" style="float:right;font-size:10px;">時計に合わせています</span></div>
+    <div class="times" id="times">
+      <button class="tb" data-k="auto">おまかせ<small>時計どおり</small></button>
+      <button class="tb" data-k="asa">朝<small>高く、軽く</small></button>
+      <button class="tb" data-k="hiru">昼<small>水、たゆたう</small></button>
+      <button class="tb" data-k="gogo">午後<small>人の気配</small></button>
+      <button class="tb" data-k="yoru">夜<small>一段低く、遠く</small></button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label">おおきさ<span class="vol-n" id="volN">16</span></div>
+    <input type="range" id="vol" min="0" max="40" value="16">
+  </div>
+
+  <div class="row">
+    <div class="label">組み合わせ<button id="mixTgl" style="float:right;font-family:var(--sans);font-size:10px;letter-spacing:.1em;color:var(--usuzumi);background:none;border:none;cursor:pointer;padding:0;">ひらく</button></div>
+    <div id="mixBox" hidden>
+      <div class="mx"><span>人の声</span><input type="range" data-l="voice" min="0" max="100" value="70"><i>70</i></div>
+      <div class="mx"><span>部屋鳴り</span><input type="range" data-l="room" min="0" max="100" value="18"><i>18</i></div>
+      <div class="mx"><span>空気</span><input type="range" data-l="air" min="0" max="100" value="5"><i>5</i></div>
+      <div class="mx"><span>低い土台</span><input type="range" data-l="drone" min="0" max="100" value="12"><i>12</i></div>
+      <div class="mx"><span>旋律</span><input type="range" data-l="mel" min="0" max="100" value="26"><i>26</i></div>
+      <button id="mixReset" class="tb" style="width:100%;margin-top:6px;">とき、におまかせに戻す<small>手で動かすと、時間帯の自動調整は止まります</small></button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label">見回りの時間<span style="float:right;font-size:10px;" id="mwTag">切</span></div>
+    <div class="times" style="grid-template-columns:1fr 1fr;">
+      <button class="tb" id="mwOn">入<small>窓がひとつ、出ます</small></button>
+      <button class="tb sel" id="mwOff">切<small>音だけ使う</small></button>
+    </div>
+    <div id="mwSet" hidden style="margin-top:10px;">
+      <div class="mx" style="grid-template-columns:76px 1fr;">
+        <span>時刻</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="mwH"></select><span style="color:var(--usuzumi);">：</span><select id="mwM"></select>
+          <button id="mwAdd" class="tb" style="padding:6px 12px;font-size:11.5px;">この時間を、足す</button>
+        </div>
+      </div>
+      <div id="mwList" class="mw-list"></div>
+      <div class="mx" style="grid-template-columns:76px 1fr;margin-top:12px;">
+        <span>長さ</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="mwLen"></select>
+          <span style="font-family:var(--sans);font-size:11px;color:var(--usuzumi);">のあいだ、音が変わります</span>
+        </div>
+      </div>
+      <button id="mwTry" class="tb" style="width:100%;margin-top:10px;">見回りを、試してみる<small>いま鳴らして、どう変わるか確かめる（三十秒に縮めて）</small></button>
+    </div>
+  </div>
+
+  <p class="note" id="clockNote" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--keiline);">
+    時計は、<b style="border-bottom:1px solid var(--mori-bd);">この端末のもの</b>を見ています。外の時刻サーバーは見ていません（このページは、外部と一切通信しません）。<br>
+    いま、そちらの時計では <span id="clockNow" style="font-family:var(--latin);font-size:13px;color:var(--ink);"></span> です。ずれていたら、端末側でお直しください。</p>
+
+  <p class="note" id="note">押したときだけ鳴ります。音源ファイルはありません——ブラウザが、その場で作ります。<br>
+    毎回わずかに違う音になります。同じ演奏は、二度とありません。</p>
+</div>
+
+<section>
+  <h2>なぜ効くのか</h2>
+  <p>人の声は、<b>人の声でしか隠せません。</b>雑音を大きくするより、ずっと小さな音で足ります。流しているのは、何十人分もの話し声を混ぜて、言葉に戻らないところまで溶かしたもの。意味の分かる言葉は、ひとつも入っていません。歌詞が入ると、読み書きの邪魔になるからです。</p>
+  <p>速さは、脈に合わせてあります。安静時の心拍が、だいたい六十から八十。そこに置くと、急かされません。</p>
+  <p><b>夜の音からは、低い声を抜いています。</b>暗い帰り道で思い出したときに、怖くないように。途切れさせないのも同じ理由です。静けさの合間に声が挟まると、人は「誰かいる」と受け取ってしまうので。</p>
+
+  <h2>使い方</h2>
+  <p>ちいさく流したまま、放っておいてください。<b>気づかれないのが、正しい状態です。</b>会話が聞き取りにくくなるかどうかで、効いているかが分かります。うるさいと感じたら、それは大きすぎます。</p>
+  <p>通話中に使うときは、一度ご自身の声を録って確かめてください。指向性のマイクなら、机の上のスピーカーはかなり削れますが、環境によります。</p>
+
+  <h2>断りごと</h2>
+  <p>このページは、何も記録しません。回数も、時間も、どの音を選んだかも。<b>こちらのサーバーには、何も残りません。</b>設定はお使いの端末の中だけに保存されます。</p>
+</section>
+
+<button id="bigDot" aria-label="文字を大きくする"><span id="bigMark">あ</span></button>
+
+<div id="thanks" hidden>
+  <p class="th-q">静かになりましたか。</p>
+  <p class="th-a">よければ、誰かに教えてあげてください。<br>
+    <span class="th-n">条件はありません。この窓は、一度きりです。</span></p>
+  <div class="th-b">
+    <button id="thX">Xで、そっと教える</button>
+    <button id="thNo">閉じる</button>
+  </div>
+</div>
+
+<footer>
+  <p style="margin-bottom:22px;">仕組みに完璧を求めて、人には求めない会社が作っています。<br>
+    この音も、会社の考え方から出てきたものです。</p>
+  <a class="back" href="./noren.html">Good Luck のことを、読む</a>
+  <div class="sig">Good Luck</div>
+</footer>
+</div>
+
+<!-- 十五時の見回り -->
+<div id="mimawari">
+  <div class="mw">
+    <h3>見回りの時間です。</h3>
+    <p>十五分ほど、部屋を見てまわります。<br>何を直すかは、ご自身で。</p>
+    <div class="mw-btns">
+      <button class="mw-a" id="mwYes">参加する</button>
+      <button class="mw-b" id="mwNo">今日はやめておく</button>
+    </div>
+    <div class="mw-note">手を止められない時は、そのままで構いません。<br>この窓は十秒で消えます。記録は取りません。</div>
+  </div>
+</div>
+
+<script>
+/* ============ 音：その場で作る ============ */
+const AC=window.AudioContext||window.webkitAudioContext;
+let ctx=null,master=null,nodes=[],playing=false,melTimer=null,layers={};
+let manual=false, mix={voice:.70,room:.18,air:.05,drone:.12,mel:.26};
+let MAX=0.16, mode='auto';
+
+/* 音階：時間帯で、旋律そのものを変える */
+const SCALES={
+  /* 朝：明るい五音（呂旋法に近い）。高めで、歩みも軽い */
+  asa :{sc:[220,246.94,277.18,329.63,369.99,440], oct:1,   dur:[4.5,7],  hold:2.6},
+  /* 昼：水の音。四度が多く、たゆたう */
+  hiru:{sc:[196,220,261.63,293.66,349.23],        oct:1,   dur:[6,9.5],  hold:3.4},
+  /* 午後：低めの短音階。動きは最小 */
+  gogo:{sc:[110,130.81,146.83,164.81,196,220],    oct:1,   dur:[7,11],   hold:4.0},
+  /* 夜：一オクターブ下。間合いが長く、めったに動かない */
+  yoru:{sc:[110,123.47,146.83,164.81,196],        oct:0.5, dur:[9,14],   hold:5.2}
+};
+const T={
+  asa :{voice:.28, room:.14, air:.26, drone:.05, mel:.40, hi:6600, harm:[[1,1],[2,.5],[3,.42],[4,.30],[5,.22],[6,.16],[8,.11]]},
+  hiru:{voice:.42, room:.32, air:.14, drone:.09, mel:.34, hi:5400, harm:[[1,1],[2,.55],[3,.30],[4,.18],[5,.10]]},
+  gogo:{voice:.70, room:.18, air:.05, drone:.13, mel:.24, hi:5200, harm:[[1,1],[2,.62],[3,.44],[4,.30],[5,.20],[6,.14],[8,.09]]},
+  yoru:{voice:.52, room:.11, air:.10, drone:.06, mel:.32, hi:6200, harm:[[1,1],[2,.34],[3,.14],[4,.07]]}
+};
+const nowKey=()=>{const h=new Date().getHours();
+  return h<11?'asa':h<13?'hiru':h<17.5?'gogo':'yoru';};
+const active=()=>mode==='auto'?nowKey():mode;
+
+function noise(sec){const b=ctx.createBuffer(1,ctx.sampleRate*sec,ctx.sampleRate);
+  const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b;}
+function src(sec){const s=ctx.createBufferSource();s.buffer=noise(sec);s.loop=true;s.start();nodes.push(s);return s;}
+function bp(f,q){const x=ctx.createBiquadFilter();x.type='bandpass';x.frequency.value=f;x.Q.value=q;return x;}
+function g(v){const n=ctx.createGain();n.gain.value=v;return n;}
+
+function build(){
+  master=g(0); master.connect(ctx.destination);
+  const p=manual?mix:T[active()];
+
+  /* 一．声 */
+  layers.voice=g(p.voice); layers.voice.connect(master);
+  for(let i=0;i<7;i++){
+    const n=src(4+Math.random()*3);
+    const f1=380+Math.random()*400,f2=1000+Math.random()*900,f3=2300+Math.random()*800;
+    [[f1,7,1],[f2,9,.6],[f3,11,.3]].forEach(([f,q,v])=>{
+      const filt=bp(f,q),gg=g(v);n.connect(filt);filt.connect(gg);gg.connect(layers.voice);});
+    const amp=g(1); n.connect(amp);
+    const lfo=ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=2.2+Math.random()*2.6;
+    const ld=g(.5); lfo.connect(ld); ld.connect(amp.gain); lfo.start(); nodes.push(lfo);
+  }
+  /* 二．部屋鳴り */
+  layers.room=g(p.room); layers.room.connect(master);
+  const r=src(5),rf=bp(600,.6); r.connect(rf); rf.connect(layers.room);
+  /* 三．空気（朝は鳥・夜は虫の帯） */
+  layers.air=g(p.air); layers.air.connect(master);
+  const a=src(6),af=ctx.createBiquadFilter(); af.type='highpass'; af.frequency.value=T[active()].hi;
+  a.connect(af); af.connect(layers.air);
+  /* 四．土台 */
+  layers.drone=g(p.drone); layers.drone.connect(master);
+  [[55,1],[82.5,.42],[110,.46]].forEach(([f,v])=>{[-0.11,0.11].forEach(d=>{
+    const o=ctx.createOscillator();o.type='sine';o.frequency.value=f+d;
+    const og=g(v*.5);o.connect(og);og.connect(layers.drone);o.start();nodes.push(o);});});
+  /* 五．旋律 */
+  layers.mel=g(p.mel); layers.mel.connect(master);
+  let prev=2;
+  (function step(){
+    if(!playing)return;
+    const k=active(), S=SCALES[k], pp=T[k];
+    prev=Math.max(0,Math.min(S.sc.length-1,prev+[-2,-1,-1,0,1,1,2][Math.floor(Math.random()*7)]));
+    const f=S.sc[prev]*S.oct;
+    const dur=S.dur[0]+Math.random()*(S.dur[1]-S.dur[0]), t0=ctx.currentTime;
+    const gg=ctx.createGain(); gg.gain.value=0; gg.connect(layers.mel);
+    pp.harm.forEach(([m,v])=>{
+      const o=ctx.createOscillator();o.type='sine';o.frequency.value=f*m;
+      const og=g(v*.42);o.connect(og);og.connect(gg);o.start(t0);o.stop(t0+dur+.4);});
+    const atk=Math.min(S.hold, dur*0.35), rel=Math.min(S.hold*1.3, dur*0.45);
+    gg.gain.setValueAtTime(0,t0);
+    gg.gain.linearRampToValueAtTime(.9,t0+atk);
+    gg.gain.setValueAtTime(.9,t0+dur-rel);
+    gg.gain.linearRampToValueAtTime(0,t0+dur);
+    melTimer=setTimeout(step,dur*1000*(.52+Math.random()*.16));
+  })();
+}
+
+/* 時間帯を、切らずに移す */
+function shade(){
+  if(manual){document.body.className='t-'+active();return;}
+  const p=T[active()];
+  if(!playing||!layers.voice)return;
+  const t=ctx.currentTime, D=12;   /* 十二秒かけて、気づかれずに */
+  const set=(n,v)=>{n.gain.cancelScheduledValues(t);n.gain.setValueAtTime(n.gain.value,t);
+    n.gain.linearRampToValueAtTime(v,t+D);};
+  set(layers.voice,p.voice); set(layers.room,p.room);
+  set(layers.air,p.air); set(layers.drone,p.drone); set(layers.mel,p.mel);
+  document.body.className='t-'+active();
+}
+
+/* どこから鳴っているか、分かるように */
+const TITLE_OFF='音｜Good Luck', TITLE_ON='♪ 鳴っています｜Good Luck';
+function favicon(on){
+  const svg = on
+    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#3F6B55"/><path d="M9 13h3.5L17 9v14l-4.5-4H9z" fill="#F2F6F0"/><path d="M21 13.4c1.4 1.7 1.4 3.5 0 5.2" stroke="#F2F6F0" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M24 10.6c2.7 3.3 2.7 7.5 0 10.8" stroke="#F2F6F0" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".7"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#F7F6F1" stroke="#DEDBD0"/><path d="M9 13h3.5L17 9v14l-4.5-4H9z" fill="#8B887D"/></svg>`;
+  let l=document.getElementById('fav');
+  if(!l){l=document.createElement('link');l.id='fav';l.rel='icon';document.head.appendChild(l);}
+  l.href='data:image/svg+xml,'+encodeURIComponent(svg);
+}
+favicon(false);
+const silent=document.getElementById('silent');
+
+const go=document.getElementById('go'), goT=document.getElementById('goT');
+async function toggle(){
+  if(!playing){
+    if(!ctx)ctx=new AC();
+    if(ctx.state==='suspended')await ctx.resume();
+    playing=true; build();
+    master.gain.setValueAtTime(0,ctx.currentTime);
+    master.gain.linearRampToValueAtTime(MAX,ctx.currentTime+2.6);
+    go.classList.add('on'); goT.textContent='音を、しずめる';
+    document.title=TITLE_ON; favicon(true);
+    try{silent.volume=0; silent.play().catch(()=>{});}catch(e){}
+  }else{
+    playing=false; clearTimeout(melTimer);
+    const t=ctx.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(master.gain.value,t);
+    master.gain.linearRampToValueAtTime(0,t+1.8);
+    setTimeout(()=>{nodes.forEach(n=>{try{n.stop();}catch(e){}});nodes=[];layers={};},2000);
+    go.classList.remove('on'); goT.textContent='音を、灯す';
+    document.title=TITLE_OFF; favicon(false);
+    try{silent.pause();}catch(e){}
+  }
+}
+go.addEventListener('click',toggle);
+
+/* とき */
+const times=document.getElementById('times');
+function markTime(){
+  [...times.children].forEach(b=>b.classList.toggle('sel',b.dataset.k===mode));
+  document.getElementById('autoTag').textContent =
+    mode==='auto' ? '時計に合わせています（いま：'+({asa:'朝',hiru:'昼',gogo:'午後',yoru:'夜'})[nowKey()]+'）' : '手で選んでいます';
+  document.body.className='t-'+active();
+}
+times.addEventListener('click',e=>{
+  const b=e.target.closest('.tb'); if(!b)return;
+  mode=b.dataset.k; markTime(); shade(); save();
+});
+
+/* おおきさ */
+const vol=document.getElementById('vol'), volN=document.getElementById('volN');
+vol.addEventListener('input',()=>{
+  MAX=vol.value/100; volN.textContent=vol.value;
+  if(playing&&master){const t=ctx.currentTime;
+    master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);
+    master.gain.linearRampToValueAtTime(MAX,t+.4);}
+  save();
+});
+
+/* 組み合わせ：層ごとに、手で */
+letmanual=false, mix={voice:.70,room:.18,air:.05,drone:.12,mel:.26};
+const mixBox=document.getElementById('mixBox'), mixTgl=document.getElementById('mixTgl');
+mixTgl.addEventListener('click',()=>{
+  mixBox.hidden=!mixBox.hidden; mixTgl.textContent=mixBox.hidden?'ひらく':'とじる';
+});
+mixBox.addEventListener('input',e=>{
+  const r=e.target; if(r.tagName!=='INPUT')return;
+  manual=true;
+  const k=r.dataset.l, v=r.value/100;
+  mix[k]=v; r.parentElement.querySelector('i').textContent=r.value;
+  if(playing&&layers[k]){const t=ctx.currentTime;
+    layers[k].gain.cancelScheduledValues(t);
+    layers[k].gain.setValueAtTime(layers[k].gain.value,t);
+    layers[k].gain.linearRampToValueAtTime(v,t+.5);}
+  save();
+});
+document.getElementById('mixReset').addEventListener('click',()=>{
+  manual=false; const p=T[active()];
+  mix={voice:p.voice,room:p.room,air:p.air,drone:p.drone,mel:p.mel};
+  syncMixUI(); shade(); save();
+});
+function syncMixUI(){
+  mixBox.querySelectorAll('input').forEach(r=>{
+    const v=Math.round(mix[r.dataset.l]*100);
+    r.value=v; r.parentElement.querySelector('i').textContent=v;
+  });
+}
+
+/* 十五時の見回り */
+let mw=false, mwTimes=['15:00'], mwDone={};
+const mwOn=document.getElementById('mwOn'), mwOff=document.getElementById('mwOff');
+const mwSet=document.getElementById('mwSet'), mwList=document.getElementById('mwList');
+const mwH=document.getElementById('mwH'), mwM=document.getElementById('mwM');
+for(let h=0;h<24;h++){const o=document.createElement('option');o.value=h;o.textContent=String(h).padStart(2,'0');if(h===15)o.selected=true;mwH.appendChild(o);}
+[0,15,30,45].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=String(m).padStart(2,'0');mwM.appendChild(o);});
+
+function markMw(){
+  mwOn.classList.toggle('sel',mw); mwOff.classList.toggle('sel',!mw);
+  mwSet.hidden=!mw;
+  document.getElementById('mwTag').textContent = mw ? (mwTimes.length?mwTimes.join('・'):'時間が未設定') : '切';
+  drawList();
+}
+function drawList(){
+  mwList.innerHTML='';
+  if(!mwTimes.length){mwList.innerHTML='<div class="mw-empty">時間がありません。上で足してください。</div>';return;}
+  mwTimes.slice().sort().forEach(t=>{
+    const c=document.createElement('span'); c.className='mw-chip';
+    c.innerHTML=t+' <button aria-label="外す">×</button>';
+    c.querySelector('button').addEventListener('click',()=>{
+      mwTimes=mwTimes.filter(x=>x!==t); markMw(); save();});
+    mwList.appendChild(c);
+  });
+}
+document.getElementById('mwAdd').addEventListener('click',()=>{
+  const t=String(mwH.value).padStart(2,'0')+':'+String(mwM.value).padStart(2,'0');
+  if(!mwTimes.includes(t))mwTimes.push(t);
+  markMw(); save();
+});
+mwOn.addEventListener('click',()=>{mw=true;markMw();save();});
+mwOff.addEventListener('click',()=>{mw=false;markMw();save();});
+
+const box=document.getElementById('mimawari');
+const mwLen=document.getElementById('mwLen');
+[[5,'五分'],[10,'十分'],[15,'十五分'],[20,'二十分'],[30,'三十分']].forEach(([v,t])=>{
+  const o=document.createElement('option');o.value=v;o.textContent=t;if(v===15)o.selected=true;mwLen.appendChild(o);});
+mwLen.addEventListener('change',save);
+
+/* 見回りの音：合図の一打 → 明るい旋律に切り替わる → 終わると戻る */
+let mwActive=false, mwBack=null;
+function chime(){
+  if(!ctx)return;
+  const t0=ctx.currentTime;
+  [[440,0],[659.25,.5],[880,1.0]].forEach(([f,d])=>{
+    const o=ctx.createOscillator(), gg=g(0);
+    o.type='sine'; o.frequency.value=f;
+    o.connect(gg); gg.connect(ctx.destination);
+    gg.gain.setValueAtTime(0,t0+d);
+    gg.gain.linearRampToValueAtTime(MAX*1.5,t0+d+.06);
+    gg.gain.exponentialRampToValueAtTime(.0001,t0+d+2.6);
+    o.start(t0+d); o.stop(t0+d+2.8);
+  });
+}
+function mwStart(sec){
+  if(mwActive)return;
+  mwActive=true;
+  box.classList.add('show'); setTimeout(closeMw,10000);
+  if(playing){
+    chime();
+    /* 見回りのあいだは、声を引いて旋律を前に——手が止まるように */
+    const t=ctx.currentTime;
+    const set=(n,v,d)=>{if(!n)return;n.gain.cancelScheduledValues(t);
+      n.gain.setValueAtTime(n.gain.value,t);n.gain.linearRampToValueAtTime(v,t+d);};
+    set(layers.voice,0.12,3); set(layers.mel,0.55,3);
+    set(layers.air,0.22,3); set(layers.room,0.08,3);
+  }
+  clearTimeout(mwBack);
+  mwBack=setTimeout(()=>{ mwActive=false; if(playing)shade2(); }, sec*1000);
+}
+function shade2(){
+  const p=manual?mix:T[active()];
+  if(!playing||!layers.voice)return;
+  const t=ctx.currentTime, D=8;
+  const set=(n,v)=>{n.gain.cancelScheduledValues(t);n.gain.setValueAtTime(n.gain.value,t);
+    n.gain.linearRampToValueAtTime(v,t+D);};
+  set(layers.voice,p.voice); set(layers.room,p.room);
+  set(layers.air,p.air); set(layers.drone,p.drone); set(layers.mel,p.mel);
+}
+document.getElementById('mwTry').addEventListener('click',async()=>{
+  if(!playing){ await toggle(); await new Promise(r=>setTimeout(r,1200)); }
+  mwStart(30);
+});
+
+const closeMw=()=>box.classList.remove('show');
+document.getElementById('mwYes').addEventListener('click',closeMw);
+document.getElementById('mwNo').addEventListener('click',closeMw);
+function tick(){
+  const d=new Date();
+  const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+  const cn=document.getElementById('clockNow');
+  if(cn)cn.textContent=hh+':'+mm;
+  if(mw){
+    const now=hh+':'+mm, key=d.toDateString()+' '+now;
+    if(mwTimes.includes(now) && !mwDone[key]){
+      mwDone[key]=1; mwStart(+mwLen.value*60);
+    }
+  }
+  if(mode==='auto'){ markTime(); shade(); }
+}
+tick(); setInterval(tick,20000);
+
+/* 役に立ったころに、そっと一度だけ */
+(function(){
+  const th=document.getElementById('thanks');
+  const NEED=15*60;              /* 十五分、鳴らし続けた人にだけ */
+  let sec=0, shown=false;
+  try{ if(localStorage.getItem('gl_oto_thx'))shown=true; }catch(e){}
+  setInterval(()=>{
+    if(!playing||shown)return;
+    sec++;
+    if(sec>=NEED){
+      shown=true;
+      try{localStorage.setItem('gl_oto_thx','1');}catch(e){}
+      th.hidden=false;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>th.classList.add('in')));
+    }
+  },1000);
+  const share=()=>{
+    const t='静かすぎて話しづらい部屋の問題、これで解いています。ブラウザがその場で音を作る、無料のマスキング音。';
+    const u='https://x.com/intent/post?text='+encodeURIComponent(t)+
+            '&url='+encodeURIComponent(location.protocol==='file:'?'oto.html':location.href);
+    window.open(u,'_blank','noopener');
+  };
+  document.getElementById('thX').addEventListener('click',share);
+  document.getElementById('thNo').addEventListener('click',()=>{
+    th.classList.remove('in'); setTimeout(()=>th.hidden=true,900);
+  });
+  /* 試すための裏口：ソースを読む人へ。gl_thx() で、いま出せます */
+  window.gl_thx=()=>{th.hidden=false;requestAnimationFrame(()=>th.classList.add('in'));};
+})();
+
+/* 文字を、大きく */
+(function(){
+  const d=document.getElementById('bigDot'); if(!d)return;
+  let step=0; try{step=+(localStorage.getItem('gl_big')||0);}catch(e){}
+  const apply=()=>{
+    document.body.classList.remove('big1','big2'); d.classList.remove('s1','s2');
+    if(step===1){document.body.classList.add('big1');d.classList.add('s1');}
+    if(step===2){document.body.classList.add('big2');d.classList.add('s2');}
+    d.setAttribute('aria-label',['文字を大きくする','もっと大きくする','もとに戻す'][step]);
+    try{localStorage.setItem('gl_big',step);}catch(e){}
+  };
+  d.addEventListener('click',()=>{step=(step+1)%3;apply();});
+  apply();
+})();
+
+/* 覚えておく（この端末の中だけ） */
+function save(){try{localStorage.setItem('gl_oto',JSON.stringify({mode,v:vol.value,mw,mwTimes,mwLen:mwLen.value,manual,mix}));}catch(e){}}
+(function load(){
+  try{const o=JSON.parse(localStorage.getItem('gl_oto')||'{}');
+    if(o.mode)mode=o.mode;
+    if(o.v){vol.value=o.v;volN.textContent=o.v;MAX=o.v/100;}
+    if(o.mw)mw=true;
+    if(Array.isArray(o.mwTimes))mwTimes=o.mwTimes;
+    if(o.mwLen)mwLen.value=o.mwLen;
+    if(o.manual){manual=true; if(o.mix)mix=o.mix;}
+  }catch(e){}
+  markTime(); markMw(); syncMixUI();
+})();
+</script>
+</body>
+</html>

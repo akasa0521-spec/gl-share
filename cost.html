@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コスト削減 試算</title>
+<style>
+  :root{
+    --ink:#1c2321;
+    --paper:#f7f5f0;
+    --paper-dim:#eeebe3;
+    --line:#d8d3c4;
+    --accent:#2f5d50;
+    --accent-soft:#e4ede9;
+    --warn:#8a4a2f;
+    --mono: "JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+    --serif: "Shippori Mincho","Noto Serif JP",serif;
+    --sans: "Zen Kaku Gothic New","Hiragino Sans",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+  body{padding:0 0 120px;}
+
+  .wrap{max-width:920px;margin:0 auto;padding:56px 28px 0;}
+
+  header.hero{
+    padding:8px 0 56px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:56px;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  h1{
+    font-family:var(--serif);
+    font-size:clamp(28px,4.4vw,44px);
+    line-height:1.35;
+    font-weight:600;
+    margin:0 0 20px;
+    letter-spacing:.01em;
+  }
+  h1 .em{color:var(--accent);}
+  .lede{
+    font-size:15px;
+    line-height:1.9;
+    color:#4a4f4c;
+    max-width:56ch;
+  }
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin:0 0 6px;
+  }
+  .section-num{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--accent);
+    letter-spacing:.06em;
+  }
+  .section-title{
+    font-family:var(--serif);
+    font-size:24px;
+    font-weight:600;
+    margin:0;
+  }
+  .section-sub{
+    font-size:13px;
+    color:#6b6f6c;
+    margin:0 0 32px;
+    line-height:1.75;
+    max-width:64ch;
+  }
+
+  section.block{margin-bottom:96px;}
+
+  /* --- 前提パネル --- */
+  .assumptions{
+    background:var(--paper-dim);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:28px 30px;
+    margin-bottom:28px;
+  }
+  .assumptions-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    color:#7a7e79;
+    text-transform:uppercase;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .assumptions-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .sliderow{
+    display:grid;
+    grid-template-columns:180px 1fr 92px;
+    align-items:center;
+    gap:18px;
+    padding:12px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  @media(max-width:420px){
+    .sliderow{grid-template-columns:1fr auto;gap:8px 12px;}
+    .sliderow label{grid-column:1/-1;}
+    .sliderow input[type=range]{min-width:0;}
+    .val{min-width:64px;}
+  }
+  .sliderow:last-child{border-bottom:none;}
+  .sliderow label{
+    font-size:13.5px;
+    color:#3c403d;
+  }
+  .sliderow .unit{color:#9a9d97;font-size:11.5px;margin-left:2px;}
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:15px;height:15px;border-radius:50%;
+    background:var(--accent);
+    cursor:pointer;
+    border:2px solid var(--paper-dim);
+    box-shadow:0 0 0 1px var(--accent);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;
+    background:var(--accent);cursor:pointer;border:2px solid var(--paper-dim);
+  }
+  .sliderow .val{
+    font-family:var(--mono);
+    font-size:13px;
+    text-align:right;
+    color:var(--ink);
+    font-weight:600;
+  }
+
+  /* --- 触る場所：色分けカード --- */
+  .input-card{
+    border-radius:4px;
+    padding:22px 24px 8px;
+    margin-bottom:16px;
+    border:1px solid transparent;
+  }
+  .input-card-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .input-card-badge{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.08em;
+    padding:2px 8px;
+    border-radius:10px;
+    font-weight:700;
+    color:#fff;
+  }
+  .input-card-title{
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .input-card-desc{
+    font-size:12px;
+    color:#6b6f6c;
+    margin:2px 0 14px;
+    line-height:1.6;
+  }
+  .input-card .sliderow input[type=range]::-webkit-slider-thumb{
+    box-shadow:0 0 0 1px currentColor;
+  }
+
+  .card-blue{ background:#eef3fa; border-color:#c9dcf0; }
+  .card-blue .input-card-badge{ background:#3d6fb0; }
+  .card-blue input[type=range]::-webkit-slider-thumb{ background:#3d6fb0; color:#3d6fb0; }
+  .card-blue input[type=range]::-moz-range-thumb{ background:#3d6fb0; }
+
+  .card-green{ background:#eef6ee; border-color:#c8e2c8; }
+  .card-green .input-card-badge{ background:#4a8a4f; }
+  .card-green input[type=range]::-webkit-slider-thumb{ background:#4a8a4f; color:#4a8a4f; }
+  .card-green input[type=range]::-moz-range-thumb{ background:#4a8a4f; }
+
+  .card-orange{ background:#faf1e8; border-color:#eeceac; }
+  .card-orange .input-card-badge{ background:#b5773a; }
+  .card-orange input[type=range]::-webkit-slider-thumb{ background:#b5773a; color:#b5773a; }
+  .card-orange input[type=range]::-moz-range-thumb{ background:#b5773a; }
+
+  .card-accent{ background:var(--accent); border-color:var(--accent); }
+  .card-accent .input-card-title{ color:var(--paper); }
+  .card-accent .input-card-desc{ color:rgba(255,255,255,.72); }
+  .card-accent .input-card-badge{ background:rgba(255,255,255,.22); }
+  .card-accent .sliderow{ border-bottom-color:rgba(255,255,255,.22); }
+  .card-accent .sliderow label{ color:rgba(255,255,255,.92); }
+  .card-accent .sliderow .unit{ color:rgba(255,255,255,.55); }
+  .card-accent .sliderow .val{ color:#fff; }
+  .card-accent input[type=range]{ background:rgba(255,255,255,.3); }
+  .card-accent input[type=range]::-webkit-slider-thumb{ background:#fff; box-shadow:0 0 0 1px #fff; }
+  .card-accent input[type=range]::-moz-range-thumb{ background:#fff; }
+
+  .card-basic{ background:var(--paper-dim); border-color:var(--line); }
+  .card-basic .input-card-badge{ background:#7a7e79; }
+  .card-basic input[type=range]::-webkit-slider-thumb{ background:#7a7e79; color:#7a7e79; }
+  .card-basic input[type=range]::-moz-range-thumb{ background:#7a7e79; }
+  select.paramselect{
+    font-family:var(--sans);
+    font-size:13px;
+    padding:6px 8px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:2px;
+    color:var(--ink);
+  }
+
+  .reset-line{
+    text-align:right;
+    margin-top:14px;
+  }
+  .reset-btn{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.04em;
+    color:#8a8d87;
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:2px;
+  }
+  .reset-btn:hover{color:var(--accent);}
+
+  /* --- 結果カード --- */
+  .result{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:6px;
+  }
+  .result .cell{
+    background:var(--paper);
+    padding:22px 16px;
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+  .result .cell.accent{background:var(--accent);color:var(--paper);}
+  .cell-label{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    opacity:.68;
+    margin-bottom:10px;
+  }
+  .cell-value{
+    font-family:var(--serif);
+    font-size:28px;
+    font-weight:600;
+    line-height:1.15;
+  }
+  .cell-value small{font-size:14px;font-weight:500;opacity:.7;}
+  .cell.accent .cell-value{color:var(--paper);}
+
+  .reduction-banner{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    background:var(--accent-soft);
+    border:1px solid var(--accent);
+    padding:22px 28px;
+    margin-top:1px;
+  }
+  .reduction-banner .txt{font-size:13.5px;color:#33473f;}
+  .reduction-banner .num{
+    font-family:var(--serif);
+    font-size:32px;
+    font-weight:700;
+    color:var(--accent);
+  }
+  .reduction-banner .num small{font-size:15px;font-weight:500;}
+
+  /* --- 根拠パネル（読み飛ばしていい体裁：白背景・地の文） --- */
+  .why{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+  }
+  .why-label{
+    font-size:11px;
+    letter-spacing:.04em;
+    color:#a3a69f;
+    margin-bottom:8px;
+  }
+  .why-line{
+    font-size:12.5px;
+    color:#7d817c;
+    line-height:2.05;
+    white-space:pre-wrap;
+    font-family:var(--sans);
+  }
+  .why-line .op{color:#b0b3ac;padding:0 4px;}
+  .why-line .fig{color:#55584f;}
+
+  .footnote{
+    font-size:11.5px;
+    color:#8a8d87;
+    margin-top:16px;
+    line-height:1.8;
+  }
+  .footnote .tag{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:9.5px;
+    letter-spacing:.06em;
+    padding:1px 6px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    color:#7a7e79;
+    margin-right:6px;
+  }
+  .footnote .tag.real{border-color:var(--accent);color:var(--accent);}
+  .footnote .tag.ref{border-color:var(--warn);color:var(--warn);}
+
+  /* --- 比較テーブル（マッチング用） --- */
+  .compare{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    margin-bottom:6px;
+    table-layout:fixed;
+  }
+  .compare th,.compare td{overflow-wrap:anywhere;}
+  @media(max-width:360px){.compare{font-size:12px;}}
+  .compare th,.compare td{
+    border:1px solid var(--line);
+    padding:14px 16px;
+    text-align:right;
+  }
+  .compare th:first-child,.compare td:first-child{text-align:left;}
+  .compare thead th{
+    background:var(--paper-dim);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.05em;
+    font-weight:600;
+    color:#5a5e58;
+  }
+  .compare tbody td.hi{
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-weight:700;
+    font-family:var(--mono);
+  }
+  .compare tfoot td{
+    font-family:var(--mono);
+    font-weight:700;
+    background:var(--paper-dim);
+  }
+
+  /* --- 環境改善（参考） --- */
+  .ref-block{
+    border:1px dashed var(--warn);
+    background:#f7efe9;
+    padding:24px 26px;
+    position:relative;
+  }
+  .ref-flag{
+    position:absolute;
+    top:-11px;left:24px;
+    background:var(--paper);
+    padding:0 10px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.08em;
+    color:var(--warn);
+    text-transform:uppercase;
+  }
+  .ref-list{list-style:none;margin:0;padding:0;}
+  .ref-list li{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid #e6dccf;
+    font-size:13.5px;
+  }
+  .ref-list li:last-child{border-bottom:none;}
+  .ref-list .name{color:#3c403d;}
+  .ref-list .figure{font-family:var(--mono);color:var(--warn);font-weight:600;}
+
+  footer{
+    max-width:920px;margin:0 auto;padding:48px 28px 0;
+    border-top:1px solid var(--line);
+    font-size:11.5px;color:#9a9d97;line-height:1.9;
+  }
+
+  /* --- 常設ダッシュボード（画面最上部・横帯固定） --- */
+  .dash-bar{
+    position:sticky;
+    top:0;
+    z-index:999;
+    background:var(--ink);
+    color:var(--paper);
+    box-shadow:0 4px 18px rgba(0,0,0,.18);
+  }
+  .dash-inner{
+    max-width:920px;
+    margin:0 auto;
+    padding:16px 28px;
+    display:grid;
+    grid-template-columns:1.3fr 1.3fr 1fr 1fr;
+    gap:0;
+  }
+  .dash-item{
+    padding:0 22px;
+    border-left:1px solid rgba(255,255,255,.14);
+  }
+  .dash-item:first-child{
+    border-left:none;
+    padding-left:0;
+  }
+  .dash-item .dash-label{
+    font-family:var(--mono);
+    font-size:9.5px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    opacity:.58;
+    margin-bottom:5px;
+    white-space:nowrap;
+  }
+  .dash-item .dash-value{
+    font-family:var(--serif);
+    font-size:22px;
+    font-weight:700;
+    display:flex;
+    align-items:baseline;
+    gap:1px;
+    white-space:nowrap;
+  }
+  .dash-item.hi .dash-value{ color:#8fd6b5; }
+  .dash-item .dash-value .yen-mark{font-size:13px;opacity:.65;margin-right:1px;}
+  .dash-item .dash-value .unit{font-size:11px;font-weight:500;opacity:.55;margin-left:5px;}
+
+  .digit{
+    display:inline-block;
+    width:1ch;
+    overflow:hidden;
+    position:relative;
+    height:1.2em;
+    text-align:center;
+  }
+  .digit .roll{
+    position:absolute;left:0;top:0;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .digit .roll span{
+    display:block;
+    height:1.2em;
+    line-height:1.2em;
+  }
+
+  @media (max-width: 780px){
+    .dash-inner{
+      grid-template-columns:1fr 1fr;
+      row-gap:14px;
+    }
+    .dash-item{ border-left:none; padding-left:0; }
+    .dash-item:nth-child(odd){ padding-right:14px; }
+  }
+
+  /* --- 保存/読込 --- */
+  .save-row{
+    margin-top:26px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .save-btn, .load-btn{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.03em;
+    padding:9px 16px;
+    border:1px solid var(--accent);
+    background:var(--paper);
+    color:var(--accent);
+    border-radius:2px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .save-btn:hover, .load-btn:hover{background:var(--accent-soft);}
+  .load-btn{position:relative;overflow:hidden;display:inline-block;}
+  .load-btn input[type=file]{
+    position:absolute;inset:0;opacity:0;cursor:pointer;
+  }
+  .save-hint{font-size:11.5px;color:#9a9d97;flex-basis:100%;line-height:1.7;}
+
+  /* --- 環境改善セクション --- */
+  .disclaimer-band{
+    background:#f7efe9;
+    border:1px solid var(--warn);
+    padding:16px 22px;
+    font-size:13px;
+    color:#5c4030;
+    line-height:1.8;
+    margin-bottom:24px;
+  }
+  .disclaimer-band strong{color:var(--warn);}
+</style>
+</head>
+<body>
+<div style="max-width:1000px;margin:0 auto;padding:20px 22px 0;font-family:'Hiragino Sans','Yu Gothic',sans-serif;">
+  <a href="./noren.html" style="font-size:13px;color:#8B887D;text-decoration:none;">← おもちゃ箱</a>
+</div>
+
+<div class="dash-bar">
+  <div class="dash-inner">
+    <div class="dash-item hi">
+      <div class="dash-label">合計削減額 / 月</div>
+      <div class="dash-value"><span class="yen-mark">¥</span><span id="dashTotalMonth"></span></div>
+    </div>
+    <div class="dash-item hi">
+      <div class="dash-label">年間の削減額</div>
+      <div class="dash-value"><span class="yen-mark">¥</span><span id="dashTotalYear"></span></div>
+    </div>
+    <div class="dash-item">
+      <div class="dash-label">01 通話システム</div>
+      <div class="dash-value"><span class="yen-mark">¥</span><span id="dashCTI"></span><span class="unit">/月</span></div>
+    </div>
+    <div class="dash-item">
+      <div class="dash-label">02 地図マッチング</div>
+      <div class="dash-value"><span class="yen-mark">¥</span><span id="dashMAP"></span><span class="unit">/月</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Cost Simulation — 前提を、すべて渡す</div>
+    <h1>いくら削れるか、<br><span class="em">自分の数字</span>で確かめてください。</h1>
+    <p class="lede">
+      下のつまみは、すべて動かせます。既定値は業界の一般的な水準ですが、
+      御社の実態に近づけるほど、この試算は御社のものになります。
+      計算式は隠していません — 数字の下に、必ず根拠を並べています。
+    </p>
+    <div class="save-row">
+      <button class="save-btn" onclick="saveState()">この設定を保存する</button>
+      <label class="load-btn">
+        設定を読み込む
+        <input type="file" id="loadFile" accept="application/json" onchange="loadState(event)">
+      </label>
+      <span class="save-hint">入力した数値がファイルに書き出されます。次回はそのファイルを読み込むだけで、続きから確認できます。</span>
+    </div>
+  </header>
+
+  <!-- ============ SECTION 1: CTI ============ -->
+  <section class="block" id="cti">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2 class="section-title">通話システム（CTI）</h2>
+    </div>
+    <p class="section-sub">
+      架電を伴う営業・アドバイザー業務における、通話基盤の月額コスト比較。
+      比較対象は「席料＋通話従量課金」型（MiiTel等の解析特化型）です。
+    </p>
+
+    <div class="input-card card-basic">
+      <div class="input-card-head">
+        <span class="input-card-badge">共通</span>
+        <span class="input-card-title">体制</span>
+      </div>
+      <p class="input-card-desc">担当者数と稼働日数。以下すべての計算の土台になります。</p>
+      <div class="sliderow">
+        <label>担当者数<span class="unit">名</span></label>
+        <input type="range" id="cti_agents" min="1" max="300" value="5" step="1">
+        <div class="val" id="cti_agents_v">5 名</div>
+      </div>
+      <div class="sliderow">
+        <label>稼働日数<span class="unit">日/月</span></label>
+        <input type="range" id="cti_days" min="15" max="26" value="20" step="1">
+        <div class="val" id="cti_days_v">20 日</div>
+      </div>
+    </div>
+
+    <div class="input-card card-blue">
+      <div class="input-card-head">
+        <span class="input-card-badge">A</span>
+        <span class="input-card-title">マッチングコール</span>
+      </div>
+      <p class="input-card-desc">1件あたりは短いが件数を稼ぐ、高速発信タイプの架電。</p>
+      <div class="sliderow">
+        <label>1日の架電数<span class="unit">件/人</span></label>
+        <input type="range" id="cti_a_calls" min="10" max="150" value="100" step="5">
+        <div class="val" id="cti_a_calls_v">100 件</div>
+      </div>
+      <div class="sliderow">
+        <label>接続率<span class="unit">%</span></label>
+        <input type="range" id="cti_a_connect" min="10" max="80" value="35" step="5">
+        <div class="val" id="cti_a_connect_v">35 %</div>
+      </div>
+      <div class="sliderow">
+        <label>平均通話時間<span class="unit">分</span></label>
+        <input type="range" id="cti_a_mins" min="1" max="15" value="3" step="1">
+        <div class="val" id="cti_a_mins_v">3 分</div>
+      </div>
+    </div>
+
+    <div class="input-card card-green">
+      <div class="input-card-head">
+        <span class="input-card-badge">B</span>
+        <span class="input-card-title">ヒアリングコール</span>
+      </div>
+      <p class="input-card-desc">10分以上かけて条件を深く聞き取る、面談に近い架電。</p>
+      <div class="sliderow">
+        <label>1日の面談数<span class="unit">件/人</span></label>
+        <input type="range" id="cti_b_calls" min="1" max="30" value="8" step="1">
+        <div class="val" id="cti_b_calls_v">8 件</div>
+      </div>
+      <div class="sliderow">
+        <label>接続率<span class="unit">%</span></label>
+        <input type="range" id="cti_b_connect" min="10" max="100" value="70" step="5">
+        <div class="val" id="cti_b_connect_v">70 %</div>
+      </div>
+      <div class="sliderow">
+        <label>平均通話時間<span class="unit">分</span></label>
+        <input type="range" id="cti_b_mins" min="10" max="60" value="15" step="5">
+        <div class="val" id="cti_b_mins_v">15 分</div>
+      </div>
+    </div>
+
+    <div class="input-card card-orange">
+      <div class="input-card-head">
+        <span class="input-card-badge">比較先</span>
+        <span class="input-card-title">席料＋従量課金型の料金</span>
+      </div>
+      <p class="input-card-desc">いま検討している（または導入済みの）サービスの料金体系。</p>
+      <div class="sliderow">
+        <label>席料<span class="unit">円/人/月</span></label>
+        <input type="range" id="cti_seat" min="0" max="15000" value="6500" step="500">
+        <div class="val" id="cti_seat_v">¥6,500</div>
+      </div>
+      <div class="sliderow">
+        <label>通話料（携帯宛）<span class="unit">円/分</span></label>
+        <input type="range" id="cti_rate_mobile" min="0" max="30" value="17" step="1">
+        <div class="val" id="cti_rate_mobile_v">¥17</div>
+      </div>
+      <div class="sliderow">
+        <label>通話料（固定宛）<span class="unit">円/分</span></label>
+        <input type="range" id="cti_rate_fixed" min="0" max="20" value="8" step="1">
+        <div class="val" id="cti_rate_fixed_v">¥8</div>
+      </div>
+      <div class="sliderow">
+        <label>固定宛の比率<span class="unit">%</span></label>
+        <input type="range" id="cti_fixed_ratio" min="0" max="100" value="30" step="5">
+        <div class="val" id="cti_fixed_ratio_v">30 %</div>
+      </div>
+      <div class="sliderow">
+        <label>録音・文字起こしAI<span class="unit">円/人/月</span></label>
+        <input type="range" id="cti_rec_addon" min="0" max="15000" value="5000" step="500">
+        <div class="val" id="cti_rec_addon_v">¥5,000</div>
+      </div>
+    </div>
+
+    <div class="input-card card-accent">
+      <div class="input-card-head">
+        <span class="input-card-badge">自社</span>
+        <span class="input-card-title">内製構成の料金</span>
+      </div>
+      <p class="input-card-desc">録音・文字起こし・項目への自動配置まで含めた、月あたりの実費。</p>
+      <div class="sliderow">
+        <label>基盤コスト<span class="unit">円/人/月</span></label>
+        <input type="range" id="cti_self" min="0" max="15000" value="6000" step="500">
+        <div class="val" id="cti_self_v">¥6,000</div>
+      </div>
+    </div>
+
+    <div class="reset-line"><button class="reset-btn" onclick="resetCTI()">既定値に戻す</button></div>
+
+    <div class="result">
+      <div class="cell">
+        <div class="cell-label">比較先の月額（合計）</div>
+        <div class="cell-value" id="cti_out_a">—</div>
+      </div>
+      <div class="cell">
+        <div class="cell-label">自社構成の月額（合計）</div>
+        <div class="cell-value" id="cti_out_b">—</div>
+      </div>
+      <div class="cell accent">
+        <div class="cell-label">月間削減額</div>
+        <div class="cell-value" id="cti_out_c">—</div>
+      </div>
+    </div>
+    <div class="reduction-banner">
+      <span class="txt">年間の削減額（成果報酬10％の算定対象）</span>
+      <span class="num" id="cti_out_year">—</span>
+    </div>
+
+    <div class="why">
+      <div class="why-label">産出根拠</div>
+      <div class="why-line" id="cti_why"></div>
+    </div>
+
+    <div class="ref-block" style="margin-top:20px;">
+      <span class="ref-flag">自社構成に含まれるもの</span>
+      <ul class="ref-list">
+        <li><span class="name">通話の録音保存</span><span class="figure">基盤コストに込み</span></li>
+        <li><span class="name">音声の自動文字起こし</span><span class="figure">基盤コストに込み</span></li>
+        <li><span class="name">発話内容の項目への自動配置</span><span class="figure">転職理由・希望条件などへ自動振り分け</span></li>
+        <li><span class="name">次アクションの提案</span><span class="figure">会話内容から推奨アクションを自動提示</span></li>
+      </ul>
+    </div>
+
+    <p class="footnote">
+      <span class="tag ref">参考値</span>
+      席料・通話料は従量課金型サービスの一般的なレート帯を初期値としています。正式な削減額は、比較対象の実見積もりに置き換えてご確認ください。
+    </p>
+  </section>
+
+  <!-- ============ SECTION 2: 地図マッチング ============ -->
+  <section class="block" id="map">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2 class="section-title">通勤圏マッチング（地図API連携）</h2>
+    </div>
+    <p class="section-sub">
+      求職者の希望条件と、拠点・施設情報を通勤時間で突き合わせる機能。
+      多くの提携型サービスは「検索1回ごとの従量課金」で設計されており、
+      利用が増えるほど比例して高くなります。
+    </p>
+
+    <div class="input-card card-blue">
+      <div class="input-card-head">
+        <span class="input-card-badge">方式A</span>
+        <span class="input-card-title">ID課金型（CRM一体型オプション）</span>
+      </div>
+      <p class="input-card-desc">利用者ID数に応じて月額が積み上がる方式。大手CRMの公開料金を初期値にしています。</p>
+      <div class="sliderow">
+        <label>初期費用<span class="unit">円</span></label>
+        <input type="range" id="map_setup" min="0" max="300000" value="100000" step="10000">
+        <div class="val" id="map_setup_v">¥100,000</div>
+      </div>
+      <div class="sliderow">
+        <label>利用ID数<span class="unit">ID</span></label>
+        <input type="range" id="map_ids" min="1" max="300" value="10" step="1">
+        <div class="val" id="map_ids_v">10 ID</div>
+      </div>
+      <div class="sliderow">
+        <label>10ID以内の単価<span class="unit">円/ID/月</span></label>
+        <input type="range" id="map_id_price1" min="0" max="30000" value="15000" step="1000">
+        <div class="val" id="map_id_price1_v">¥15,000</div>
+      </div>
+      <div class="sliderow">
+        <label>11ID以降の単価<span class="unit">円/ID/月</span></label>
+        <input type="range" id="map_id_price2" min="0" max="20000" value="7500" step="500">
+        <div class="val" id="map_id_price2_v">¥7,500</div>
+      </div>
+    </div>
+
+    <div class="input-card card-orange">
+      <div class="input-card-head">
+        <span class="input-card-badge">方式B</span>
+        <span class="input-card-title">検索回数課金型</span>
+      </div>
+      <p class="input-card-desc">マッチング検索の回数に応じて課金される方式。実見積書に基づく初期値です。</p>
+      <div class="sliderow">
+        <label>月間マッチング回数<span class="unit">回</span></label>
+        <input type="range" id="map_calls" min="200" max="20000" value="1000" step="200">
+        <div class="val" id="map_calls_v">1,000 回</div>
+      </div>
+      <div class="sliderow">
+        <label>基本料金（〜上限回数）<span class="unit">円/月</span></label>
+        <input type="range" id="map_base" min="0" max="200000" value="50000" step="5000">
+        <div class="val" id="map_base_v">¥50,000</div>
+      </div>
+      <div class="sliderow">
+        <label>基本料金に含む回数<span class="unit">回</span></label>
+        <input type="range" id="map_cap" min="200" max="5000" value="1000" step="100">
+        <div class="val" id="map_cap_v">1,000 回</div>
+      </div>
+      <div class="sliderow">
+        <label>超過単位<span class="unit">回ごと</span></label>
+        <input type="range" id="map_step" min="100" max="1000" value="500" step="100">
+        <div class="val" id="map_step_v">500 回</div>
+      </div>
+      <div class="sliderow">
+        <label>超過加算額<span class="unit">円/単位</span></label>
+        <input type="range" id="map_addon" min="0" max="50000" value="25000" step="1000">
+        <div class="val" id="map_addon_v">¥25,000</div>
+      </div>
+    </div>
+
+      <div class="reset-line"><button class="reset-btn" onclick="resetMAP()">既定値に戻す</button></div>
+
+    <table class="compare">
+      <thead>
+        <tr><th>方式</th><th>月額（試算値）</th><th>課金構造</th><th>実質単価</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>方式A：ID課金型</td>
+          <td id="map_a_cost">—</td>
+          <td>ID数に比例</td>
+          <td id="map_a_unit">—</td>
+        </tr>
+        <tr>
+          <td>方式B：検索回数課金型</td>
+          <td id="map_b_cost">—</td>
+          <td>検索回数に比例</td>
+          <td id="map_b_unit">—</td>
+        </tr>
+        <tr>
+          <td>自社開発（事前キャッシュ方式）</td>
+          <td class="hi" id="map_self_cost">初回構築費のみ</td>
+          <td>ID数・回数に依存しない</td>
+          <td class="hi">¥0</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr><td>安い方の月額との差額</td><td colspan="3" id="map_diff">—</td></tr>
+      </tfoot>
+    </table>
+
+    <div class="why">
+      <div class="why-label">産出根拠</div>
+      <div class="why-line" id="map_why"></div>
+    </div>
+
+    <p class="footnote">
+      <span class="tag real">実績値（方式A）</span>
+      現行CRM公式料金表（初期費用10万円、10IDまで1IDあたり月15,000円、11ID以降7,500円）を基に既定値を設定しています。<br>
+      <span class="tag real">実績値（方式B）</span>
+      国内クラウド地図連携サービスの実見積もり（月額5万円 / 1,000回まで、超過500回ごとに+2.5万円、初期費用24万円）を基に既定値を設定しています。<br>
+      いずれも年度・提供元により条件は変動するため、現行の正式見積もりで置き換えてご確認ください。
+    </p>
+  </section>
+
+  <!-- ============ SECTION 3: 環境改善（参考） ============ -->
+  <section class="block" id="env">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2 class="section-title">作業環境の改善</h2>
+    </div>
+    <p class="section-sub">
+      コスト削減とは別の軸です。投資は増えますが、担当者の作業効率や健康維持に寄与するとされています。
+    </p>
+
+    <div class="disclaimer-band">
+      <strong>この区分の金額は、成果報酬の算定対象に含みません。</strong><br>
+      現時点で実測データを持たない一般的な報告値に基づく試算のため、契約上の削減額とは別に「参考の効果額」として提示します。
+      対象となるのは前ページまでの実費削減分のみです。
+    </div>
+
+    <div class="input-card card-basic">
+      <div class="input-card-head">
+        <span class="input-card-badge">共通</span>
+        <span class="input-card-title">体制</span>
+      </div>
+      <div class="sliderow">
+        <label>対象人数<span class="unit">名</span></label>
+        <input type="range" id="env_agents" min="1" max="300" value="5" step="1">
+        <div class="val" id="env_agents_v">5 名</div>
+      </div>
+      <div class="sliderow">
+        <label>1人あたり人件費<span class="unit">円/月</span></label>
+        <input type="range" id="env_wage" min="150000" max="600000" value="300000" step="10000">
+        <div class="val" id="env_wage_v">¥300,000</div>
+      </div>
+    </div>
+
+    <div class="input-card card-orange">
+      <div class="input-card-head">
+        <span class="input-card-badge">参考</span>
+        <span class="input-card-title">デュアルモニター化</span>
+      </div>
+      <div class="sliderow">
+        <label>想定生産性向上<span class="unit">%</span></label>
+        <input type="range" id="env_monitor_pct" min="0" max="50" value="25" step="1">
+        <div class="val" id="env_monitor_pct_v">25 %</div>
+      </div>
+      <div class="sliderow">
+        <label>導入費用<span class="unit">円/人（一括）</span></label>
+        <input type="range" id="env_monitor_cost" min="0" max="50000" value="25000" step="1000">
+        <div class="val" id="env_monitor_cost_v">¥25,000</div>
+      </div>
+    </div>
+
+    <div class="input-card card-orange">
+      <div class="input-card-head">
+        <span class="input-card-badge">参考</span>
+        <span class="input-card-title">環境音（ホワイトノイズ等）</span>
+      </div>
+      <div class="sliderow">
+        <label>想定生産性向上<span class="unit">%</span></label>
+        <input type="range" id="env_noise_pct" min="0" max="20" value="5" step="1">
+        <div class="val" id="env_noise_pct_v">5 %</div>
+      </div>
+    </div>
+
+    <div class="input-card card-orange">
+      <div class="input-card-head">
+        <span class="input-card-badge">参考</span>
+        <span class="input-card-title">定時休憩リマインド</span>
+      </div>
+      <div class="sliderow">
+        <label>想定生産性向上<span class="unit">%</span></label>
+        <input type="range" id="env_break_pct" min="0" max="15" value="3" step="1">
+        <div class="val" id="env_break_pct_v">3 %</div>
+      </div>
+    </div>
+
+    <div class="reset-line"><button class="reset-btn" onclick="resetENV()">既定値に戻す</button></div>
+
+    <table class="compare">
+      <thead>
+        <tr><th>施策</th><th>想定生産性向上</th><th>月あたり効果額（参考）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>デュアルモニター化</td><td id="env_monitor_out_pct">—</td><td id="env_monitor_out_yen">—</td></tr>
+        <tr><td>環境音</td><td id="env_noise_out_pct">—</td><td id="env_noise_out_yen">—</td></tr>
+        <tr><td>定時休憩リマインド</td><td id="env_break_out_pct">—</td><td id="env_break_out_yen">—</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>合計（参考・報酬対象外）</td><td id="env_total_pct">—</td><td id="env_total_yen">—</td></tr>
+      </tfoot>
+    </table>
+
+    <div class="why">
+      <div class="why-label">産出根拠</div>
+      <div class="why-line" id="env_why"></div>
+    </div>
+
+    <p class="footnote">
+      <span class="tag ref">参考値・実測なし</span>
+      生産性向上率は一般に報告される水準を初期値としています。御社での実測値に置き換えてご利用ください。
+      「効果額」は 人件費×生産性向上率 を時間創出の目安として金額換算した参考値であり、実際の売上・利益への影響を保証するものではありません。
+    </p>
+  </section>
+
+  <footer>
+    本ページの試算はすべて入力条件に基づく参考値です。契約・請求の根拠となる金額は、正式な見積もり・契約書の記載を優先します。
+  </footer>
+
+</div>
+
+<script>
+function yen(n){ return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+
+/* ---------------- CTI ---------------- */
+const ctiIds = ['cti_agents','cti_days',
+  'cti_a_calls','cti_a_connect','cti_a_mins',
+  'cti_b_calls','cti_b_connect','cti_b_mins',
+  'cti_seat','cti_rate_mobile','cti_rate_fixed','cti_fixed_ratio','cti_rec_addon','cti_self'];
+
+const ctiDefaults = {
+  cti_agents:5, cti_days:20,
+  cti_a_calls:100, cti_a_connect:35, cti_a_mins:3,
+  cti_b_calls:8, cti_b_connect:70, cti_b_mins:15,
+  cti_seat:6500, cti_rate_mobile:17, cti_rate_fixed:8, cti_fixed_ratio:30, cti_rec_addon:5000,
+  cti_self:6000
+};
+
+function fmtCTI(id,v){
+  if(id==='cti_agents') return v+' 名';
+  if(id==='cti_days') return v+' 日';
+  if(id==='cti_a_calls'||id==='cti_b_calls') return v+' 件';
+  if(id==='cti_a_connect'||id==='cti_b_connect'||id==='cti_fixed_ratio') return v+' %';
+  if(id==='cti_a_mins'||id==='cti_b_mins') return v+' 分';
+  return yen(v);
+}
+
+function calcCTI(){
+  const g = id => Number(document.getElementById(id).value);
+  const agents=g('cti_agents'), days=g('cti_days');
+  const aCalls=g('cti_a_calls'), aConn=g('cti_a_connect')/100, aMins=g('cti_a_mins');
+  const bCalls=g('cti_b_calls'), bConn=g('cti_b_connect')/100, bMins=g('cti_b_mins');
+  const seat=g('cti_seat'), rateMobile=g('cti_rate_mobile'), rateFixed=g('cti_rate_fixed'),
+        fixedRatio=g('cti_fixed_ratio')/100, recAddon=g('cti_rec_addon'), self=g('cti_self');
+
+  const minsA = aCalls*aConn*aMins*days;
+  const minsB = bCalls*bConn*bMins*days;
+  const totalMins = minsA + minsB;
+  const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
+
+  const vendorPerAgent = seat + totalMins*blendedRate + recAddon;
+  const vendorTotal = vendorPerAgent * agents;
+  const selfTotal = self * agents;
+  const diff = vendorTotal - selfTotal;
+  const yearDiff = diff * 12;
+
+  document.getElementById('cti_out_a').innerHTML = yen(vendorTotal) + ' <small>/月</small>';
+  document.getElementById('cti_out_b').innerHTML = yen(selfTotal) + ' <small>/月</small>';
+  document.getElementById('cti_out_c').innerHTML = yen(diff) + ' <small>/月</small>';
+  document.getElementById('cti_out_year').innerHTML = yen(yearDiff) + ' <small>/年</small>';
+
+  document.getElementById('cti_why').innerHTML =
+`A: マッチング通話分/月/人　= ${aCalls}件 <span class="op">×</span> ${(aConn*100).toFixed(0)}% <span class="op">×</span> ${aMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsA).toLocaleString()}分</span>
+B: ヒアリング通話分/月/人　= ${bCalls}件 <span class="op">×</span> ${(bConn*100).toFixed(0)}% <span class="op">×</span> ${bMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span>
+通話分合計/人/月　　　　　= <span class="fig">${Math.round(minsA).toLocaleString()}分</span> <span class="op">+</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span> <span class="op">=</span> <span class="fig">${Math.round(totalMins).toLocaleString()}分</span>
+加重通話単価　　　　　　　= ¥${rateMobile}×${(100-fixedRatio*100).toFixed(0)}% <span class="op">+</span> ¥${rateFixed}×${(fixedRatio*100).toFixed(0)}% <span class="op">=</span> <span class="fig">${yen(blendedRate)}/分</span>
+比較先/人/月　　　　　　　= 席料${yen(seat)} <span class="op">+</span> (${yen(blendedRate)}×${Math.round(totalMins).toLocaleString()}分) <span class="op">+</span> 録音AI${yen(recAddon)} <span class="op">=</span> <span class="fig">${yen(vendorPerAgent)}</span>
+比較先/月(全体)　　　　　　= <span class="fig">${yen(vendorPerAgent)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(vendorTotal)}</span>
+自社/月(全体)　　　　　　　= <span class="fig">${yen(self)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(selfTotal)}</span>
+削減額/年　　　　　　　　　= (${yen(vendorTotal)} <span class="op">−</span> ${yen(selfTotal)}) <span class="op">×</span> 12ヶ月 <span class="op">=</span> <span class="fig">${yen(yearDiff)}</span>`;
+}
+
+ctiIds.forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener('input', ()=>{
+    document.getElementById(id+'_v').textContent = fmtCTI(id, el.value);
+    calcCTI();
+  });
+});
+function resetCTI(){
+  ctiIds.forEach(id=>{
+    document.getElementById(id).value = ctiDefaults[id];
+    document.getElementById(id+'_v').textContent = fmtCTI(id, ctiDefaults[id]);
+  });
+  calcCTI();
+}
+resetCTI();
+
+/* ---------------- MAP ---------------- */
+const mapIds = ['map_setup','map_ids','map_id_price1','map_id_price2',
+                'map_calls','map_base','map_cap','map_step','map_addon'];
+const mapDefaults = {
+  map_setup:100000, map_ids:10, map_id_price1:15000, map_id_price2:7500,
+  map_calls:1000, map_base:50000, map_cap:1000, map_step:500, map_addon:25000
+};
+
+function fmtMAP(id,v){
+  if(id==='map_calls'||id==='map_cap') return Number(v).toLocaleString()+' 回';
+  if(id==='map_step') return v+' 回';
+  if(id==='map_ids') return v+' ID';
+  return yen(v);
+}
+
+function calcMAP(){
+  const g = id => Number(document.getElementById(id).value);
+  const setup=g('map_setup'), ids=g('map_ids'), p1=g('map_id_price1'), p2=g('map_id_price2');
+  const calls=g('map_calls'), base=g('map_base'), cap=g('map_cap'), step=g('map_step'), addon=g('map_addon');
+
+  // 方式A：ID課金
+  const idsInTier1 = Math.min(ids,10);
+  const idsInTier2 = Math.max(0, ids-10);
+  const aMonthly = idsInTier1*p1 + idsInTier2*p2;
+
+  // 方式B：回数課金
+  let over = Math.max(0, calls - cap);
+  let units = step>0 ? Math.ceil(over/step) : 0;
+  let bMonthly = base + units*addon;
+
+  const cheaper = Math.min(aMonthly, bMonthly);
+  const cheaperLabel = aMonthly <= bMonthly ? '方式A（ID課金）' : '方式B（回数課金）';
+
+  document.getElementById('map_a_cost').textContent = yen(aMonthly) + ' /月';
+  document.getElementById('map_a_unit').textContent = ids>0 ? '約 '+yen(aMonthly/ids)+' /ID' : '—';
+  document.getElementById('map_b_cost').textContent = yen(bMonthly) + ' /月';
+  document.getElementById('map_b_unit').textContent = calls>0 ? '約 '+yen(bMonthly/calls)+' /回' : '—';
+  document.getElementById('map_diff').textContent = yen(cheaper) + ' /月　（' + cheaperLabel + 'と比較。自社開発時はほぼ0）';
+
+  document.getElementById('map_why').innerHTML =
+`方式A：10ID以内　= min(${ids},10)ID <span class="op">×</span> ${yen(p1)} <span class="op">=</span> <span class="fig">${yen(idsInTier1*p1)}</span>
+方式A：11ID以降　= max(0,${ids}−10)ID <span class="op">×</span> ${yen(p2)} <span class="op">=</span> <span class="fig">${yen(idsInTier2*p2)}</span>
+方式A：月額　　　= <span class="fig">${yen(aMonthly)}</span>　（別途初期費用 ${yen(setup)}）
+─────────
+方式B：超過回数　= ${calls.toLocaleString()}回 <span class="op">−</span> ${cap.toLocaleString()}回 <span class="op">=</span> <span class="fig">${over.toLocaleString()}回</span>
+方式B：超過単位数 = ${over.toLocaleString()}回 ÷ ${step}回 <span class="op">切り上げ</span> <span class="op">=</span> <span class="fig">${units}単位</span>
+方式B：月額　　　= 基本${yen(base)} <span class="op">+</span> (${units}単位×${yen(addon)}) <span class="op">=</span> <span class="fig">${yen(bMonthly)}</span>
+─────────
+自社開発　　　　= 初回キャッシュ構築費のみ（ID数・検索回数に関わらず追加コストほぼゼロ）`;
+}
+
+mapIds.forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener('input', ()=>{
+    document.getElementById(id+'_v').textContent = fmtMAP(id, el.value);
+    calcMAP();
+  });
+});
+function resetMAP(){
+  mapIds.forEach(id=>{
+    document.getElementById(id).value = mapDefaults[id];
+    document.getElementById(id+'_v').textContent = fmtMAP(id, mapDefaults[id]);
+  });
+  calcMAP();
+}
+resetMAP();
+
+/* ---------------- ENV ---------------- */
+const envIds = ['env_agents','env_wage','env_monitor_pct','env_monitor_cost','env_noise_pct','env_break_pct'];
+const envDefaults = {env_agents:5, env_wage:300000, env_monitor_pct:25, env_monitor_cost:25000, env_noise_pct:5, env_break_pct:3};
+
+function fmtENV(id,v){
+  if(id==='env_agents') return v+' 名';
+  if(id==='env_monitor_pct'||id==='env_noise_pct'||id==='env_break_pct') return v+' %';
+  return yen(v);
+}
+
+function calcENV(){
+  const g = id => Number(document.getElementById(id).value);
+  const agents=g('env_agents'), wage=g('env_wage');
+  const mPct=g('env_monitor_pct')/100, mCost=g('env_monitor_cost');
+  const nPct=g('env_noise_pct')/100, bPct=g('env_break_pct')/100;
+
+  const mYen = wage*mPct*agents;
+  const nYen = wage*nPct*agents;
+  const bYen = wage*bPct*agents;
+  const totalPct = (mPct+nPct+bPct)*100;
+  const totalYen = mYen+nYen+bYen;
+
+  document.getElementById('env_monitor_out_pct').textContent = (mPct*100).toFixed(0)+'%';
+  document.getElementById('env_monitor_out_yen').textContent = yen(mYen)+' /月';
+  document.getElementById('env_noise_out_pct').textContent = (nPct*100).toFixed(0)+'%';
+  document.getElementById('env_noise_out_yen').textContent = yen(nYen)+' /月';
+  document.getElementById('env_break_out_pct').textContent = (bPct*100).toFixed(0)+'%';
+  document.getElementById('env_break_out_yen').textContent = yen(bYen)+' /月';
+  document.getElementById('env_total_pct').textContent = totalPct.toFixed(0)+'%';
+  document.getElementById('env_total_yen').textContent = yen(totalYen)+' /月';
+
+  document.getElementById('env_why').innerHTML =
+`月あたり効果額　= 人件費 <span class="op">×</span> 生産性向上率 <span class="op">×</span> 対象人数
+デュアルモニター = ${yen(wage)} <span class="op">×</span> ${(mPct*100).toFixed(0)}% <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(mYen)}</span>　（導入費 ${yen(mCost)}/人・一括）
+環境音　　　　　 = ${yen(wage)} <span class="op">×</span> ${(nPct*100).toFixed(0)}% <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(nYen)}</span>
+休憩リマインド　 = ${yen(wage)} <span class="op">×</span> ${(bPct*100).toFixed(0)}% <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(bYen)}</span>
+合計（参考）　　 = <span class="fig">${yen(totalYen)}</span>／月　※成果報酬の算定対象には含みません`;
+}
+
+envIds.forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener('input', ()=>{
+    document.getElementById(id+'_v').textContent = fmtENV(id, el.value);
+    calcENV();
+  });
+});
+function resetENV(){
+  envIds.forEach(id=>{
+    document.getElementById(id).value = envDefaults[id];
+    document.getElementById(id+'_v').textContent = fmtENV(id, envDefaults[id]);
+  });
+  calcENV();
+}
+resetENV();
+
+/* ---------------- DASHBOARD (常設ダッシュボード・スロット演出) ---------------- */
+function renderSlotDigits(elId, value){
+  const digitsStr = Math.round(Math.max(0,value)).toLocaleString('ja-JP');
+  const container = document.getElementById(elId);
+  if(!container) return;
+
+  if(container.children.length !== digitsStr.length){
+    container.innerHTML = '';
+    for(let i=0;i<digitsStr.length;i++){
+      const ch = digitsStr[i];
+      const d = document.createElement('span');
+      if(ch === ','){
+        d.textContent = ',';
+        d.style.opacity = '.5';
+      }else{
+        d.className = 'digit';
+        const roll = document.createElement('span');
+        roll.className = 'roll';
+        for(let n=0;n<10;n++){
+          const s = document.createElement('span');
+          s.textContent = n;
+          roll.appendChild(s);
+        }
+        roll.style.transform = `translateY(-${Number(ch)*1.2}em)`;
+        d.appendChild(roll);
+      }
+      container.appendChild(d);
+    }
+  }else{
+    let ptr = 0;
+    Array.from(container.children).forEach(d=>{
+      if(d.className==='digit'){
+        const ch = digitsStr[ptr];
+        const roll = d.querySelector('.roll');
+        if(roll) roll.style.transform = `translateY(-${Number(ch)*1.2}em)`;
+      }
+      ptr++;
+    });
+  }
+}
+
+function updateDashboard(){
+  const g = id => Number(document.getElementById(id).value);
+
+  // --- CTI削減額（月） ---
+  const agents=g('cti_agents'), days=g('cti_days');
+  const aCalls=g('cti_a_calls'), aConn=g('cti_a_connect')/100, aMins=g('cti_a_mins');
+  const bCalls=g('cti_b_calls'), bConn=g('cti_b_connect')/100, bMins=g('cti_b_mins');
+  const seat=g('cti_seat'), rateMobile=g('cti_rate_mobile'), rateFixed=g('cti_rate_fixed'),
+        fixedRatio=g('cti_fixed_ratio')/100, recAddon=g('cti_rec_addon'), self=g('cti_self');
+  const totalMins = aCalls*aConn*aMins*days + bCalls*bConn*bMins*days;
+  const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
+  const ctiVendor = (seat + totalMins*blendedRate + recAddon) * agents;
+  const ctiSelf = self * agents;
+  const ctiDiff = Math.max(0, ctiVendor - ctiSelf);
+
+  // --- 地図マッチング削減額（月・安い方を基準） ---
+  const ids=g('map_ids'), p1=g('map_id_price1'), p2=g('map_id_price2');
+  const calls=g('map_calls'), base=g('map_base'), cap=g('map_cap'), step=g('map_step'), addon=g('map_addon');
+  const aMonthly = Math.min(ids,10)*p1 + Math.max(0,ids-10)*p2;
+  const over = Math.max(0, calls-cap);
+  const units = step>0 ? Math.ceil(over/step) : 0;
+  const bMonthly = base + units*addon;
+  const mapDiff = Math.max(0, Math.min(aMonthly,bMonthly));
+
+  const totalMonth = ctiDiff + mapDiff;
+  const totalYear = totalMonth * 12;
+
+  renderSlotDigits('dashTotalMonth', totalMonth);
+  renderSlotDigits('dashTotalYear', totalYear);
+  renderSlotDigits('dashCTI', ctiDiff);
+  renderSlotDigits('dashMAP', mapDiff);
+}
+const allIds = [...ctiIds, ...mapIds, ...envIds];
+
+function saveState(){
+  const state = {};
+  allIds.forEach(id=>{
+    state[id] = document.getElementById(id).value;
+  });
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const ts = new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
+  a.href = url;
+  a.download = `cost-sim-${ts}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function loadState(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const state = JSON.parse(e.target.result);
+      allIds.forEach(id=>{
+        if(state[id]!==undefined && document.getElementById(id)){
+          document.getElementById(id).value = state[id];
+          const vEl = document.getElementById(id+'_v');
+          if(vEl){
+            if(ctiIds.includes(id)) vEl.textContent = fmtCTI(id, state[id]);
+            else if(mapIds.includes(id)) vEl.textContent = fmtMAP(id, state[id]);
+            else if(envIds.includes(id)) vEl.textContent = fmtENV(id, state[id]);
+          }
+        }
+      });
+      calcCTI(); calcMAP(); calcENV(); updateDashboard();
+    }catch(err){
+      alert('ファイルを読み込めませんでした。保存した設定ファイルを選択してください。');
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
+/* 全スライダーに、常設パネル更新のフックを追加 */
+[...ctiIds, ...mapIds].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateDashboard);
+});
+updateDashboard();
+</script>
+
+</body>
+</html>
