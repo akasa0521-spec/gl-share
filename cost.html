@@ -752,6 +752,7 @@
         <button class="preset-btn on" data-unit="30" onclick="setCallUnit(30)">30秒単位<small>30秒ごとに切り上げ（多い）</small></button>
         <button class="preset-btn" data-unit="60" onclick="setCallUnit(60)">1分単位<small>1分ごとに切り上げ</small></button>
       </div>
+      <p class="preset-note" id="cti_unit_note" style="margin:-6px 0 14px;"></p>
 
       <div class="presetrow" style="margin-bottom:10px;">
         <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_seat" checked> 席料を含める</label>
@@ -1205,6 +1206,18 @@ function calcCTI(){
   const minsB = callsB * kake(bMins);
   const totalMins = minsA + minsB;
   const namaMins = callsA*aMins + callsB*bMins;   // 切り上げ前（実際に話した分）
+  const unitNote = document.getElementById('cti_unit_note');
+  if(unitNote){
+    const byou = m => { const t=Math.round(m*60); return Math.floor(t/60)+'分'+(t%60?String(t%60).padStart(2,'0')+'秒':''); };
+    if(unit<=1){
+      unitNote.textContent = 'いまの設定：話した秒数がそのまま請求されます（切り上げなし）。';
+    }else{
+      const fuえ = Math.round((totalMins-namaMins));
+      unitNote.innerHTML = fuえ>0
+        ? `いまの設定：1本 ${byou(aMins)} の通話が <b>${byou(kake(aMins))} ぶん</b>請求されます。全体では月 <b>${fuえ.toLocaleString()}分</b>ぶん多く払っています。`
+        : `いまの設定：通話時間が${unit}秒でちょうど割り切れるので、切り上げは起きていません。通話時間のつまみを少し動かすと差が出ます。`;
+    }
+  }
   const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
 
   const inc = id => { const el=document.getElementById(id); return el ? el.checked : true; };
@@ -1704,7 +1717,7 @@ payRefresh();
 });
 
 /* ---------------- つまみの自動保存（この端末の中だけ） ---------------- */
-const SIM_KEY = 'cost_sim_state_v1';
+const SIM_KEY = 'cost_sim_state_v2';
 function simSave(){
   try{
     const st = {};
