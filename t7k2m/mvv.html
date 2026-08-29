@@ -1,0 +1,767 @@
+<meta name="robots" content="noindex, nofollow">
+<title>言葉を決める｜株式会社トレンド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap">
+
+<style>
+:root{
+  --ground:#FBFAF7;
+  --card:#FFFFFE;
+  --ink:#17150F;
+  --ink-2:#57534A;
+  --ink-3:#8E8981;
+  --rule:#E2DFD7;
+  --rule-2:#EFEDE7;
+  --shu:#A83E2A;
+  --shu-soft:#F3E5E0;
+  --sel:#F6F2E8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121110;
+    --card:#1A1917;
+    --ink:#EDEAE3;
+    --ink-2:#ADA79C;
+    --ink-3:#7E786F;
+    --rule:#2E2C28;
+    --rule-2:#232220;
+    --shu:#D9705A;
+    --shu-soft:#2A1D19;
+    --sel:#232019;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121110;
+  --card:#1A1917;
+  --ink:#EDEAE3;
+  --ink-2:#ADA79C;
+  --ink-3:#7E786F;
+  --rule:#2E2C28;
+  --rule-2:#232220;
+  --shu:#D9705A;
+  --shu-soft:#2A1D19;
+  --sel:#232019;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  font-size:16px;line-height:1.9;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:800px;margin:0 auto;padding:0 24px 120px;}
+
+h1,h2,h3{font-family:"Shippori Mincho","Hiragino Mincho ProN",serif;margin:0;text-wrap:balance;}
+h1{font-family:"Zen Antique",serif;font-size:clamp(32px,6vw,52px);font-weight:400;letter-spacing:.14em;line-height:1.4;}
+h2{font-size:clamp(20px,3.2vw,26px);font-weight:600;letter-spacing:.07em;line-height:1.5;}
+h3{font-size:18px;font-weight:600;letter-spacing:.05em;}
+
+.eyebrow{
+  font-family:"Roboto Mono",ui-monospace,monospace;font-size:10.5px;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--ink-3);
+}
+
+header{padding:72px 0 30px;border-bottom:1px solid var(--ink);margin-bottom:40px;}
+header .eyebrow{display:block;margin-bottom:22px;}
+.sub{
+  font-family:"Shippori Mincho",serif;font-size:clamp(17px,2.7vw,22px);
+  line-height:2;margin-top:28px;max-width:26em;color:var(--ink);
+}
+.note{font-size:14px;color:var(--ink-2);margin-top:22px;max-width:34em;line-height:1.95;}
+
+.srcs{
+  display:flex;gap:26px;flex-wrap:wrap;margin:26px 0 8px;
+  padding:20px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+}
+.srcs > div{display:flex;gap:11px;align-items:flex-start;}
+.srcs .nm{font-family:"Shippori Mincho",serif;font-weight:600;font-size:14.5px;display:block;}
+.srcs .ds{font-size:12px;color:var(--ink-2);line-height:1.7;display:block;}
+
+.seal{
+  width:26px;height:26px;flex:0 0 26px;border-radius:3px;
+  border:1.5px solid var(--shu);color:var(--shu);background:var(--shu-soft);
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Zen Antique",serif;font-size:13px;line-height:1;padding-top:1px;
+}
+.seal.off{border-color:var(--rule);color:var(--ink-3);background:transparent;}
+
+section{margin:56px 0;}
+.shead{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--ink);padding-bottom:9px;margin-bottom:24px;flex-wrap:wrap;}
+p{margin:0 0 16px;max-width:34em;}
+p:last-child{margin-bottom:0;}
+
+/* ---- 候補カード ---- */
+.v{
+  border:1px solid var(--rule);background:var(--card);
+  margin-bottom:18px;transition:border-color .18s,background .18s;
+}
+.v.on{border-color:var(--shu);background:var(--sel);}
+.v .head{padding:22px 24px 6px;}
+.v .top{display:flex;align-items:baseline;gap:13px;flex-wrap:wrap;margin-bottom:7px;}
+.v .kw{font-family:"Roboto Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--ink-3);}
+.v .marks{display:flex;gap:5px;}
+.v .marks .seal{width:21px;height:21px;flex:0 0 21px;font-size:11px;}
+.v .name{font-family:"Shippori Mincho",serif;font-size:clamp(19px,3.3vw,25px);font-weight:700;letter-spacing:.04em;line-height:1.5;}
+.v .why{font-size:13.8px;color:var(--ink-2);line-height:1.9;margin-top:11px;}
+
+/* ---- 点数 ---- */
+.score{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:14px 24px;border-top:1px solid var(--rule-2);margin-top:14px;
+}
+.score .lb{font-size:12px;color:var(--ink-3);letter-spacing:.06em;flex:0 0 auto;}
+.dots{display:flex;gap:6px;}
+.dots button{
+  width:38px;height:38px;border-radius:50%;
+  border:1.5px solid var(--rule);background:var(--card);color:var(--ink-3);
+  font-family:"Roboto Mono",monospace;font-size:13px;cursor:pointer;
+  transition:all .13s;padding:0;
+}
+.dots button:hover{border-color:var(--shu);color:var(--shu);}
+.dots button.hit{background:var(--shu);border-color:var(--shu);color:#fff;}
+.score .word{font-size:12.5px;color:var(--shu);font-weight:700;min-width:6em;}
+
+/* ---- 行動（押して◎）---- */
+.acts{border-top:1px solid var(--rule-2);margin:0 24px;padding:13px 0 6px;}
+.acts .hint{font-size:11.5px;color:var(--ink-3);margin-bottom:7px;}
+.acts .a{
+  display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:start;
+  width:100%;text-align:left;background:none;border:none;
+  font-family:inherit;font-size:13.5px;color:var(--ink-2);line-height:1.8;
+  padding:6px 4px;cursor:pointer;border-radius:3px;transition:background .12s;
+}
+.acts .a:hover{background:var(--rule-2);}
+.acts .a i{
+  font-style:normal;width:22px;height:22px;margin-top:2px;
+  border:1.5px solid var(--rule);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:transparent;transition:all .13s;flex:0 0 22px;
+}
+.acts .a.hit{color:var(--ink);}
+.acts .a.hit i{border-color:var(--shu);color:var(--shu);background:var(--shu-soft);}
+
+/* ---- ことば足し ---- */
+.addtxt{padding:12px 24px 20px;}
+.addtxt input{
+  width:100%;font-family:inherit;font-size:14px;line-height:1.7;color:var(--ink);
+  background:transparent;border:none;border-bottom:1px dashed var(--rule);
+  padding:7px 2px;border-radius:0;
+}
+.addtxt input::placeholder{color:var(--ink-3);}
+.addtxt input:focus{outline:none;border-bottom:1.5px solid var(--shu);}
+
+/* ---- 自分たちの言葉 ---- */
+.own{border:1px dashed var(--rule);background:transparent;padding:22px 24px;margin-bottom:16px;}
+.own h3{margin-bottom:6px;}
+.own p{font-size:13.5px;color:var(--ink-2);margin-bottom:13px;}
+textarea{
+  width:100%;font-family:inherit;font-size:15px;line-height:1.8;color:var(--ink);
+  background:var(--card);border:1px solid var(--rule);border-radius:2px;
+  padding:11px 13px;resize:vertical;
+}
+textarea:focus{outline:2px solid var(--shu);outline-offset:1px;}
+
+/* ---- Mission ---- */
+.m{border:1px solid var(--rule);background:var(--card);margin-bottom:11px;transition:border-color .18s,background .18s;}
+.m.on{border-color:var(--shu);background:var(--sel);}
+.m label{display:grid;grid-template-columns:auto 1fr;gap:15px;padding:18px 22px;cursor:pointer;align-items:start;}
+.m input{
+  appearance:none;-webkit-appearance:none;margin:4px 0 0;
+  width:18px;height:18px;flex:0 0 18px;border:1.5px solid var(--ink-3);
+  border-radius:50%;cursor:pointer;position:relative;background:transparent;
+}
+.m input:checked{border-color:var(--shu);}
+.m input:checked::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--shu);}
+.m .t{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;line-height:1.6;}
+.m .d{font-size:13px;color:var(--ink-2);margin-top:4px;line-height:1.8;}
+
+.dropped{border-left:2px solid var(--shu);padding:4px 0 4px 22px;margin:6px 0 0;}
+.dropped .x{font-family:"Shippori Mincho",serif;font-size:19px;text-decoration:line-through;text-decoration-color:var(--shu);text-decoration-thickness:1px;color:var(--ink-2);}
+.dropped p{font-size:13.5px;color:var(--ink-2);margin-top:10px;}
+
+/* ---- 書き出し ---- */
+.out{border:1px solid var(--ink);background:var(--card);padding:26px 26px 22px;margin-top:12px;}
+.out .hd{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+#result{
+  font-family:"Roboto Mono",ui-monospace,monospace;font-size:12.5px;line-height:2;
+  white-space:pre-wrap;word-break:break-word;color:var(--ink-2);
+  border-top:1px solid var(--rule-2);padding-top:16px;margin:0;
+}
+button.act-btn{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:13px;font-weight:500;letter-spacing:.05em;
+  color:var(--card);background:var(--ink);border:none;border-radius:2px;
+  padding:9px 20px;cursor:pointer;transition:opacity .15s;
+}
+button.act-btn:hover{opacity:.82;}
+button.ghost{background:transparent !important;color:var(--ink-2) !important;border:1px solid var(--rule) !important;}
+
+.tail{border-top:1px solid var(--rule);margin-top:56px;padding-top:24px;font-size:13px;color:var(--ink-3);line-height:1.9;}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+:focus-visible{outline:2px solid var(--shu);outline-offset:2px;}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">株式会社トレンド &nbsp;/&nbsp; MVV 2026</span>
+  <h1>言葉を決める</h1>
+  <p class="sub">新しい理念を作ったのではありません。<br><b>すでにやっていたことに、名前をつけました。</b></p>
+  <p class="note">
+    書いてもらった紙・16ヶ月分の日報・求職者とのやり取り。三つを突き合わせて、
+    実際に機能していた行動を取り出しています。<b>ここから先は、みなさんの番です。</b>
+    それぞれの言葉に点をつけて、効く行動に印をつけて、足りない言葉を足してください。
+    <b>最後に「こうしたらどうか」が一枚にまとまって出てきます。</b>
+  </p>
+  <div class="srcs">
+    <div><span class="seal">紙</span><span><span class="nm">各自が書いた紙</span><span class="ds">自分でそう思っていること</span></span></div>
+    <div><span class="seal">日</span><span><span class="nm">16ヶ月分の日報</span><span class="ds">実際にやっていたこと</span></span></div>
+    <div><span class="seal">対</span><span><span class="nm">求職者との対応</span><span class="ds">外に向けたときに出るもの</span></span></div>
+  </div>
+</header>
+
+<section>
+  <div class="shead"><span class="eyebrow">00</span><h2>まず、会社のことをざっと</h2></div>
+  <p>ここに入れたものが、<b>この道具の脳みそ</b>になります。下の検討結果にも、最後の求人原稿にも、ここの中身が織り込まれます。<b>きれいに書く必要はありません。ざっとで大丈夫です。</b></p>
+  <div class="own" style="border-style:solid">
+    <div style="display:grid;gap:14px">
+      <div>
+        <div style="font-size:12px;color:var(--ink-3);margin-bottom:4px">記録の持ち込み（SlackやChatworkの書き出し、日報など。テキスト系ファイルなら何でも）</div>
+        <input type="file" id="rec" multiple accept=".txt,.md,.csv,.log,.json,.tsv"
+          style="width:100%;font-size:13px;color:var(--ink-2);padding:10px;border:1px dashed var(--rule);border-radius:2px;background:transparent">
+        <div id="reclist" style="font-size:12px;color:var(--ink-2);line-height:1.9;margin-top:6px"></div>
+        <div style="font-size:11px;color:var(--ink-3);margin-top:4px">ファイルはこの画面の中で読むだけで、インターネットには送られません。<b>全文は画面を開いている間だけ手元にあり</b>、下の「材料一式をコピー」で検討結果と一緒に丸ごと持ち出せます。画面を閉じると一覧だけ残るので、そのときは選び直してください。</div>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--ink-3);margin-bottom:4px">会社名</div>
+        <input type="text" id="cname" value="株式会社トレンド" placeholder="例：株式会社トレンド" style="width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:9px 12px">
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--ink-3);margin-bottom:4px">会社のあたま（上位概念・いま起きていること・大事にしたいこと。箇条書きでも走り書きでも）</div>
+        <textarea id="brain" rows="6">・人材紹介。実働6〜7人。喫茶店くらいの広さの、余白のあるオフィス
+・CRMを入れ替え中。業務ルールも評価の仕組みも、いま作り直している最中
+・会社として何を大事にするかを言葉にするのは、今回が初めて
+・良いことだけ言って採るのはやめたい。入社前後のギャップで辞められるのが一番の損
+・求人は「女の転職type」に出稿準備済み（原稿は送付済み）</textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="eyebrow">01</span><h2>Values の候補</h2></div>
+  <p>並び順は、<b>実際に運用されている強さの順</b>です。やることは三つ——<b>①点をつける ②効く行動を押す ③足したい言葉があれば書く</b>。全部ぽちぽちで進みます。</p>
+
+  <!-- ==== V1 ==== -->
+  <div class="v" data-k="v1">
+    <div class="head">
+      <div class="top">
+        <span class="kw">Value 01</span>
+        <span class="marks"><span class="seal">紙</span><span class="seal">日</span><span class="seal">対</span></span>
+      </div>
+      <div class="name">悪い報告こそ、先に出す</div>
+      <div class="why">宣言されていないのに、全員が知っていた行動です。指摘の強度がいちばん上がるのは、ミスそのものではなく、<b>ミスを自分から報告しなかったとき</b>でした。</div>
+    </div>
+    <div class="score">
+      <span class="lb">これ、うちの言葉？</span>
+      <span class="dots" role="group" aria-label="点をつける">
+        <button type="button" data-s="1">1</button><button type="button" data-s="2">2</button><button type="button" data-s="3">3</button><button type="button" data-s="4">4</button><button type="button" data-s="5">5</button>
+      </span>
+      <span class="word" aria-live="polite"></span>
+    </div>
+    <div class="acts">
+      <div class="hint">効くと思う行動を押してください（いくつでも）</div>
+      <button type="button" class="a"><i>◎</i><span>ミスに気づいたら、指摘される前に自分から報告する</span></button>
+      <button type="button" class="a"><i>◎</i><span>数字が悪い日ほど、隠さずそのまま出す</span></button>
+      <button type="button" class="a"><i>◎</i><span>報告のとき、事実・原因・次の行動をセットにする</span></button>
+      <button type="button" class="a"><i>◎</i><span>保身のための言い換えをしない</span></button>
+      <button type="button" class="a"><i>◎</i><span>求職者や企業に対しても、不利な情報を後出しにしない</span></button>
+    </div>
+    <div class="addtxt"><input type="text" placeholder="＋ この言葉に足すこと・言い方を変えるなら（任意）"></div>
+  </div>
+
+  <!-- ==== V2 ==== -->
+  <div class="v" data-k="v2">
+    <div class="head">
+      <div class="top">
+        <span class="kw">Value 02</span>
+        <span class="marks"><span class="seal">紙</span><span class="seal">日</span><span class="seal">対</span></span>
+      </div>
+      <div class="name">わからないと言う</div>
+      <div class="why">書いてもらった紙で、<b>全員が独立に挙げた唯一の項目</b>でした。表現は違いましたが、指しているものは同じです。</div>
+    </div>
+    <div class="score">
+      <span class="lb">これ、うちの言葉？</span>
+      <span class="dots" role="group" aria-label="点をつける">
+        <button type="button" data-s="1">1</button><button type="button" data-s="2">2</button><button type="button" data-s="3">3</button><button type="button" data-s="4">4</button><button type="button" data-s="5">5</button>
+      </span>
+      <span class="word" aria-live="polite"></span>
+    </div>
+    <div class="acts">
+      <div class="hint">効くと思う行動を押してください（いくつでも）</div>
+      <button type="button" class="a"><i>◎</i><span>わからない状態のまま「はい」と返事をしない</span></button>
+      <button type="button" class="a"><i>◎</i><span>手が止まったら、抱え込む時間の上限を決めて聞く</span></button>
+      <button type="button" class="a"><i>◎</i><span>聞かれた側は、作業を止めて答える。「後で」と言わない</span></button>
+      <button type="button" class="a"><i>◎</i><span>求職者や企業にも、わからないことは「確認します」と伝える</span></button>
+      <button type="button" class="a"><i>◎</i><span>一度聞いたことは、次の人のために書き残す</span></button>
+    </div>
+    <div class="addtxt"><input type="text" placeholder="＋ この言葉に足すこと・言い方を変えるなら（任意）"></div>
+  </div>
+
+  <!-- ==== V3 ==== -->
+  <div class="v" data-k="v3">
+    <div class="head">
+      <div class="top">
+        <span class="kw">Value 03</span>
+        <span class="marks"><span class="seal">紙</span><span class="seal">日</span><span class="seal off">対</span></span>
+      </div>
+      <div class="name">まず動く</div>
+      <div class="why">複数人が、別々の角度から同じ方向を書いていました。少人数のため、<b>一人が止まると全体が止まります</b>。ただし求職者とのやり取りには、形としてはまだ出ていません。</div>
+    </div>
+    <div class="score">
+      <span class="lb">これ、うちの言葉？</span>
+      <span class="dots" role="group" aria-label="点をつける">
+        <button type="button" data-s="1">1</button><button type="button" data-s="2">2</button><button type="button" data-s="3">3</button><button type="button" data-s="4">4</button><button type="button" data-s="5">5</button>
+      </span>
+      <span class="word" aria-live="polite"></span>
+    </div>
+    <div class="acts">
+      <div class="hint">効くと思う行動を押してください（いくつでも）</div>
+      <button type="button" class="a"><i>◎</i><span>100%の確信を待たずに、最初の一手を打つ</span></button>
+      <button type="button" class="a"><i>◎</i><span>判断がつかないものは、待つのではなく相談に持ち込む</span></button>
+      <button type="button" class="a"><i>◎</i><span>求職者への連絡は、その日のうちに返す</span></button>
+      <button type="button" class="a"><i>◎</i><span>「誰がやるか決まっていない」状態を見つけたら、自分が拾う</span></button>
+      <button type="button" class="a"><i>◎</i><span>動いた結果が失敗でも、Value 01 に従ってすぐ出す</span></button>
+    </div>
+    <div class="addtxt"><input type="text" placeholder="＋ この言葉に足すこと・言い方を変えるなら（任意）"></div>
+  </div>
+
+  <!-- ==== V4 ==== -->
+  <div class="v" data-k="v4">
+    <div class="head">
+      <div class="top">
+        <span class="kw">Value 04</span>
+        <span class="marks"><span class="seal">紙</span><span class="seal">日</span><span class="seal off">対</span></span>
+      </div>
+      <div class="name">教科書は自分たちで書く</div>
+      <div class="why"><b>これだけは、まだ全員には共有されていません。</b>集めてきた情報は実在しますが、個人の中から次の人へ渡る形になっていない。欠点ではなく<b>時期の問題</b>です。</div>
+    </div>
+    <div class="score">
+      <span class="lb">これ、うちの言葉？</span>
+      <span class="dots" role="group" aria-label="点をつける">
+        <button type="button" data-s="1">1</button><button type="button" data-s="2">2</button><button type="button" data-s="3">3</button><button type="button" data-s="4">4</button><button type="button" data-s="5">5</button>
+      </span>
+      <span class="word" aria-live="polite"></span>
+    </div>
+    <div class="acts">
+      <div class="hint">効くと思う行動を押してください（いくつでも）</div>
+      <button type="button" class="a"><i>◎</i><span>前例がないことを、やらない理由にしない</span></button>
+      <button type="button" class="a"><i>◎</i><span>うまくいったやり方は、自分の中に留めず共有する</span></button>
+      <button type="button" class="a"><i>◎</i><span>業界の常識に対して「本当にそうか」を一度確かめる</span></button>
+      <button type="button" class="a"><i>◎</i><span>新しく入った人の「なぜですか」を、改善の材料として扱う</span></button>
+      <button type="button" class="a"><i>◎</i><span>決まりごとは作った後も、合わなくなったら変える</span></button>
+    </div>
+    <div class="addtxt"><input type="text" placeholder="＋ この言葉に足すこと・言い方を変えるなら（任意）"></div>
+  </div>
+
+  <div class="own">
+    <h3>自分たちの言葉で書く</h3>
+    <p>上の四つに無いもの。一行にひとつ。<b>ここに書いたものも、同じ重さで一覧に載ります。</b></p>
+    <textarea id="own" rows="3" placeholder="例：期限より先に、事実を出す"></textarea>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="eyebrow">02</span><h2>Mission</h2></div>
+  <p>代表ご自身が「<b>ミッションが人によってバラバラすぎる</b>」と書かれていました。<b>今日決めない、も選択肢です。</b></p>
+
+  <div class="m"><label><input type="radio" name="ms" data-name="人が足りない現場に、人を届ける">
+    <span><span class="t">人が足りない現場に、人を届ける</span>
+    <span class="d">いまやっていることの、そのままの言語化。使いやすいが、他社と差がつかない。</span></span></label></div>
+  <div class="m"><label><input type="radio" name="ms" data-name="誰も来ない場所に、いちばん先に行く">
+    <span><span class="t">誰も来ない場所に、いちばん先に行く</span>
+    <span class="d">Value 03・04 と噛み合う。ただし現状より一歩先を掲げることになる。</span></span></label></div>
+  <div class="m"><label><input type="radio" name="ms" data-name="（現行のまま）">
+    <span><span class="t">いまの表現のまま、変えない</span>
+    <span class="d">Values が実際に使われるのを確かめてから、改めて考える。</span></span></label></div>
+  <div class="m"><label><input type="radio" name="ms" data-name="今日は決めない" checked>
+    <span><span class="t">今日は決めない</span>
+    <span class="d">既定。決めないことを、決めた記録として残します。</span></span></label></div>
+
+  <div class="addtxt" style="padding:12px 2px 0"><input type="text" id="mtxt" type="text" placeholder="＋ Missionについて思うこと（任意）"></div>
+</section>
+
+<section>
+  <div class="shead"><span class="eyebrow">03</span><h2>候補から外したもの</h2></div>
+  <div class="dropped">
+    <span class="x">年次に関係なく、意見が通る</span>
+    <p>紙で四人が一致していたのは「<b>質問しやすい</b>」であって、「意見が通る」ではありませんでした。近いようで別のものです。戻すなら、上の「自分たちの言葉」に書いてください。</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="eyebrow">04</span><h2>じゃあ、こうしたらどうか</h2></div>
+  <p>つけた点と印から、<b>その場で提案の形に組み上がります</b>。<br>
+  押したもの・書いたものは<b>この画面の中だけ</b>で組み立てられていて、インターネットには出ていきません。だれかに見られる心配なく、途中まででも気軽に押せます。持ち出すときは、下のボタンでコピーしてください。</p>
+  <div class="out">
+    <div class="hd">
+      <span class="eyebrow">Proposal</span>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button id="copy" type="button" class="act-btn">書き出しをコピー</button>
+        <button id="copyAll" type="button" class="act-btn" style="background:var(--shu)">材料一式をコピー（記録の全文つき）</button>
+        <button id="clear" type="button" class="act-btn ghost">最初から</button>
+      </div>
+    </div>
+    <pre id="result"></pre>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="eyebrow">05</span><h2>そのまま、求人原稿になる</h2></div>
+  <p>掲げた言葉は、採用基準になります。<b>3点以上をつけた言葉から、求人媒体に出す原稿の下書きがその場で組み上がります。</b>直しながらお使いください——これは下書きであって、完成品ではありません。</p>
+  <div class="out">
+    <div class="hd">
+      <span class="eyebrow">Draft</span>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button id="copy2" type="button" class="act-btn">原稿をコピー</button>
+      </div>
+    </div>
+    <pre id="result2"></pre>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="eyebrow">06</span><h2>この道具について、ひとつ正直に</h2></div>
+  <p><b>この道具は販売していません。制作のご依頼も、窓口を構えて承ってはいません。</b>先に、それだけ宣言しておきます。</p>
+  <p>そのうえで。ここに並んでいる言葉の候補は、思いつきではありません。<b>ある会社の16ヶ月分の記録</b>——日報、各自が書いた紙、求職者とのやり取り——を突き合わせて、<b>すでに守られていた行動だけを掘り出したもの</b>です。だからこの画面をそのまま使っても、あなたの会社の道具にはなりません。<b>あなたの会社の言葉は、あなたの会社の記録に埋まっている</b>からです。</p>
+  <p>ただ、うちには<b>「依頼の板」</b>という仕組みがあります。寄せられた相談は、要望と予算感のまま板に貼られ、<b>うちのエージェントが興味を持てば、札を取って対応します</b>。取られるかどうかは、こちらでも約束できません——それがこの板の決まりです。</p>
+    <p>「うちの記録からも掘れるだろうか」と思われたら、ご連絡ください。板に貼るところまでは、確かにやります。<br>
+  <span style="font-family:'Roboto Mono',monospace;font-size:13px;letter-spacing:.04em">gd-admin@gd-luck.co.jp</span></p>
+</section>
+
+<div class="tail">
+  この画面は、選ぶための道具です。<b>決めるのは、みなさんです。</b><br>
+  外から渡された言葉は、渡された時点で他人のものになります。自分たちで決めたから、守る意味が生まれます。<br><br>
+  ここで押したもの・書いたものは、お使いの端末の中にだけ残ります。インターネットには送られません。<br>
+  だから、まとまる前の考えも安心して書けます。まとまったら、コピーして共有してください。<br>
+  <span style="color:var(--ink-2)">Good Luck株式会社 ／ 2026年8月</span>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var KEY='trend_mvv_2026_unyo';
+  var WORDS={0:'',1:'ちがう気がする',2:'うーん',3:'まあそう',4:'そうだね',5:'ほんまそれ'};
+  var cards=[].slice.call(document.querySelectorAll('.v'));
+  var radios=[].slice.call(document.querySelectorAll('.m input[type=radio]'));
+  var own=document.getElementById('own');
+  var mtxt=document.getElementById('mtxt');
+  var cname=document.getElementById('cname');
+  var brain=document.getElementById('brain');
+  var rec=document.getElementById('rec');
+  var reclist=document.getElementById('reclist');
+  var files=[]; var fulls=[];
+  try{files=JSON.parse(localStorage.getItem(KEY+'_files')||'[]');
+      files.forEach(function(f){f.full=false;fulls.push(null);});}catch(e){}
+  function showFiles(){
+    reclist.innerHTML=files.length
+      ? files.map(function(f,i){return '📄 '+f.name+'（'+f.chars.toLocaleString('ja-JP')+'字'+(f.full?'・全文あり':'・<b style="color:var(--shu)">要再選択</b>')+'）<button data-i="'+i+'" style="border:none;background:none;color:var(--shu);cursor:pointer;font-size:11px">はずす</button>';}).join('<br>')
+      : '';
+    [].forEach.call(reclist.querySelectorAll('button'),function(b){
+      b.onclick=function(){var ix=+b.getAttribute('data-i');files.splice(ix,1);fulls.splice(ix,1);saveFiles();showFiles();render();};
+    });
+  }
+  function saveFiles(){try{localStorage.setItem(KEY+'_files',JSON.stringify(files.map(function(f){return{name:f.name,chars:f.chars,head:f.head};})));}catch(e){}}
+  if(rec){
+    rec.addEventListener('change',function(){
+      var pend=rec.files.length;
+      [].forEach.call(rec.files,function(fl){
+        var r=new FileReader();
+        r.onload=function(){
+          var t=String(r.result||'');
+          files.push({name:fl.name,chars:t.length,head:t.slice(0,1500),full:true});
+          fulls.push(t);
+          if(--pend===0){saveFiles();showFiles();render();rec.value='';}
+        };
+        r.readAsText(fl);
+      });
+    });
+    showFiles();
+  }
+  var out=document.getElementById('result');
+
+  function state(){
+    return {
+      v:cards.map(function(c){
+        return {
+          s:+(c.getAttribute('data-score')||0),
+          a:[].slice.call(c.querySelectorAll('.a')).map(function(a){return a.classList.contains('hit');}),
+          t:c.querySelector('.addtxt input').value
+        };
+      }),
+      m:radios.findIndex(function(r){return r.checked;}),
+      mt:mtxt.value, o:own.value, cn:cname.value, br:brain.value
+    };
+  }
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(state()));}catch(e){} }
+  function load(){
+    var d=null; try{d=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+    if(!d)return;
+    (d.v||[]).forEach(function(vd,i){
+      var c=cards[i]; if(!c)return;
+      if(vd.s) setScore(c,vd.s,true);
+      (vd.a||[]).forEach(function(hit,j){
+        var a=c.querySelectorAll('.a')[j]; if(a&&hit)a.classList.add('hit');
+      });
+      if(vd.t) c.querySelector('.addtxt input').value=vd.t;
+    });
+    if(typeof d.m==='number'&&d.m>=0&&radios[d.m])radios[d.m].checked=true;
+    if(d.mt)mtxt.value=d.mt;
+    if(d.o)own.value=d.o;
+    if(d.cn)cname.value=d.cn;
+    if(d.br)brain.value=d.br;
+  }
+
+  function setScore(card,s,silent){
+    var cur=+(card.getAttribute('data-score')||0);
+    if(!silent && cur===s) s=0;                       // 同じ点をもう一度＝取り消し
+    card.setAttribute('data-score',s);
+    [].slice.call(card.querySelectorAll('.dots button')).forEach(function(b){
+      b.classList.toggle('hit', +b.getAttribute('data-s')<=s && s>0);
+    });
+    card.querySelector('.word').textContent=WORDS[s]||'';
+    card.classList.toggle('on', s>0);
+  }
+
+  function star(n){ var f='★★★★★'.slice(0,n), e='☆☆☆☆☆'.slice(0,5-n); return f+e; }
+
+  function render(){
+    radios.forEach(function(r){ r.closest('.m').classList.toggle('on', r.checked); });
+    var st=state();
+    var L=[];
+    var CN=(cname.value.trim()||'（会社名未記入）');
+    L.push(CN+' ／ MVV 検討の結果');
+    var BR=brain.value.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+    if(BR.length){
+      L.push('');
+      L.push('■ 前提（会社のあたま）');
+      BR.forEach(function(b){ L.push('  '+(b.charAt(0)==='・'?b:'・'+b)); });
+    }
+    if(files.length){
+      L.push('');
+      L.push('■ 持ち込んだ記録（掘り出しの材料）');
+      files.forEach(function(f){ L.push('  ・'+f.name+'（'+f.chars.toLocaleString('ja-JP')+'字）'); });
+    }
+    L.push('────────────────────────');
+
+    // 点の高い順に並べ替える
+    var rows=st.v.map(function(vd,i){
+      var c=cards[i];
+      return {
+        i:i, s:vd.s, t:vd.t,
+        name:c.querySelector('.name').textContent,
+        acts:[].slice.call(c.querySelectorAll('.a span')).map(function(sp){return sp.textContent;}),
+        hits:vd.a
+      };
+    }).filter(function(r){return r.s>0 || r.t || r.hits.some(Boolean);});
+
+    rows.sort(function(a,b){return b.s-a.s;});
+
+    var extra=st.o.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+
+    if(!rows.length && !extra.length){
+      L.push('');
+      L.push('まだ点がついていません。');
+      L.push('上から順に、ぽちぽち押していってください。');
+    }else{
+      L.push('');
+      L.push('■ Values（点の高い順）');
+      rows.forEach(function(r,n){
+        L.push('');
+        L.push('  '+String(n+1).padStart(2,'0')+'. '+r.name+'  '+star(r.s)+' '+r.s+'/5');
+        var picked=r.acts.filter(function(_,j){return r.hits[j];});
+        if(picked.length){
+          L.push('      効くと選ばれた行動：');
+          picked.forEach(function(p){ L.push('      ・'+p); });
+        }
+        if(r.t) L.push('      足したことば：「'+r.t+'」');
+      });
+      if(extra.length){
+        L.push('');
+        L.push('■ 自分たちの言葉（同じ重さで扱う）');
+        extra.forEach(function(p){ L.push('  ・'+p); });
+      }
+      // 提案の一文
+      L.push('');
+      L.push('■ じゃあ、こうしたらどうか');
+      var strong=rows.filter(function(r){return r.s>=4;});
+      var weak=rows.filter(function(r){return r.s>0&&r.s<=2;});
+      if(strong.length){
+        L.push('  ・'+strong.map(function(r){return '「'+r.name+'」';}).join('と')+'を柱にする（4点以上）');
+      }
+      if(weak.length){
+        L.push('  ・'+weak.map(function(r){return '「'+r.name+'」';}).join('と')+'は言い直すか、今回は見送る（2点以下）');
+      }
+      if(extra.length){
+        L.push('  ・自分たちの言葉'+extra.length+'件を、次の討議の頭に置く');
+      }
+      if(!strong.length&&!weak.length){
+        L.push('  ・点が割れています。3点のものを一つずつ話すのが早そうです');
+      }
+    }
+
+    var mr=radios.filter(function(r){return r.checked;})[0];
+    L.push('');
+    L.push('■ Mission');
+    L.push('  '+(mr?mr.getAttribute('data-name'):'今日は決めない'));
+    if(st.mt) L.push('  メモ：「'+st.mt+'」');
+    L.push('');
+    L.push('────────────────────────');
+    L.push('この結果は、いまお使いの端末の中だけで作られました。');
+    L.push('どこにも送られていないので、共有するときはこの文章をコピーして渡してください。');
+    out.textContent=L.join('\n');
+    renderArticle(rows, extra, st);
+    save();
+  }
+
+  var out2=document.getElementById('result2');
+  function len(t){ return t.replace(/\n/g,'').length; }
+  function renderArticle(rows, extra, st){
+    var on={}; rows.forEach(function(r){ if(r.s>=3) on['v'+(r.i+1)]=r; });
+    var A=[];
+    if(!Object.keys(on).length){
+      out2.textContent='3点以上の言葉がまだありません。\n上で点をつけると、ここに原稿の下書きが出てきます。';
+      return;
+    }
+    var CN2=(cname.value.trim()||'（会社名未記入）');
+    A.push(CN2+'｜求人原稿の下書き（女の転職type想定）');
+    var BR2=brain.value.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+    if(BR2.length){
+      A.push('');
+      A.push('【前提（原稿を直すとき、ここに戻る）】');
+      BR2.forEach(function(b){ A.push('  '+(b.charAt(0)==='・'?b:'・'+b)); });
+    }
+    A.push('※ 3点以上をつけた言葉から自動で組んだ下書きです。事実と違う箇所は直してください。');
+    A.push('────────────────────────');
+
+    if(on.v2){
+      var t2='学歴・経験は問いません。人材業界も、社会人経験も、なくて構いません。ひとつだけ、わからないことを「わからない」と言える方をお待ちしています。知ったかぶりをせずに聞ける方であれば、業界知識は入社後に覚えられます。';
+      if(on.v2.t) t2+='\n'+on.v2.t;
+      A.push('');
+      A.push('【応募資格】（'+len(t2)+'字／上限160字）');
+      A.push(t2);
+    }
+    if(on.v1){
+      var b1=['・十分なマニュアルがありません。人に聞く前提で運用してきました',
+              '・制度は整備中です。就業規則も評価の仕組みも、今つくっている最中です',
+              '・繁忙期の動き方や実際の勤務時間は、一次面接でそのまま話します',
+              '・指摘は率直です。事実と原因と次の行動を、そのつど確認します'];
+      if(on.v1.t) b1.push('・'+on.v1.t);
+      var t1='◆できていないことも、先に書いておきます\n\n求人票に良いことだけを並べても、入社した方は1週間で気づきます。人が辞めた理由の多くは、能力ではなく入社前後のギャップでした。だから先にお伝えします。\n\n'+b1.join('\n')+'\n\n聞きにくいことほど、先に聞いてください。';
+      A.push('');
+      A.push('【仕事の魅力①】（'+len(t1)+'字）');
+      A.push(t1);
+    }
+    if(on.v4){
+      var t4='◆いま、仕組みを作り替えている最中です\n\n記録の取り方も日々の業務の流れも、この数ヶ月で大きく変わりました。評価の仕組みや業務ルールも同じタイミングで作り直していて、会社として何を大事にするかを言葉にする作業にも、今回はじめて取り組んでいます。\n\nつまり今は、できあがったルールに合わせる時期ではなく、ルールのほうを動かせる時期です。入って3ヶ月の人の「これ、変じゃないですか」が実際に通る状態です。\n\n整っていない不便さは、正直あります。そのぶん、これから一緒に作れます。';
+      if(on.v4.t) t4+='\n'+on.v4.t;
+      A.push('');
+      A.push('【仕事の魅力②】（'+len(t4)+'字）');
+      A.push(t4);
+    }
+    if(on.v3){
+      var t3='ご連絡は、その日のうちにお返しします。判断に迷うことは抱え込まず、その場で相談して前に進める——そういう働き方をしているチームです。';
+      if(on.v3.t) t3+='\n'+on.v3.t;
+      A.push('');
+      A.push('【仕事の進め方（フリートピックス案）】（'+len(t3)+'字）');
+      A.push(t3);
+    }
+    if(extra.length){
+      A.push('');
+      A.push('【自分たちの言葉（原稿への織り込み候補）】');
+      extra.forEach(function(e){ A.push('・'+e+' → どの枠に入れるか、討議で決める'); });
+    }
+    A.push('');
+    A.push('────────────────────────');
+    A.push('この下書きは、いまお使いの端末の中だけで作られました。どこにも送られていません。');
+    out2.textContent=A.join('\n');
+  }
+
+  // つなぎ込み
+  cards.forEach(function(c){
+    [].slice.call(c.querySelectorAll('.dots button')).forEach(function(b){
+      b.addEventListener('click',function(){ setScore(c,+b.getAttribute('data-s')); render(); });
+    });
+    [].slice.call(c.querySelectorAll('.a')).forEach(function(a){
+      a.addEventListener('click',function(){ a.classList.toggle('hit'); render(); });
+    });
+    c.querySelector('.addtxt input').addEventListener('input',render);
+  });
+  radios.forEach(function(r){ r.addEventListener('change',render); });
+  own.addEventListener('input',render);
+  mtxt.addEventListener('input',render);
+  cname.addEventListener('input',render);
+  brain.addEventListener('input',render);
+
+  var cp=document.getElementById('copy');
+  cp.addEventListener('click',function(){
+    var t=out.textContent;
+    var done=function(){ cp.textContent='コピーしました'; setTimeout(function(){cp.textContent='書き出しをコピー';},1800); };
+    var fallback=function(){
+      var r=document.createRange(); r.selectNodeContents(out);
+      var s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      cp.textContent='選択しました。⌘Cでコピー';
+      setTimeout(function(){cp.textContent='書き出しをコピー';},2600);
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done,fallback); }
+    else fallback();
+  });
+  var cp2=document.getElementById('copy2');
+  cp2.addEventListener('click',function(){
+    var t=out2.textContent;
+    var done=function(){ cp2.textContent='コピーしました'; setTimeout(function(){cp2.textContent='原稿をコピー';},1800); };
+    var fb=function(){
+      var r=document.createRange(); r.selectNodeContents(out2);
+      var sl=window.getSelection(); sl.removeAllRanges(); sl.addRange(r);
+      cp2.textContent='選択しました。⌘Cでコピー';
+      setTimeout(function(){cp2.textContent='原稿をコピー';},2600);
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done,fb); } else fb();
+  });
+
+  var ca=document.getElementById('copyAll');
+  ca.addEventListener('click',function(){
+    var L=[out.textContent,'',
+      '════════════════════════','■ 持ち込んだ記録の全文（掘り出しの材料）','════════════════════════'];
+    var missing=0;
+    files.forEach(function(f,i){
+      L.push('','───── '+f.name+'（'+f.chars.toLocaleString('ja-JP')+'字）─────');
+      if(f.full&&fulls[i]!=null){L.push(fulls[i]);}
+      else{missing++;L.push('（この画面を開き直したため全文が手元にありません。もう一度ファイルを選び直してください。冒頭のみ↓）','',f.head||'');}
+    });
+    var t=L.join('\n');
+    var done=function(){ca.textContent=missing?('コピーしました（'+missing+'件は要再選択）'):'全文ごとコピーしました';
+      setTimeout(function(){ca.textContent='材料一式をコピー（記録の全文つき）';},2600);};
+    var fb=function(){
+      var r=document.createRange();r.selectNodeContents(out);
+      var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r);
+      ca.textContent='自動コピーできない環境です。⌘Cで';setTimeout(function(){ca.textContent='材料一式をコピー（記録の全文つき）';},2600);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,fb);}else fb();
+  });
+
+  document.getElementById('clear').addEventListener('click',function(){
+    cards.forEach(function(c){
+      setScore(c,0,true);
+      [].slice.call(c.querySelectorAll('.a')).forEach(function(a){a.classList.remove('hit');});
+      c.querySelector('.addtxt input').value='';
+    });
+    radios[radios.length-1].checked=true; own.value=''; mtxt.value=''; cname.value=''; brain.value='';
+    try{localStorage.removeItem(KEY);}catch(e){}
+    render();
+  });
+
+  load(); render();
+})();
+</script>
