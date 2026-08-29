@@ -109,6 +109,38 @@
     z-index:5;
   }
   #mute-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000;}
+  /* ランキング（この端末の中だけ） */
+  #rank-box{ margin:14px auto 0; max-width:320px; text-align:left; }
+  #rank-entry{ display:flex; gap:8px; margin-bottom:10px; }
+  #rank-name{
+    flex:1; min-width:0; padding:8px 10px; font-size:14px;
+    border:2px solid #ffd23f; border-radius:8px; background:rgba(255,255,255,.94); color:#22303a;
+  }
+  #rank-save-btn{
+    padding:8px 14px; font-size:14px; font-weight:700; cursor:pointer;
+    border:none; border-radius:8px; background:#ffd23f; color:#22303a;
+  }
+  #rank-save-btn:disabled{ opacity:.5; cursor:default; }
+  #rank-list{ margin:0; padding:0 0 0 26px; font-size:14px; line-height:1.9; }
+  #rank-list b{ color:var(--gold); }
+  #rank-list .me{ background:rgba(255,210,63,.18); border-radius:6px; padding:0 6px; }
+  #rank-note{ font-size:11.5px; opacity:.75; margin:8px 0 0; }
+
+  /* おしゃべり係（生意気コイン） */
+  #koban{
+    position:absolute; left:12px; top:12px; z-index:6;
+    display:flex; align-items:center; gap:8px;
+    max-width:min(72%, 420px);
+    background:rgba(255,255,255,.92); color:#22303a;
+    border:2px solid #ffd23f; border-radius:16px 16px 16px 4px;
+    padding:8px 14px; font-size:14.5px; font-weight:700; line-height:1.5;
+    pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  #koban.off{ opacity:0; transform:translateY(-8px); }
+  #koban-face{ font-size:20px; filter:drop-shadow(0 1px 0 rgba(0,0,0,.15)); }
+  @media (max-width:520px){ #koban{ font-size:13px; padding:6px 10px; } }
+
   .score-line{
     color:var(--cream);
     font-size:clamp(13px,3vw,16px);
@@ -145,6 +177,10 @@
     <canvas id="game" width="900" height="500"></canvas>
     <button id="mute-btn" type="button" aria-label="音を切り替える">🔊</button>
 
+    <div id="koban" class="off" aria-live="polite">
+      <span id="koban-face">🪙</span><span id="koban-say"></span>
+    </div>
+
     <div id="title-screen" class="overlay">
       <div class="panel">
         <h1>コインぽーん！</h1>
@@ -169,6 +205,15 @@
         <p class="score-line">SCORE <b id="go-score">0</b></p>
         <p class="score-line">DIST &nbsp;<b id="go-dist">0</b>m</p>
         <p class="score-line">BEST &nbsp;<b id="go-best">0</b></p>
+        <p class="score-line" id="go-nth"></p>
+        <div id="rank-box">
+          <div id="rank-entry">
+            <input id="rank-name" maxlength="8" placeholder="なまえ（8文字まで）" autocomplete="off">
+            <button id="rank-save-btn" type="button">記録に残す</button>
+          </div>
+          <ol id="rank-list"></ol>
+          <p id="rank-note">記録はこの端末の中にだけ残ります。どこにも送信されません。</p>
+        </div>
         <p class="sub" style="margin-top:14px;">※ベストはこのページを開いている間だけ記録されます</p>
         <button id="retry-btn" type="button">もういちど</button>
       </div>
@@ -331,6 +376,43 @@
   });
 
   // ---------- helpers ----------
+  // ---------- おしゃべり係：なまいきコイン ----------
+  var kobanEl = document.getElementById('koban');
+  var kobanSay = document.getElementById('koban-say');
+  var kobanTimer = null, kobanLastAt = 0, kobanLastLine = '';
+  var LINES = {
+    title:  ['はやく押しなよ。ひまなんだけど。','わたし、跳ぶために生まれたので。','見てるだけ？ふーん。','長押しでためて、離して跳ぶの。おぼえた？'],
+    start:  ['いくよ。ついてきて。','落ちても泣かないから。たぶん。','今日のわたし、調子いい気がする。'],
+    perfect:['当然。','見た？いまの。','完璧。拍手は？','こんなの準備運動。','ど真ん中。しびれた？'],
+    combo:  ['止まらないんだけど。','天才かも。いや、天才。','そろそろ本気出しすぎたかな。'],
+    ok:     ['今のはノーカンで。','風が強かった。','次、本気出す。','…ふつう。ふつうはえらい。'],
+    wobble: ['わわわわ。','おっとっと…！','ちょ、待って待って。'],
+    save:   ['…わざとだし。','ひやっとしてないし。','これも計算のうち。'],
+    dobon:  ['1円になっても、わたしはわたし。','聞いてない。波が悪い。','冷たっ。だれ、この水。','進んだ距離は返さないから。'],
+    grow:   ['重みが出てきたでしょ。','育っちゃった。困る。','ずっしり。それが実力。'],
+    over:   ['今日はこのへんで許してあげる。','次はもっと跳べるから。見てて。','…もう一回。ね？'],
+    best:   ['新記録。まあ、わたしだし。','記録更新。あなた、やるじゃん。'],
+    idle:   ['ねえ、跳ばないの？','ため過ぎじゃない？','石は待ってくれるけど、わたしは退屈。']
+  };
+  function say(kind, force){
+    var now = performance.now();
+    if(!force && now - kobanLastAt < 1600) return;   // 立て続けにしゃべらない
+    var pool = LINES[kind]; if(!pool) return;
+    var line = pool[Math.floor(Math.random()*pool.length)];
+    if(pool.length > 1 && line === kobanLastLine){
+      line = pool[(pool.indexOf(line)+1) % pool.length];
+    }
+    kobanLastLine = line; kobanLastAt = now;
+    kobanSay.textContent = line;
+    kobanEl.classList.remove('off');
+    clearTimeout(kobanTimer);
+    kobanTimer = setTimeout(function(){ kobanEl.classList.add('off'); }, 2800);
+  }
+  setInterval(function(){
+    if(state === STATE_TITLE && Math.random() < 0.6) say('title');
+  }, 7000);
+  say('title', true);
+
   function lerp(a,b,t){ return a+(b-a)*t; }
   function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
   function rand(a,b){ return a + Math.random()*(b-a); }
@@ -553,6 +635,7 @@
     if(player.phase !== 'wobble') return false;
     // 踏みとどまった！
     sfxSave();
+    say('save', true);
     var px = worldToScreen(player.worldX);
     pushText('あぶなっ…！', px, GROUND_Y-64, '#7fe3d4', 18);
     spawnParticles(px, GROUND_Y-6, '#7fe3d4', 8, 0.7);
@@ -597,6 +680,7 @@
   window.addEventListener('pointercancel', onUp);
 
   window.addEventListener('keydown', function(e){
+    if(e.target && e.target.tagName === 'INPUT') return;  // 名前入力中は奪わない
     if(e.code === 'Space'){
       if(e.cancelable) e.preventDefault();
       if(e.repeat) return;
@@ -620,6 +704,7 @@
     state = STATE_PLAY;
     titleScreen.classList.add('hidden');
     gameoverScreen.classList.add('hidden');
+    say('start', true);
   }
 
   // ---------- landing resolution ----------
@@ -650,6 +735,7 @@
       player.worldX = player.jumpToX;
       player.hopY = 0;
       sfxWobble();
+      say('wobble', true);
       return;
     }
 
@@ -688,6 +774,7 @@
         growthProg = 0;
         sfxGrow();
         pushText(DENOMS[denomIdx]+'円玉に進化！', px, py-96, '#ffd23f', 19);
+        say('grow', true);
         spawnParticles(px, py-24, '#fff3c2', 16, 1);
         shakeTime = reduceMotion ? 0 : Math.max(shakeTime, 0.06);
       }
@@ -711,8 +798,10 @@
       bounceTime = reduceMotion ? 0 : 0.22;
       sfxPerfect(skip);
       if(skip) pushText('2連跳び x2！', px, py-70, '#ffd23f', 18);
-      if(combo>0 && combo%5===0) sfxCombo();
+      if(combo>0 && combo%5===0){ sfxCombo(); say('combo', true); }
+      else if(Math.random()<0.3) say('perfect');
     } else {
+      if(Math.random()<0.18) say('ok');
       spawnParticles(px,py,'#bfe7ff',6,0.6);
       if(skip){ pushText('2連跳び x2！', px, py-70, '#ffd23f', 18); }
       sfxOk();
@@ -761,18 +850,66 @@
     player.lockTimer = 0.35;
     cameraTargetX = stone.x;
     sfxChari();
+    say('dobon', true);
     var px = worldToScreen(player.worldX);
     pushText('ちゃりん… '+wasYen+'円が1円に', px, GROUND_Y-92, '#bfe7ff', 15);
   }
 
+  // ---------- ランキング（この端末の中だけ） ----------
+  var RANK_KEY='gl_coinpon_rank', PLAYS_KEY='gl_coinpon_plays';
+  var rankNameEl=document.getElementById('rank-name');
+  var rankSaveBtn=document.getElementById('rank-save-btn');
+  var rankListEl=document.getElementById('rank-list');
+  var goNthEl=document.getElementById('go-nth');
+  var lastRun=null;
+  function rankLoad(){
+    try{ var a=JSON.parse(localStorage.getItem(RANK_KEY)); return Array.isArray(a)?a:[]; }
+    catch(e){ return []; }
+  }
+  function rankRender(list, meIdx){
+    rankListEl.innerHTML='';
+    if(!list.length){ rankListEl.innerHTML='<li>まだ記録がありません。一番乗りどうぞ。</li>'; return; }
+    list.forEach(function(r,i){
+      var li=document.createElement('li');
+      if(i===meIdx) li.className='me';
+      var nm=document.createElement('span'); nm.textContent=r.name||'ななし';
+      var sc=document.createElement('b'); sc.textContent=' '+Number(r.score).toLocaleString();
+      li.appendChild(nm); li.appendChild(sc);
+      li.appendChild(document.createTextNode('点 / '+(r.dist||0)+'m'));
+      rankListEl.appendChild(li);
+    });
+  }
+  rankSaveBtn.addEventListener('click', function(){
+    if(!lastRun) return;
+    var name=(rankNameEl.value||'').trim().slice(0,8) || 'ななし';
+    var list=rankLoad();
+    var entry={name:name, score:lastRun.score, dist:lastRun.dist, at:new Date().toISOString().slice(0,10)};
+    list.push(entry);
+    list.sort(function(a,b){ return b.score-a.score; });
+    list=list.slice(0,10);
+    try{ localStorage.setItem(RANK_KEY, JSON.stringify(list)); }catch(e){}
+    rankRender(list, list.indexOf(entry));
+    rankSaveBtn.disabled=true; rankSaveBtn.textContent='残しました';
+    try{ localStorage.setItem('gl_coinpon_name', name); }catch(e){}
+  });
+
   function endGame(){
     state = STATE_OVER;
+    var prevBest = best||0;
     best = Math.max(best||0, score);
     bestDistPx = Math.max(bestDistPx, player.worldX);
     goScoreEl.textContent = score;
     goDistEl.textContent = Math.floor(player.worldX/PX_PER_M);
     goBestEl.textContent = best;
     goTitleEl.textContent = combo>=8 ? 'ナイスコンボ！' : 'ドボン！';
+    var plays=0;
+    try{ plays=(+localStorage.getItem(PLAYS_KEY)||0)+1; localStorage.setItem(PLAYS_KEY,plays); }catch(e){ plays=0; }
+    goNthEl.textContent = plays>0 ? 'この端末で '+plays+' 人目のドボン' : '';
+    lastRun={score:score, dist:Math.floor(player.worldX/PX_PER_M)};
+    rankSaveBtn.disabled=false; rankSaveBtn.textContent='記録に残す';
+    try{ rankNameEl.value=localStorage.getItem('gl_coinpon_name')||''; }catch(e){}
+    rankRender(rankLoad(), -1);
+    say(score>prevBest && prevBest>0 ? 'best' : 'over', true);
     gameoverScreen.classList.remove('hidden');
   }
 
