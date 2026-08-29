@@ -253,18 +253,45 @@
   .preset-btn{
     font-family:var(--sans);
     font-size:13px;
-    padding:10px 14px;
+    padding:12px 16px 12px 38px;
+    position:relative;
     background:var(--paper);
-    border:1px solid var(--line);
+    border:2px solid var(--line);
     border-radius:6px;
     cursor:pointer;
     color:var(--ink);
     line-height:1.4;
     text-align:left;
+    transition:border-color .15s, background .15s;
   }
+  /* 押せる場所だと分かるように、丸を置く */
+  .preset-btn::before{
+    content:'';
+    position:absolute;
+    left:14px; top:50%; transform:translateY(-50%);
+    width:14px; height:14px;
+    border:2px solid #b9b4a4;
+    border-radius:50%;
+    background:#fff;
+  }
+  .preset-btn:hover{border-color:var(--accent);background:var(--accent-soft);}
   .preset-btn small{display:block;font-family:var(--mono);font-size:10px;color:#8a8d87;margin-top:2px;}
-  .preset-btn.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent);}
-  .preset-btn.on small{color:var(--accent);}
+  .preset-btn.on{
+    border-color:var(--accent);
+    background:var(--accent);
+    color:#fff;
+    font-weight:700;
+  }
+  .preset-btn.on::before{
+    border-color:#fff;
+    background:var(--gold,#c9a227);
+    box-shadow:inset 0 0 0 3px var(--accent);
+  }
+  .preset-btn.on small{color:rgba(255,255,255,.82);}
+  /* チェック箱として使う版（費目の含める／含めない）は丸を出さない */
+  .preset-btn.as-check{padding-left:16px;font-weight:400;}
+  .preset-btn.as-check::before{display:none;}
+  .preset-btn.as-check input{width:17px;height:17px;accent-color:var(--accent);}
   .preset-note{font-size:12px;color:#6b6f68;margin:-6px 0 14px;}
 
   /* --- 今月のお支払い --- */
@@ -515,6 +542,8 @@
     position:absolute;left:0;top:0;
     transition:transform .5s cubic-bezier(.2,.8,.2,1);
   }
+  /* 最初の一枚は動かさない。開いた瞬間は、止まった数字で迎える */
+  .dash-bar.first-paint .digit .roll{transition:none;}
   .digit .roll span{
     display:block;
     height:1.2em;
@@ -718,9 +747,9 @@
       <p class="input-card-desc">いま検討している（または導入済みの）サービスの料金体系。
         計算に入れない費目は、チェックを外せます（外した分は月額にも削減額にも入りません）。</p>
       <div class="presetrow" style="margin-bottom:10px;">
-        <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_seat" checked> 席料を含める</label>
-        <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_call" checked> 通話料を含める</label>
-        <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_rec" checked> 録音AIを含める</label>
+        <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_seat" checked> 席料を含める</label>
+        <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_call" checked> 通話料を含める</label>
+        <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_rec" checked> 録音AIを含める</label>
       </div>
       <div class="sliderow">
         <label>席料<span class="unit">円/人/月</span></label>
@@ -825,7 +854,7 @@
     </div>
     <p class="preset-note">AとBは別々のサービスの料金方式で、同じ機能にどちらか一方を選ぶものです。両方を同時に契約して足し合わせる関係ではありません。選んだ方式のカードだけ入力すれば大丈夫です。</p>
     <div class="presetrow" style="margin-bottom:14px;">
-      <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="map_inc" checked> この節を削減額の合計に入れる</label>
+      <label class="preset-btn as-check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="map_inc" checked> この節を削減額の合計に入れる</label>
     </div>
 
     <div class="input-card card-blue">
@@ -1652,6 +1681,17 @@ document.querySelectorAll('.val').forEach(v=>{
 simRestore();
 updateDashboard();
 simSave();
+
+/* 開いた直後の数字は、回さずに置く。落ち着いてから動くようにする */
+(function(){
+  const bar = document.querySelector('.dash-bar');
+  if(!bar) return;
+  bar.classList.add('first-paint');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.offsetHeight;               // 直前の値を確定させてから外す
+    bar.classList.remove('first-paint');
+  }));
+})();
 </script>
 
 </body>
