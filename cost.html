@@ -698,12 +698,30 @@
     </div>
     <p class="preset-note">比較先をどこまで使う想定かで、下の料金の初期値が変わります。押したあとも、つまみは自由に動かせます。手で入れた値がある場合は、書き換える前に確認します。</p>
 
+    <table class="compare" style="margin-bottom:18px;">
+      <thead>
+        <tr><th>使い方</th><th>比較先の月額（試算）</th><th>自社構成との差／月</th></tr>
+      </thead>
+      <tbody>
+        <tr id="tierrow_call"><td>通話だけ</td><td id="tier_call_cost">—</td><td id="tier_call_diff">—</td></tr>
+        <tr id="tierrow_rec"><td>録音・文字起こしまで</td><td id="tier_rec_cost">—</td><td id="tier_rec_diff">—</td></tr>
+        <tr id="tierrow_full"><td>解析フルパッケージ</td><td id="tier_full_cost">—</td><td id="tier_full_diff">—</td></tr>
+      </tbody>
+    </table>
+    <p class="preset-note">三段それぞれの金額は、下で入れた体制・架電量・通話単価をそのまま使い、席料と録音AIだけ各段の初期値で計算した見取りです。選んでいる段は色が付きます。</p>
+
     <div class="input-card card-orange">
       <div class="input-card-head">
         <span class="input-card-badge">比較先</span>
         <span class="input-card-title">席料＋従量課金型の料金</span>
       </div>
-      <p class="input-card-desc">いま検討している（または導入済みの）サービスの料金体系。</p>
+      <p class="input-card-desc">いま検討している（または導入済みの）サービスの料金体系。
+        計算に入れない費目は、チェックを外せます（外した分は月額にも削減額にも入りません）。</p>
+      <div class="presetrow" style="margin-bottom:10px;">
+        <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_seat" checked> 席料を含める</label>
+        <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_call" checked> 通話料を含める</label>
+        <label class="preset-btn" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="cti_inc_rec" checked> 録音AIを含める</label>
+      </div>
       <div class="sliderow">
         <label>席料<span class="unit">円/人/月</span></label>
         <input type="range" id="cti_seat" min="0" max="15000" value="6500" step="500">
@@ -1104,9 +1122,26 @@ function calcCTI(){
   const totalMins = minsA + minsB;
   const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
 
-  const vendorPerAgent = seat + totalMins*blendedRate + recAddon;
+  const inc = id => { const el=document.getElementById(id); return el ? el.checked : true; };
+  const incSeat=inc('cti_inc_seat'), incCall=inc('cti_inc_call'), incRec=inc('cti_inc_rec');
+
+  const vendorPerAgent = (incSeat?seat:0) + (incCall?totalMins*blendedRate:0) + (incRec?recAddon:0);
   const vendorTotal = vendorPerAgent * agents;
   const selfTotal = self * agents;
+
+  /* 三段の見取り：体制・通話量・単価は共通、席料と録音AIだけ各段の初期値 */
+  if(typeof ctiTiers!=='undefined'){
+    Object.keys(ctiTiers).forEach(k=>{
+      const tp=ctiTiers[k];
+      const per=(incSeat?tp.cti_seat:0)+(incCall?totalMins*blendedRate:0)+(incRec?tp.cti_rec_addon:0);
+      const total=per*agents, d=total-selfTotal;
+      const c=document.getElementById('tier_'+k+'_cost'), df=document.getElementById('tier_'+k+'_diff');
+      if(c) c.textContent=yen(total)+' /月';
+      if(df) df.textContent=d<0?'削減なし（自社の方が高い）':yen(d)+' /月';
+      const row=document.getElementById('tierrow_'+k);
+      if(row) row.style.background = (tp.cti_seat===seat&&tp.cti_rec_addon===recAddon)?'var(--accent-soft)':'';
+    });
+  }
   const rawDiff = vendorTotal - selfTotal;
   const diff = Math.max(0, rawDiff);
   const yearDiff = diff * 12;
@@ -1125,7 +1160,7 @@ function calcCTI(){
 B: ヒアリング通話分/月/人　= ${bCalls}件 <span class="op">×</span> ${(bConn*100).toFixed(0)}% <span class="op">×</span> ${bMins}分 <span class="op">×</span> ${days}日 <span class="op">=</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span>
 通話分合計/人/月　　　　　= <span class="fig">${Math.round(minsA).toLocaleString()}分</span> <span class="op">+</span> <span class="fig">${Math.round(minsB).toLocaleString()}分</span> <span class="op">=</span> <span class="fig">${Math.round(totalMins).toLocaleString()}分</span>
 加重通話単価　　　　　　　= ¥${rateMobile}×${(100-fixedRatio*100).toFixed(0)}% <span class="op">+</span> ¥${rateFixed}×${(fixedRatio*100).toFixed(0)}% <span class="op">=</span> <span class="fig">${yen(blendedRate)}/分</span>
-比較先/人/月　　　　　　　= 席料${yen(seat)} <span class="op">+</span> (${yen(blendedRate)}×${Math.round(totalMins).toLocaleString()}分) <span class="op">+</span> 録音AI${yen(recAddon)} <span class="op">=</span> <span class="fig">${yen(vendorPerAgent)}</span>
+比較先/人/月　　　　　　　= 席料${incSeat?yen(seat):'（含めない）'} <span class="op">+</span> 通話${incCall?'('+yen(blendedRate)+'×'+Math.round(totalMins).toLocaleString()+'分)':'（含めない）'} <span class="op">+</span> 録音AI${incRec?yen(recAddon):'（含めない）'} <span class="op">=</span> <span class="fig">${yen(vendorPerAgent)}</span>
 比較先/月(全体)　　　　　　= <span class="fig">${yen(vendorPerAgent)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(vendorTotal)}</span>
 自社/月(全体)　　　　　　　= <span class="fig">${yen(self)}</span> <span class="op">×</span> ${agents}名 <span class="op">=</span> <span class="fig">${yen(selfTotal)}</span>
 削減額/年　　　　　　　　　= (${yen(vendorTotal)} <span class="op">−</span> ${yen(selfTotal)}) <span class="op">×</span> 12ヶ月 <span class="op">=</span> <span class="fig">${yen(rawDiff*12)}</span>${rawDiff<0?'　（マイナスのため削減額は0円扱い）':''}`;
@@ -1361,7 +1396,8 @@ function updateDashboard(){
         fixedRatio=g('cti_fixed_ratio')/100, recAddon=g('cti_rec_addon'), self=g('cti_self');
   const totalMins = aCalls*aConn*aMins*days + bCalls*bConn*bMins*days;
   const blendedRate = rateMobile*(1-fixedRatio) + rateFixed*fixedRatio;
-  const ctiVendor = (seat + totalMins*blendedRate + recAddon) * agents;
+  const inc = id => { const el=document.getElementById(id); return el ? el.checked : true; };
+  const ctiVendor = ((inc('cti_inc_seat')?seat:0) + (inc('cti_inc_call')?totalMins*blendedRate:0) + (inc('cti_inc_rec')?recAddon:0)) * agents;
   const ctiSelf = self * agents;
   const ctiDiff = Math.max(0, ctiVendor - ctiSelf);
 
@@ -1522,6 +1558,9 @@ function simSave(){
     const st = {};
     allIds.forEach(id=>{ const el=document.getElementById(id); if(el) st[id]=el.value; });
     st.mapMode = mapMode;
+    ['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{
+      const el=document.getElementById(id); if(el) st[id]=el.checked;
+    });
     localStorage.setItem(SIM_KEY, JSON.stringify(st));
   }catch(e){}
 }
@@ -1541,10 +1580,17 @@ function simRestore(){
       else if(envIds.includes(id)) vEl.textContent = fmtENV(id, applied);
     }
   });
+  ['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{
+    const el=document.getElementById(id); if(el && typeof st[id]==='boolean') el.checked=st[id];
+  });
   if(['A','B','min'].includes(st.mapMode)) setMapMode(st.mapMode);
   ctiTierSync();
   calcCTI(); calcMAP(); calcENV();
 }
+['cti_inc_seat','cti_inc_call','cti_inc_rec'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('change', ()=>{ calcCTI(); updateDashboard(); simSave(); });
+});
 allIds.forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', simSave); });
 
 /* ---------------- 値を押して、実額を直接入力 ---------------- */

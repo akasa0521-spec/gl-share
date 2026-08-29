@@ -287,7 +287,7 @@ footer a{color:var(--tokiwa);text-decoration:none;}
 <script>
 /* ============ 音：その場で作る ============ */
 const AC=window.AudioContext||window.webkitAudioContext;
-let ctx=null,master=null,nodes=[],playing=false,melTimer=null,layers={};
+let ctx=null,master=null,nodes=[],playing=false,melTimer=null,layers={},melStep=null;
 let manual=false, mix={voice:.70,room:.18,air:.05,drone:.12,mel:.26};
 let MAX=0.16, mode='auto';
 
@@ -339,7 +339,7 @@ function build(){
   /* 三．空気（朝は鳥・夜は虫の帯） */
   layers.air=g(p.air); layers.air.connect(master);
   const a=src(6),af=ctx.createBiquadFilter(); af.type='highpass'; af.frequency.value=T[active()].hi;
-  a.connect(af); af.connect(layers.air);
+  a.connect(af); af.connect(layers.air); layers.airF=af;
   /* 四．土台 */
   layers.drone=g(p.drone); layers.drone.connect(master);
   [[55,1],[82.5,.42],[110,.46]].forEach(([f,v])=>{[-0.11,0.11].forEach(d=>{
@@ -348,7 +348,7 @@ function build(){
   /* 五．旋律 */
   layers.mel=g(p.mel); layers.mel.connect(master);
   let prev=2;
-  (function step(){
+  melStep=(function step(){
     if(!playing)return;
     const k=active(), S=SCALES[k], pp=T[k];
     prev=Math.max(0,Math.min(S.sc.length-1,prev+[-2,-1,-1,0,1,1,2][Math.floor(Math.random()*7)]));
@@ -364,19 +364,24 @@ function build(){
     gg.gain.setValueAtTime(.9,t0+dur-rel);
     gg.gain.linearRampToValueAtTime(0,t0+dur);
     melTimer=setTimeout(step,dur*1000*(.52+Math.random()*.16));
+    return step;
   })();
 }
 
-/* 時間帯を、切らずに移す */
-function shade(){
+/* 時間帯を移す。時計の自動遷移はゆっくり、手で選んだときはすぐ分かるように */
+function shade(fast){
   if(manual){document.body.className='t-'+active();return;}
   const p=T[active()];
-  if(!playing||!layers.voice)return;
-  const t=ctx.currentTime, D=12;   /* 十二秒かけて、気づかれずに */
+  if(!playing||!layers.voice){document.body.className='t-'+active();return;}
+  const t=ctx.currentTime, D=fast?1.8:12;   /* 自動は十二秒かけて、気づかれずに */
   const set=(n,v)=>{n.gain.cancelScheduledValues(t);n.gain.setValueAtTime(n.gain.value,t);
     n.gain.linearRampToValueAtTime(v,t+D);};
   set(layers.voice,p.voice); set(layers.room,p.room);
   set(layers.air,p.air); set(layers.drone,p.drone); set(layers.mel,p.mel);
+  if(layers.airF){const f=layers.airF.frequency;
+    f.cancelScheduledValues(t);f.setValueAtTime(f.value,t);
+    f.linearRampToValueAtTime(p.hi,t+D);}
+  if(fast&&melStep){clearTimeout(melTimer);melStep();}  /* 新しい時間帯の旋律を、すぐ一音 */
   document.body.className='t-'+active();
 }
 
@@ -428,7 +433,13 @@ function markTime(){
 }
 times.addEventListener('click',e=>{
   const b=e.target.closest('.tb'); if(!b)return;
-  mode=b.dataset.k; markTime(); shade(); save();
+  mode=b.dataset.k;
+  if(manual){ /* 手動ミックス中でも、時間帯を選んだらその時間帯の音にする */
+    manual=false; const p=T[active()];
+    mix={voice:p.voice,room:p.room,air:p.air,drone:p.drone,mel:p.mel};
+    syncMixUI();
+  }
+  markTime(); shade(true); save();
 });
 
 /* おおきさ */
@@ -442,7 +453,6 @@ vol.addEventListener('input',()=>{
 });
 
 /* 組み合わせ：層ごとに、手で */
-letmanual=false, mix={voice:.70,room:.18,air:.05,drone:.12,mel:.26};
 const mixBox=document.getElementById('mixBox'), mixTgl=document.getElementById('mixTgl');
 mixTgl.addEventListener('click',()=>{
   mixBox.hidden=!mixBox.hidden; mixTgl.textContent=mixBox.hidden?'ひらく':'とじる';
@@ -461,7 +471,7 @@ mixBox.addEventListener('input',e=>{
 document.getElementById('mixReset').addEventListener('click',()=>{
   manual=false; const p=T[active()];
   mix={voice:p.voice,room:p.room,air:p.air,drone:p.drone,mel:p.mel};
-  syncMixUI(); shade(); save();
+  syncMixUI(); shade(true); save();
 });
 function syncMixUI(){
   mixBox.querySelectorAll('input').forEach(r=>{
