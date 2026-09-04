@@ -15,6 +15,11 @@ a.big.alt{background:#fff;color:var(--navy);border:2px solid var(--gold)}
 a.big span{display:block;font-weight:500;font-size:11.5px;opacity:.8;margin-top:4px}
 .mini{margin-top:16px;text-align:center}
 .mini button{width:auto;padding:6px 12px;background:transparent;color:#6B7280;font-weight:500;font-size:11.5px;text-decoration:underline}
+a.big.qs{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.hint{margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--paper);border:1px solid var(--line);font-size:12.5px;line-height:1.7}
+.hint b{display:block;margin-bottom:4px;font-size:12.5px}
+.hint ol{margin:0;padding-left:18px}
+.hint li{margin:2px 0}
 [hidden]{display:none!important}
 </style></head><body>
 <main class="card">
@@ -30,6 +35,13 @@ a.big span{display:block;font-weight:500;font-size:11.5px;opacity:.8;margin-top:
     <p>合言葉はこの端末に覚えました。次からはそのまま開けます。</p>
     <a class="big" href="./board.html">営業ボード（全体）<span>チーム全体の数字を見る</span></a>
     <a class="big alt" href="./board_me.html">わたしの数字<span>自分の担当の数字を見る</span></a>
+    <a class="big qs" href="https://ap-northeast-1.quicksight.aws.amazon.com/sn/account/crm-system/dashboards/3febab22-9a15-46e1-9d0e-ea51952d6572" target="_blank" rel="noopener">分析（QuickSight）<span>細かく切って見る。AWSの別ログインが要る</span></a>
+    <section class="hint"><b>分析で見えたこと（9/4）</b>
+      <ol>
+        <li>成約は「選考プロセスが1件でもあるか」でほぼ決まる。0件は成約率1.4%、1件以上は11%超。</li>
+        <li>最大の敗因は「紹介先なし」（36%）。求人はOpenだけで1.4万件ある。県と職種の当て直しで減らせる。</li>
+        <li>「接触済み」522人のうち399人に担当が付いていない。まず担当を付けて、求人提案まで運ぶ。</li>
+      </ol></section>
     <div class="mini"><button type="button" id="forget">この端末の記憶を消す</button></div>
   </div>
 </main>
